@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Menu, X, LogIn, LogOut, UserCog } from 'lucide-react';
+import { Menu, X, LogIn, LogOut, UserCog, Settings } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import invesenseLogo from '@/assets/invesense-logo.png';
@@ -18,14 +18,22 @@ const protectedNavItems = [
   { path: '/chat', label: 'AI Chat' },
 ];
 
+const staffNavItems = [
+  { path: '/staff-portal', label: 'Manage Users' },
+];
+
 export function Header() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, role, signOut, loading } = useAuth();
+  const { user, role, signOut, loading, isStaff } = useAuth();
 
-  const navItems = user && role 
-    ? [...publicNavItems, ...protectedNavItems]
-    : publicNavItems;
+  let navItems = publicNavItems;
+  if (user && role) {
+    navItems = [...publicNavItems, ...protectedNavItems];
+    if (isStaff) {
+      navItems = [...navItems, ...staffNavItems];
+    }
+  }
 
   const handleSignOut = async () => {
     await signOut();

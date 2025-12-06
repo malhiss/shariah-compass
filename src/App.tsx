@@ -15,6 +15,7 @@ import ScreeningRequest from "./pages/ScreeningRequest";
 import AiChat from "./pages/AiChat";
 import ClientLogin from "./pages/ClientLogin";
 import StaffLogin from "./pages/StaffLogin";
+import StaffPortal from "./pages/StaffPortal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,6 +61,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requireRole="any">
                     <AiChat />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/staff-portal" 
+                element={
+                  <ProtectedRoute requireRole="staff">
+                    <StaffPortal />
                   </ProtectedRoute>
                 } 
               />
