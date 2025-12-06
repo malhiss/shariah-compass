@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Shield, Eye, Users, BookOpen, BarChart3, Database, Brain, ArrowRight } from 'lucide-react';
+import { AnimatedSection, StaggerContainer, StaggerItem } from '@/components/AnimatedSection';
+import { motion } from 'framer-motion';
 
 const values = [
   {
@@ -46,129 +48,170 @@ const approach = [
 
 export default function About() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-hidden">
       {/* Hero */}
-      <section className="py-20 md:py-28 hero-gradient relative overflow-hidden">
+      <section className="py-20 md:py-28 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-primary/5" />
+        <motion.div 
+          className="absolute inset-0 opacity-30"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.3 }}
+          transition={{ duration: 1.5 }}
+        >
+          <motion.div 
+            className="absolute top-20 right-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl"
+            animate={{ x: [0, 20, 0], y: [0, -15, 0] }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </motion.div>
+        
         <div className="container relative z-10">
           <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-5xl font-serif font-bold mb-6 animate-slide-in-left">
-              About <span className="text-primary">Invesense</span>
-            </h1>
-            <p className="text-xl text-muted-foreground animate-fade-in">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <p className="text-primary text-sm font-medium tracking-wider uppercase mb-4">About Us</p>
+              <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6">
+                About <span className="text-primary">Invesense</span>
+              </h1>
+            </motion.div>
+            <motion.p 
+              className="text-xl text-muted-foreground"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
               Invesense is a global investment solution provider that aims to achieve higher returns 
               and maintain a long-term disciplined approach to Shariah-compliant investing.
-            </p>
+            </motion.p>
           </div>
         </div>
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
       </section>
 
       {/* Firm Overview */}
-      <section className="py-20 md:py-28 bg-secondary/30">
+      <section className="py-20 md:py-28 bg-card/50">
         <div className="container">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">Firm Overview</h2>
+          <AnimatedSection className="text-center mb-16">
+            <p className="text-primary text-sm font-medium tracking-wider uppercase mb-4">Our Foundation</p>
+            <h2 className="text-3xl md:text-5xl font-serif font-bold mb-4">Firm Overview</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Built on decades of institutional experience and a commitment to Islamic finance principles.
             </p>
-          </div>
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {values.map((value, index) => {
+          </AnimatedSection>
+          
+          <StaggerContainer className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {values.map((value) => {
               const Icon = value.icon;
               return (
-                <Card 
-                  key={value.title} 
-                  className="border border-border/50 hover:border-primary/30 transition-all bg-card"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <CardContent className="p-8">
-                    <div className="w-14 h-14 rounded-lg bg-primary/10 mb-6 flex items-center justify-center">
-                      <Icon className="w-7 h-7 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-serif font-semibold mb-3">{value.title}</h3>
-                    <p className="text-muted-foreground">{value.description}</p>
-                  </CardContent>
-                </Card>
+                <StaggerItem key={value.title}>
+                  <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }}>
+                    <Card className="border border-border hover:border-primary/30 transition-all bg-card h-full">
+                      <CardContent className="p-8">
+                        <div className="w-14 h-14 rounded-xl bg-primary/10 mb-6 flex items-center justify-center">
+                          <Icon className="w-7 h-7 text-primary" />
+                        </div>
+                        <h3 className="text-xl font-serif font-semibold mb-3">{value.title}</h3>
+                        <p className="text-muted-foreground">{value.description}</p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                </StaggerItem>
               );
             })}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 
       {/* Investing Approach */}
       <section className="py-20 md:py-28">
         <div className="container">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">Screening Approach</h2>
+          <AnimatedSection className="text-center mb-16">
+            <p className="text-primary text-sm font-medium tracking-wider uppercase mb-4">How We Work</p>
+            <h2 className="text-3xl md:text-5xl font-serif font-bold mb-4">Screening Approach</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Our systematic approach combines traditional Islamic finance principles with modern technology.
             </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {approach.map((item, index) => {
+          </AnimatedSection>
+          
+          <StaggerContainer className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {approach.map((item) => {
               const Icon = item.icon;
               return (
-                <div 
-                  key={item.title} 
-                  className="text-center p-8"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <div className="w-20 h-20 rounded-full bg-primary/10 mx-auto mb-6 flex items-center justify-center">
-                    <Icon className="w-10 h-10 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-serif font-semibold mb-3">{item.title}</h3>
-                  <p className="text-muted-foreground">{item.description}</p>
-                </div>
+                <StaggerItem key={item.title}>
+                  <motion.div 
+                    className="text-center p-8"
+                    whileHover={{ y: -5 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="w-20 h-20 rounded-2xl bg-primary/10 mx-auto mb-6 flex items-center justify-center">
+                      <Icon className="w-10 h-10 text-primary" />
+                    </div>
+                    <h3 className="text-xl font-serif font-semibold mb-3">{item.title}</h3>
+                    <p className="text-muted-foreground">{item.description}</p>
+                  </motion.div>
+                </StaggerItem>
               );
             })}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 
       {/* Shariah Screening Platform */}
-      <section className="py-20 md:py-28 bg-secondary/30">
+      <section className="py-20 md:py-28 bg-card/50">
         <div className="container">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">Shariah Screening Platform</h2>
+            <AnimatedSection className="text-center mb-12">
+              <p className="text-primary text-sm font-medium tracking-wider uppercase mb-4">Our Platform</p>
+              <h2 className="text-3xl md:text-5xl font-serif font-bold mb-4">Shariah Screening Platform</h2>
               <p className="text-muted-foreground">
                 Our platform provides comprehensive Shariah compliance screening for equities worldwide.
               </p>
-            </div>
+            </AnimatedSection>
 
-            <div className="grid md:grid-cols-3 gap-6 mb-12">
-              <Card className="border border-compliant/30 bg-compliant/5">
-                <CardContent className="p-6 text-center">
-                  <div className="text-4xl font-bold text-compliant mb-2">3</div>
-                  <p className="text-sm text-muted-foreground">Independent Methodologies</p>
-                </CardContent>
-              </Card>
-              <Card className="border border-primary/30 bg-primary/5">
-                <CardContent className="p-6 text-center">
-                  <div className="text-4xl font-bold text-primary mb-2">AI</div>
-                  <p className="text-sm text-muted-foreground">Powered Explanations</p>
-                </CardContent>
-              </Card>
-              <Card className="border border-compliant-purification/30 bg-compliant-purification/5">
-                <CardContent className="p-6 text-center">
-                  <div className="text-4xl font-bold text-compliant-purification mb-2">%</div>
-                  <p className="text-sm text-muted-foreground">Purification Calculations</p>
-                </CardContent>
-              </Card>
-            </div>
+            <StaggerContainer className="grid md:grid-cols-3 gap-6 mb-12">
+              <StaggerItem>
+                <motion.div whileHover={{ scale: 1.02 }} transition={{ duration: 0.2 }}>
+                  <Card className="border border-compliant/30 bg-compliant/5">
+                    <CardContent className="p-6 text-center">
+                      <div className="text-4xl font-bold text-compliant mb-2">3</div>
+                      <p className="text-sm text-muted-foreground">Independent Methodologies</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </StaggerItem>
+              <StaggerItem>
+                <motion.div whileHover={{ scale: 1.02 }} transition={{ duration: 0.2 }}>
+                  <Card className="border border-primary/30 bg-primary/5">
+                    <CardContent className="p-6 text-center">
+                      <div className="text-4xl font-bold text-primary mb-2">AI</div>
+                      <p className="text-sm text-muted-foreground">Powered Explanations</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </StaggerItem>
+              <StaggerItem>
+                <motion.div whileHover={{ scale: 1.02 }} transition={{ duration: 0.2 }}>
+                  <Card className="border border-warning/30 bg-warning/5">
+                    <CardContent className="p-6 text-center">
+                      <div className="text-4xl font-bold text-warning mb-2">%</div>
+                      <p className="text-sm text-muted-foreground">Purification Calculations</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </StaggerItem>
+            </StaggerContainer>
 
-            <div className="text-center">
-              <Button 
-                size="lg" 
-                className="btn-invesense text-primary-foreground"
-                asChild
-              >
+            <AnimatedSection delay={0.4} className="text-center">
+              <Button size="lg" className="btn-invesense group" asChild>
                 <Link to="/screen">
                   Start Screening
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
-            </div>
+            </AnimatedSection>
           </div>
         </div>
       </section>
