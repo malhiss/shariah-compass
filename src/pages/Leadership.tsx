@@ -6,31 +6,37 @@ const teamMembers = [
     name: 'Faisal Al Osaimi',
     role: 'CEO',
     image: 'https://invesense.com/_next/image?url=%2Fassets%2Fimages%2FMr._Faisal_image.jpg&w=1080&q=75',
+    imagePosition: 'object-center',
   },
   {
     name: 'Nawaf Al Mansour',
     role: 'CIO',
     image: 'https://invesense.com/_next/image?url=%2Fassets%2Fimages%2FIMG_2665.jpg&w=1080&q=75',
+    imagePosition: 'object-[center_30%]',
   },
   {
     name: 'Mathews B Abraham',
     role: 'Chief - Finance & Operations',
     image: 'https://invesense.com/_next/image?url=%2Fassets%2Fimages%2FThis_One.jpg&w=1080&q=75',
+    imagePosition: 'object-center',
   },
   {
     name: 'Ahmed Ali',
     role: 'Portfolio Manager',
     image: 'https://invesense.com/_next/image?url=%2Fassets%2Fimages%2FAhmed_Profile_Pic.jpg&w=1080&q=75',
+    imagePosition: 'object-center',
   },
   {
     name: 'Ibrahim Al Shaibani',
     role: 'Portfolio Manager',
     image: 'https://invesense.com/_next/image?url=%2Fassets%2Fimages%2FIMG_2678a.jpg&w=1080&q=75',
+    imagePosition: 'object-center',
   },
   {
     name: 'Tahira Muktar',
     role: 'Head of Sales',
     image: 'https://invesense.com/_next/image?url=%2Fassets%2Fimages%2FIMG_2760a_2.jpg&w=1080&q=75',
+    imagePosition: 'object-center',
   },
 ];
 
@@ -79,7 +85,7 @@ export default function Leadership() {
                   <img
                     src={member.image}
                     alt={member.name}
-                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                    className={`w-full h-full object-cover ${member.imagePosition} transition-transform duration-700 group-hover:scale-105`}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6">
