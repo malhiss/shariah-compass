@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Header } from './Header';
 import { PageTransition } from './PageTransition';
+import { ScrollToTop } from './ScrollToTop';
 import { AnimatePresence } from 'framer-motion';
 import invesenseLogo from '@/assets/invesense-logo.png';
 
@@ -22,6 +23,7 @@ export function Layout() {
   
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <ScrollToTop />
       <Header />
       <main className="flex-1">
         <AnimatePresence mode="wait">
