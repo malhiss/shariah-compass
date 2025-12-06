@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Shield, Eye, Users, BookOpen, BarChart3, Database, Brain, ArrowRight, Globe, Target, DollarSign } from 'lucide-react';
+import { Shield, Eye, Users, BookOpen, BarChart3, Database, Brain, ArrowRight, Globe, Target, DollarSign, Droplets } from 'lucide-react';
 import { AnimatedSection, StaggerContainer, StaggerItem } from '@/components/AnimatedSection';
 import { motion } from 'framer-motion';
 
@@ -28,7 +28,25 @@ const values = [
   },
 ];
 
-const approach = [
+const screeningApproach = [
+  {
+    icon: Database,
+    title: 'Data-Oriented',
+    description: 'Our screening process relies on comprehensive financial data from authoritative sources to ensure accurate compliance assessments.',
+  },
+  {
+    icon: Brain,
+    title: 'AI-Enhanced',
+    description: 'We leverage advanced AI models to analyze company activities and estimate haram revenue exposure with greater precision.',
+  },
+  {
+    icon: BarChart3,
+    title: 'Multi-Methodology',
+    description: 'Three independent screening methodologies provide a comprehensive view of Shariah compliance status for every security.',
+  },
+];
+
+const investingApproach = [
   {
     icon: Database,
     title: 'Data-Oriented',
@@ -40,7 +58,7 @@ const approach = [
     description: 'Investment strategies designed to leverage the power of compounding for cumulative gains that out-perform our peers.',
   },
   {
-    icon: Brain,
+    icon: Droplets,
     title: 'Liquid',
     description: 'Portfolio liquidity is a core principle.',
   },
@@ -140,24 +158,58 @@ export default function About() {
         </div>
       </section>
 
-      {/* Investing Approach */}
+      {/* Screening Approach */}
       <section className="py-20 md:py-28 snap-start snap-always min-h-screen flex items-center">
         <div className="container">
           <AnimatedSection className="text-center mb-16">
-            <p className="text-primary text-sm font-medium tracking-wider uppercase mb-4">How We Work</p>
+            <p className="text-primary text-sm font-medium tracking-wider uppercase mb-4">How We Screen</p>
             <h2 className="text-3xl md:text-5xl font-serif font-bold mb-4">Screening Approach</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Our systematic approach combines traditional Islamic finance principles with modern technology.
             </p>
           </AnimatedSection>
           
-          <StaggerContainer className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {approach.map((item) => {
+          <StaggerContainer className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {screeningApproach.map((item) => {
               const Icon = item.icon;
               return (
                 <StaggerItem key={item.title}>
                   <motion.div 
                     className="text-center p-8"
+                    whileHover={{ y: -5 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="w-20 h-20 rounded-2xl bg-primary/10 mx-auto mb-6 flex items-center justify-center">
+                      <Icon className="w-10 h-10 text-primary" />
+                    </div>
+                    <h3 className="text-xl font-serif font-semibold mb-3">{item.title}</h3>
+                    <p className="text-muted-foreground">{item.description}</p>
+                  </motion.div>
+                </StaggerItem>
+              );
+            })}
+          </StaggerContainer>
+        </div>
+      </section>
+
+      {/* Investing Approach */}
+      <section className="py-20 md:py-28 bg-card/50 snap-start snap-always min-h-screen flex items-center">
+        <div className="container">
+          <AnimatedSection className="text-center mb-16">
+            <p className="text-primary text-sm font-medium tracking-wider uppercase mb-4">How We Invest</p>
+            <h2 className="text-3xl md:text-5xl font-serif font-bold mb-4">Investing Approach</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Our investment philosophy is built on proven principles and disciplined execution.
+            </p>
+          </AnimatedSection>
+          
+          <StaggerContainer className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {investingApproach.map((item) => {
+              const Icon = item.icon;
+              return (
+                <StaggerItem key={item.title}>
+                  <motion.div 
+                    className="text-center p-8 rounded-2xl border border-border bg-background hover:border-primary/30 transition-all"
                     whileHover={{ y: -5 }}
                     transition={{ duration: 0.2 }}
                   >
