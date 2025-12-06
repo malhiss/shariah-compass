@@ -162,8 +162,8 @@ export default function ClientDashboard() {
   )];
 
   return (
-    <div className="py-8 md:py-12 snap-start">
-      <div className="container max-w-7xl">
+    <div className="min-h-screen snap-start snap-always">
+      <div className="container max-w-7xl py-8 md:py-12">
         {/* Header */}
         <AnimatedSection className="mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -197,55 +197,47 @@ export default function ClientDashboard() {
         <AnimatedSection delay={0.1} className="mb-8">
           <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StaggerItem>
-              <Card className="border-border hover:border-primary/30 transition-colors">
-                <CardContent className="p-5 flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <TrendingUp className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{stats.totalScreenings}</p>
-                    <p className="text-sm text-muted-foreground">Total Screenings</p>
-                  </div>
-                </CardContent>
+              <Card className="stat-card">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <TrendingUp className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{stats.totalScreenings}</p>
+                  <p className="text-sm text-muted-foreground">Total Screenings</p>
+                </div>
               </Card>
             </StaggerItem>
             <StaggerItem>
-              <Card className="border-border hover:border-compliant/30 transition-colors">
-                <CardContent className="p-5 flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-compliant/10 flex items-center justify-center">
-                    <SearchIcon className="w-6 h-6 text-compliant" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{stats.tickerScreenings}</p>
-                    <p className="text-sm text-muted-foreground">Ticker Screenings</p>
-                  </div>
-                </CardContent>
+              <Card className="stat-card hover:border-compliant/30">
+                <div className="w-12 h-12 rounded-xl bg-compliant/10 flex items-center justify-center shrink-0">
+                  <SearchIcon className="w-6 h-6 text-compliant" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{stats.tickerScreenings}</p>
+                  <p className="text-sm text-muted-foreground">Ticker Screenings</p>
+                </div>
               </Card>
             </StaggerItem>
             <StaggerItem>
-              <Card className="border-border hover:border-warning/30 transition-colors">
-                <CardContent className="p-5 flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center">
-                    <PieChart className="w-6 h-6 text-warning" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{stats.portfolioScreenings}</p>
-                    <p className="text-sm text-muted-foreground">Portfolio Screenings</p>
-                  </div>
-                </CardContent>
+              <Card className="stat-card hover:border-warning/30">
+                <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center shrink-0">
+                  <PieChart className="w-6 h-6 text-warning" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{stats.portfolioScreenings}</p>
+                  <p className="text-sm text-muted-foreground">Portfolio Screenings</p>
+                </div>
               </Card>
             </StaggerItem>
             <StaggerItem>
-              <Card className="border-border hover:border-muted-foreground/30 transition-colors">
-                <CardContent className="p-5 flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
-                    <MessageSquare className="w-6 h-6 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{stats.aiChats}</p>
-                    <p className="text-sm text-muted-foreground">AI Chats</p>
-                  </div>
-                </CardContent>
+              <Card className="stat-card hover:border-muted-foreground/30">
+                <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                  <MessageSquare className="w-6 h-6 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{stats.aiChats}</p>
+                  <p className="text-sm text-muted-foreground">AI Chats</p>
+                </div>
               </Card>
             </StaggerItem>
           </StaggerContainer>
@@ -266,7 +258,7 @@ export default function ClientDashboard() {
 
           <TabsContent value="history">
             <AnimatedSection delay={0.2}>
-              <Card className="border-border">
+              <Card className="premium-card">
                 <CardHeader className="border-b border-border">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>

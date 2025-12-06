@@ -114,7 +114,7 @@ export default function AiChat() {
           <div className="max-w-3xl mx-auto">
             {/* Ticker Selection */}
             {!ticker ? (
-              <Card className="border-border bg-card animate-fade-in">
+              <Card className="premium-card animate-fade-in">
                 <CardHeader>
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -152,7 +152,7 @@ export default function AiChat() {
               <div className="space-y-4 animate-fade-in">
                 {/* Ticker Info Banner */}
                 {tickerInfo && (
-                  <Card className="border-primary/20 bg-card">
+                  <Card className="premium-card border-primary/20">
                     <CardContent className="pt-6">
                       <div className="flex items-start justify-between gap-4 flex-wrap">
                         <div className="flex items-center gap-4">
@@ -213,7 +213,7 @@ export default function AiChat() {
                 )}
 
                 {/* Chat Area */}
-                <Card className="min-h-[500px] flex flex-col border-border bg-card">
+                <Card className="premium-card min-h-[500px] flex flex-col">
                   <CardHeader className="border-b border-border">
                     <CardTitle className="flex items-center gap-2 text-lg font-serif">
                       <Sparkles className="w-5 h-5 text-primary" />

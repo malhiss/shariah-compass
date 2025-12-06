@@ -268,7 +268,7 @@ export default function Landing() {
               return (
                 <StaggerItem key={method.name} className="h-full">
                   <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }} className="h-full">
-                    <Card className="group relative overflow-hidden border-border bg-card hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 h-full flex flex-col">
+                    <Card className="premium-card group relative overflow-hidden h-full flex flex-col min-h-[280px]">
                       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/0 via-primary to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity" />
                       <CardHeader className="pb-4">
                         <div className="w-14 h-14 rounded-xl bg-primary/10 mb-6 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -325,8 +325,8 @@ export default function Landing() {
                     return (
                       <div key={feature.path} className="flex-[0_0_100%] min-w-0 sm:flex-[0_0_50%] lg:flex-[0_0_25%] px-4">
                         <Link to={feature.path} className="group block h-full">
-                          <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }}>
-                            <Card className="h-full border-border bg-background hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
+                          <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }} className="h-full">
+                            <Card className="premium-card h-full min-h-[220px]">
                               <CardHeader>
                                 <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
                                   <Icon className="w-7 h-7 text-primary group-hover:text-primary-foreground transition-colors" />

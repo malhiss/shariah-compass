@@ -109,7 +109,7 @@ export default function Leadership() {
             {teamMembers.map((member) => (
               <StaggerItem key={member.name}>
                 <motion.div whileHover={{ y: -10 }} transition={{ duration: 0.3 }}>
-                  <Card className="group overflow-hidden border-border bg-card hover:border-primary/50 transition-all duration-500 hover:shadow-xl hover:shadow-primary/5">
+                  <Card className="premium-card group overflow-hidden">
                     <div className="relative aspect-square overflow-hidden">
                       <img
                         src={member.image}
@@ -153,7 +153,7 @@ export default function Leadership() {
             <StaggerContainer className="grid md:grid-cols-3 gap-8">
               <StaggerItem>
                 <motion.div 
-                  className="p-6 rounded-2xl border border-border bg-background text-center"
+                  className="premium-card p-6 rounded-xl text-center min-h-[160px] flex flex-col justify-center"
                   whileHover={{ scale: 1.02 }}
                   transition={{ duration: 0.2 }}
                 >
@@ -167,7 +167,7 @@ export default function Leadership() {
               
               <StaggerItem>
                 <motion.div 
-                  className="p-6 rounded-2xl border border-border bg-background text-center"
+                  className="premium-card p-6 rounded-xl text-center min-h-[160px] flex flex-col justify-center"
                   whileHover={{ scale: 1.02 }}
                   transition={{ duration: 0.2 }}
                 >
@@ -181,7 +181,7 @@ export default function Leadership() {
               
               <StaggerItem>
                 <motion.div 
-                  className="p-6 rounded-2xl border border-border bg-background text-center"
+                  className="premium-card p-6 rounded-xl text-center min-h-[160px] flex flex-col justify-center"
                   whileHover={{ scale: 1.02 }}
                   transition={{ duration: 0.2 }}
                 >
