@@ -44,9 +44,9 @@ const teamMembers = [
 
 export default function Leadership() {
   return (
-    <div className="min-h-screen overflow-hidden">
+    <div className="min-h-screen overflow-hidden snap-y snap-mandatory h-screen overflow-y-auto scroll-smooth">
       {/* Hero Section */}
-      <section className="relative py-24 md:py-32 overflow-hidden">
+      <section className="relative py-24 md:py-32 overflow-hidden snap-start snap-always min-h-screen flex items-center">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
         <motion.div 
           className="absolute inset-0 opacity-30"
@@ -103,7 +103,7 @@ export default function Leadership() {
       </section>
 
       {/* Team Grid */}
-      <section className="py-20 md:py-28">
+      <section className="py-20 md:py-28 snap-start snap-always min-h-screen flex items-center">
         <div className="container">
           <StaggerContainer className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {teamMembers.map((member) => (
@@ -135,7 +135,7 @@ export default function Leadership() {
       </section>
 
       {/* Values Section */}
-      <section className="py-20 md:py-28 bg-card/50">
+      <section className="py-20 md:py-28 bg-card/50 snap-start snap-always min-h-screen flex items-center">
         <div className="container">
           <div className="max-w-4xl mx-auto">
             <AnimatedSection className="text-center mb-12">

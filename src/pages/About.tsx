@@ -48,9 +48,9 @@ const approach = [
 
 export default function About() {
   return (
-    <div className="min-h-screen overflow-hidden">
+    <div className="min-h-screen overflow-hidden snap-y snap-mandatory h-screen overflow-y-auto scroll-smooth">
       {/* Hero */}
-      <section className="py-20 md:py-28 relative overflow-hidden">
+      <section className="py-20 md:py-28 relative overflow-hidden snap-start snap-always min-h-screen flex items-center">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-primary/5" />
         <motion.div 
           className="absolute inset-0 opacity-30"
@@ -92,7 +92,7 @@ export default function About() {
       </section>
 
       {/* Firm Overview */}
-      <section className="py-20 md:py-28 bg-card/50">
+      <section className="py-20 md:py-28 bg-card/50 snap-start snap-always min-h-screen flex items-center">
         <div className="container">
           <AnimatedSection className="text-center mb-16">
             <p className="text-primary text-sm font-medium tracking-wider uppercase mb-4">Our Foundation</p>
@@ -126,7 +126,7 @@ export default function About() {
       </section>
 
       {/* Investing Approach */}
-      <section className="py-20 md:py-28">
+      <section className="py-20 md:py-28 snap-start snap-always min-h-screen flex items-center">
         <div className="container">
           <AnimatedSection className="text-center mb-16">
             <p className="text-primary text-sm font-medium tracking-wider uppercase mb-4">How We Work</p>
@@ -160,7 +160,7 @@ export default function About() {
       </section>
 
       {/* Shariah Screening Platform */}
-      <section className="py-20 md:py-28 bg-card/50">
+      <section className="py-20 md:py-28 bg-card/50 snap-start snap-always min-h-screen flex items-center">
         <div className="container">
           <div className="max-w-4xl mx-auto">
             <AnimatedSection className="text-center mb-12">
