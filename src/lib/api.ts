@@ -1,3 +1,4 @@
+import { supabase } from '@/integrations/supabase/client';
 import type {
   TickerScreeningResponse,
   PortfolioScreeningResponse,
@@ -8,32 +9,19 @@ import type {
   AiChatResponse,
 } from '@/types/screening';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
 async function callEdgeFunction<T>(
   functionName: string,
   body: Record<string, unknown>
 ): Promise<T> {
-  if (!SUPABASE_URL) {
-    throw new Error('Supabase URL not configured');
-  }
-
-  const response = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(SUPABASE_ANON_KEY && { Authorization: `Bearer ${SUPABASE_ANON_KEY}` }),
-    },
-    body: JSON.stringify(body),
+  const { data, error } = await supabase.functions.invoke(functionName, {
+    body,
   });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`API Error: ${response.status} - ${errorText}`);
+  if (error) {
+    throw new Error(`API Error: ${error.message}`);
   }
 
-  return response.json();
+  return data as T;
 }
 
 export async function screenTicker(ticker: string): Promise<TickerScreeningResponse> {
