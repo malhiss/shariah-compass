@@ -266,9 +266,9 @@ export default function Landing() {
             {methodologies.map((method) => {
               const Icon = method.icon;
               return (
-                <StaggerItem key={method.name}>
-                  <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }}>
-                    <Card className="group relative overflow-hidden border-border bg-card hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 h-full">
+                <StaggerItem key={method.name} className="h-full">
+                  <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }} className="h-full">
+                    <Card className="group relative overflow-hidden border-border bg-card hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 h-full flex flex-col">
                       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/0 via-primary to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity" />
                       <CardHeader className="pb-4">
                         <div className="w-14 h-14 rounded-xl bg-primary/10 mb-6 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -276,7 +276,7 @@ export default function Landing() {
                         </div>
                         <CardTitle className="font-serif text-xl">{method.name}</CardTitle>
                       </CardHeader>
-                      <CardContent>
+                      <CardContent className="flex-1">
                         <p className="text-muted-foreground leading-relaxed">{method.description}</p>
                       </CardContent>
                     </Card>
