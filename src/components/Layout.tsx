@@ -1,5 +1,7 @@
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Header } from './Header';
+import { PageTransition } from './PageTransition';
+import { AnimatePresence } from 'framer-motion';
 import invesenseLogo from '@/assets/invesense-logo.png';
 
 const footerLinks = {
@@ -16,11 +18,17 @@ const footerLinks = {
 };
 
 export function Layout() {
+  const location = useLocation();
+  
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1">
-        <Outlet />
+        <AnimatePresence mode="wait">
+          <PageTransition key={location.pathname}>
+            <Outlet />
+          </PageTransition>
+        </AnimatePresence>
       </main>
       
       {/* Footer */}
