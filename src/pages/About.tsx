@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Shield, Eye, Users, BookOpen, BarChart3, Database, Brain, ArrowRight } from 'lucide-react';
+import { Shield, Eye, Users, BookOpen, BarChart3, Database, Brain, ArrowRight, Globe, Target, DollarSign } from 'lucide-react';
 import { AnimatedSection, StaggerContainer, StaggerItem } from '@/components/AnimatedSection';
 import { motion } from 'framer-motion';
 
@@ -32,17 +32,32 @@ const approach = [
   {
     icon: Database,
     title: 'Data-Oriented',
-    description: 'Our screening process relies on comprehensive financial data from authoritative sources to ensure accurate compliance assessments.',
-  },
-  {
-    icon: Brain,
-    title: 'AI-Enhanced',
-    description: 'We leverage advanced AI models to analyze company activities and estimate haram revenue exposure with greater precision.',
+    description: 'Investment models built from academic research and industry experience.',
   },
   {
     icon: BarChart3,
-    title: 'Multi-Methodology',
-    description: 'Three independent screening methodologies provide a comprehensive view of Shariah compliance status for every security.',
+    title: 'Long-Term Driven',
+    description: 'Investment strategies designed to leverage the power of compounding for cumulative gains that out-perform our peers.',
+  },
+  {
+    icon: Brain,
+    title: 'Liquid',
+    description: 'Portfolio liquidity is a core principle.',
+  },
+  {
+    icon: Globe,
+    title: 'Global',
+    description: 'All investment strategies are globally oriented strategies.',
+  },
+  {
+    icon: Target,
+    title: 'Portfolio Design',
+    description: 'Portfolios are designed in a systematic, diversified approach that provides a consistent focus on higher returns.',
+  },
+  {
+    icon: DollarSign,
+    title: 'Cost Conscious',
+    description: 'Cost conscious management fees for a higher return net of benchmark and fees.',
   },
 ];
 
@@ -136,7 +151,7 @@ export default function About() {
             </p>
           </AnimatedSection>
           
-          <StaggerContainer className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <StaggerContainer className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {approach.map((item) => {
               const Icon = item.icon;
               return (
