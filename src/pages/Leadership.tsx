@@ -44,7 +44,7 @@ const teamMembers = [
 
 export default function Leadership() {
   return (
-    <div className="min-h-screen overflow-hidden snap-y snap-mandatory h-screen overflow-y-auto scroll-smooth">
+    <div>
       {/* Hero Section */}
       <section className="relative py-24 md:py-32 overflow-hidden snap-start snap-always min-h-screen flex items-center">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />

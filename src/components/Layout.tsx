@@ -22,19 +22,18 @@ export function Layout() {
   const location = useLocation();
   
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
       <ScrollToTop />
       <Header />
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 overflow-y-auto snap-y snap-mandatory scroll-smooth">
         <AnimatePresence mode="wait" initial={false}>
           <PageTransition key={location.pathname}>
             <Outlet />
           </PageTransition>
         </AnimatePresence>
-      </main>
       
-      {/* Footer */}
-      <footer className="border-t border-border bg-card/50 mt-auto">
+        {/* Footer */}
+        <footer className="border-t border-border bg-card/50 snap-start">
         <div className="container py-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             {/* Brand */}
@@ -95,7 +94,8 @@ export function Layout() {
             </div>
           </div>
         </div>
-      </footer>
+        </footer>
+      </main>
     </div>
   );
 }

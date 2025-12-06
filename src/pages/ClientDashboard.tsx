@@ -162,7 +162,7 @@ export default function ClientDashboard() {
   )];
 
   return (
-    <div className="min-h-screen py-8 md:py-12">
+    <div className="py-8 md:py-12 snap-start">
       <div className="container max-w-7xl">
         {/* Header */}
         <AnimatedSection className="mb-8">

@@ -139,9 +139,9 @@ export default function PortfolioScreening() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div>
       {/* Hero Section */}
-      <section className="relative py-16 md:py-24 overflow-hidden">
+      <section className="relative py-16 md:py-24 overflow-hidden snap-start snap-always">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-10 right-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl" />
@@ -168,7 +168,7 @@ export default function PortfolioScreening() {
       </section>
 
       {/* Main Content */}
-      <section className="py-12 md:py-16">
+      <section className="py-12 md:py-16 snap-start">
         <div className="container">
           <div className="max-w-6xl mx-auto space-y-8">
             {/* Input Section */}

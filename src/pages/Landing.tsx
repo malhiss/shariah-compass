@@ -97,9 +97,9 @@ export default function Landing() {
   }, [featuresApi, onFeaturesSelect]);
 
   return (
-    <div className="min-h-screen">
+    <div>
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center overflow-hidden snap-start snap-always">
         {/* Animated background */}
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
         <motion.div 
@@ -187,7 +187,7 @@ export default function Landing() {
       </section>
 
       {/* What is Shariah Screening */}
-      <section className="py-20 md:py-28 bg-card/50">
+      <section className="py-20 md:py-28 bg-card/50 min-h-screen flex items-center snap-start snap-always">
         <div className="container">
           <AnimatedSection className="max-w-3xl mx-auto text-center mb-16">
             <p className="text-primary text-sm font-medium tracking-wider uppercase mb-4">Understanding Compliance</p>
@@ -250,7 +250,7 @@ export default function Landing() {
       </section>
 
       {/* Methodologies */}
-      <section className="py-20 md:py-28">
+      <section className="py-20 md:py-28 min-h-screen flex items-center snap-start snap-always">
         <div className="container">
           <AnimatedSection className="text-center mb-16">
             <p className="text-primary text-sm font-medium tracking-wider uppercase mb-4">Our Approach</p>
@@ -289,7 +289,7 @@ export default function Landing() {
       </section>
 
       {/* Features Grid - Auto-scrolling Carousel */}
-      <section className="py-20 md:py-28 bg-card/50">
+      <section className="py-20 md:py-28 bg-card/50 min-h-screen flex items-center snap-start snap-always">
         <div className="container">
           <AnimatedSection className="text-center mb-16">
             <p className="text-primary text-sm font-medium tracking-wider uppercase mb-4">Platform Features</p>
@@ -365,7 +365,7 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 md:py-28 relative overflow-hidden">
+      <section className="py-20 md:py-28 relative overflow-hidden min-h-screen flex items-center snap-start snap-always">
         <div className="absolute inset-0 bg-gradient-to-b from-background to-primary/5" />
         <motion.div 
           className="absolute inset-0 opacity-20"
