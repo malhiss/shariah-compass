@@ -125,36 +125,77 @@ export default function About() {
       </section>
 
       {/* Firm Overview */}
-      <section className="py-20 md:py-28 bg-card/50 snap-start snap-always min-h-screen flex items-center">
-        <div className="container">
+      <section className="py-20 md:py-28 bg-card/50 snap-start snap-always min-h-screen flex items-center relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-1/4 -left-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        </div>
+        
+        <div className="container relative z-10">
           <AnimatedSection className="text-center mb-16">
             <p className="text-primary text-sm font-medium tracking-wider uppercase mb-4">Our Foundation</p>
             <h2 className="text-3xl md:text-5xl font-serif font-bold mb-4">Firm Overview</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               Built on decades of institutional experience and a commitment to Islamic finance principles.
             </p>
           </AnimatedSection>
           
-          <StaggerContainer className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {values.map((value) => {
-              const Icon = value.icon;
-              return (
-                <StaggerItem key={value.title}>
-                  <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }}>
-                    <Card className="border border-border hover:border-primary/30 transition-all bg-card h-full">
-                      <CardContent className="p-8">
-                        <div className="w-14 h-14 rounded-xl bg-primary/10 mb-6 flex items-center justify-center">
-                          <Icon className="w-7 h-7 text-primary" />
+          <div className="max-w-6xl mx-auto">
+            {/* Featured Card */}
+            <AnimatedSection delay={0.1} className="mb-8">
+              <motion.div whileHover={{ y: -3 }} transition={{ duration: 0.2 }}>
+                <Card className="border border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10 overflow-hidden">
+                  <CardContent className="p-8 md:p-10">
+                    <div className="flex flex-col md:flex-row items-start gap-6">
+                      <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center shrink-0">
+                        <Shield className="w-8 h-8 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-2xl font-serif font-bold mb-3 text-foreground">Regulated by the DFSA</h3>
+                        <p className="text-muted-foreground text-lg leading-relaxed">
+                          Invesense Asset Management Limited is a DIFC registered Company and an Authorized Firm regulated by the Dubai Financial Services Authority (DFSA) under a Category 3C license, with reference number F002331.
+                        </p>
+                        <div className="mt-6 flex flex-wrap gap-4">
+                          <div className="px-4 py-2 rounded-full bg-background/50 border border-border text-sm font-medium">
+                            DIFC Registered
+                          </div>
+                          <div className="px-4 py-2 rounded-full bg-background/50 border border-border text-sm font-medium">
+                            Category 3C License
+                          </div>
+                          <div className="px-4 py-2 rounded-full bg-background/50 border border-border text-sm font-medium">
+                            Ref: F002331
+                          </div>
                         </div>
-                        <h3 className="text-xl font-serif font-semibold mb-3">{value.title}</h3>
-                        <p className="text-muted-foreground">{value.description}</p>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                </StaggerItem>
-              );
-            })}
-          </StaggerContainer>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </AnimatedSection>
+            
+            {/* Other Values Grid */}
+            <StaggerContainer className="grid md:grid-cols-3 gap-6">
+              {values.slice(1).map((value) => {
+                const Icon = value.icon;
+                return (
+                  <StaggerItem key={value.title} className="h-full">
+                    <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }} className="h-full">
+                      <Card className="border border-border hover:border-primary/30 transition-all bg-background h-full group">
+                        <CardContent className="p-6 flex flex-col h-full">
+                          <div className="w-12 h-12 rounded-xl bg-primary/10 mb-5 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                            <Icon className="w-6 h-6 text-primary" />
+                          </div>
+                          <h3 className="text-lg font-serif font-semibold mb-2">{value.title}</h3>
+                          <p className="text-muted-foreground text-sm leading-relaxed flex-1">{value.description}</p>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </StaggerItem>
+                );
+              })}
+            </StaggerContainer>
+          </div>
         </div>
       </section>
 
