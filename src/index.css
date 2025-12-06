@@ -2,253 +2,85 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Shariah Screening Design System
-   Color Palette: Islamic-inspired deep teals, gold accents, clean whites
-   Typography: Modern, professional with Arabic-inspired elegance
-*/
-
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Spectral:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    /* Core palette - Deep teal and gold Islamic-inspired theme */
-    --background: 180 20% 99%;
-    --foreground: 180 30% 10%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 180 30% 10%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 180 30% 10%;
-
-    /* Primary: Deep teal - trust, Islamic heritage */
-    --primary: 175 45% 25%;
-    --primary-foreground: 0 0% 100%;
-
-    /* Secondary: Warm sand/cream */
-    --secondary: 45 30% 95%;
-    --secondary-foreground: 180 30% 15%;
-
-    /* Muted: Light teal gray */
-    --muted: 180 15% 94%;
-    --muted-foreground: 180 15% 45%;
-
-    /* Accent: Gold for highlights */
-    --accent: 45 80% 55%;
-    --accent-foreground: 180 30% 10%;
-
-    /* Status colors */
-    --success: 155 60% 40%;
+    --background: 210 25% 11%;
+    --foreground: 210 10% 95%;
+    --card: 210 25% 13%;
+    --card-foreground: 210 10% 95%;
+    --popover: 210 25% 13%;
+    --popover-foreground: 210 10% 95%;
+    --primary: 190 80% 50%;
+    --primary-foreground: 210 25% 10%;
+    --secondary: 210 20% 18%;
+    --secondary-foreground: 210 10% 90%;
+    --muted: 210 20% 16%;
+    --muted-foreground: 210 10% 60%;
+    --accent: 190 85% 55%;
+    --accent-foreground: 210 25% 10%;
+    --success: 160 60% 45%;
     --success-foreground: 0 0% 100%;
-    
     --warning: 45 90% 50%;
-    --warning-foreground: 180 30% 10%;
-    
+    --warning-foreground: 210 25% 10%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
-    
-    --caution: 35 90% 55%;
-    --caution-foreground: 180 30% 10%;
-
-    /* Compliance status specific */
-    --compliant: 155 60% 40%;
+    --compliant: 160 60% 45%;
     --compliant-foreground: 0 0% 100%;
-    
     --compliant-purification: 45 90% 50%;
-    --compliant-purification-foreground: 180 30% 10%;
-    
+    --compliant-purification-foreground: 210 25% 10%;
     --non-compliant: 0 70% 50%;
     --non-compliant-foreground: 0 0% 100%;
-    
-    --doubtful: 220 15% 55%;
+    --doubtful: 210 15% 45%;
     --doubtful-foreground: 0 0% 100%;
-    
-    --no-data: 180 5% 70%;
-    --no-data-foreground: 180 30% 20%;
-
-    --border: 180 20% 88%;
-    --input: 180 20% 88%;
-    --ring: 175 45% 35%;
-
-    --radius: 0.75rem;
-
-    /* Sidebar */
-    --sidebar-background: 180 25% 12%;
-    --sidebar-foreground: 180 10% 90%;
-    --sidebar-primary: 45 80% 55%;
-    --sidebar-primary-foreground: 180 30% 10%;
-    --sidebar-accent: 180 20% 18%;
-    --sidebar-accent-foreground: 180 10% 90%;
-    --sidebar-border: 180 20% 20%;
-    --sidebar-ring: 45 80% 55%;
-
-    /* Custom gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(175 45% 25%) 0%, hsl(180 35% 18%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(45 80% 55%) 0%, hsl(35 85% 50%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(180 15% 98%) 100%);
-    
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(180 30% 10% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(180 30% 10% / 0.08), 0 2px 4px -2px hsl(180 30% 10% / 0.05);
-    --shadow-lg: 0 10px 15px -3px hsl(180 30% 10% / 0.08), 0 4px 6px -4px hsl(180 30% 10% / 0.05);
-    --shadow-glow: 0 0 20px hsl(45 80% 55% / 0.3);
-  }
-
-  .dark {
-    --background: 180 25% 8%;
-    --foreground: 180 10% 95%;
-
-    --card: 180 25% 10%;
-    --card-foreground: 180 10% 95%;
-
-    --popover: 180 25% 10%;
-    --popover-foreground: 180 10% 95%;
-
-    --primary: 175 50% 45%;
-    --primary-foreground: 180 30% 10%;
-
-    --secondary: 180 20% 15%;
-    --secondary-foreground: 180 10% 90%;
-
-    --muted: 180 20% 15%;
-    --muted-foreground: 180 10% 60%;
-
-    --accent: 45 80% 55%;
-    --accent-foreground: 180 30% 10%;
-
-    --success: 155 55% 45%;
-    --success-foreground: 0 0% 100%;
-    
-    --warning: 45 85% 50%;
-    --warning-foreground: 180 30% 10%;
-    
-    --destructive: 0 65% 55%;
-    --destructive-foreground: 0 0% 100%;
-
-    --compliant: 155 55% 45%;
-    --compliant-foreground: 0 0% 100%;
-    
-    --compliant-purification: 45 85% 50%;
-    --compliant-purification-foreground: 180 30% 10%;
-    
-    --non-compliant: 0 65% 55%;
-    --non-compliant-foreground: 0 0% 100%;
-    
-    --doubtful: 220 15% 50%;
-    --doubtful-foreground: 0 0% 100%;
-    
-    --no-data: 180 5% 40%;
-    --no-data-foreground: 180 10% 80%;
-
-    --border: 180 20% 18%;
-    --input: 180 20% 18%;
-    --ring: 175 50% 45%;
-
-    --gradient-hero: linear-gradient(135deg, hsl(180 25% 8%) 0%, hsl(175 30% 12%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(180 25% 10%) 0%, hsl(180 25% 8%) 100%);
+    --no-data: 210 10% 40%;
+    --no-data-foreground: 210 10% 80%;
+    --border: 210 20% 20%;
+    --input: 210 20% 20%;
+    --ring: 190 80% 50%;
+    --radius: 0.5rem;
+    --sidebar-background: 210 25% 9%;
+    --sidebar-foreground: 210 10% 90%;
+    --sidebar-primary: 190 80% 50%;
+    --sidebar-primary-foreground: 210 25% 10%;
+    --sidebar-accent: 210 20% 15%;
+    --sidebar-accent-foreground: 210 10% 90%;
+    --sidebar-border: 210 20% 18%;
+    --sidebar-ring: 190 80% 50%;
+    --gradient-hero: linear-gradient(135deg, hsl(210 25% 11%) 0%, hsl(210 30% 15%) 50%, hsl(200 25% 12%) 100%);
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
+  * { @apply border-border; }
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
   }
-
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Spectral', Georgia, serif;
+    font-family: 'Playfair Display', Georgia, serif;
     @apply font-semibold tracking-tight;
   }
 }
 
 @layer components {
-  .status-badge {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+  .hero-gradient { background: var(--gradient-hero); }
+  .btn-invesense {
+    @apply font-medium transition-all duration-300;
+    background: linear-gradient(135deg, hsl(190 80% 50%) 0%, hsl(180 70% 45%) 100%);
   }
-
-  .status-compliant {
-    @apply bg-compliant text-compliant-foreground;
-  }
-
-  .status-compliant-purification {
-    @apply bg-compliant-purification text-compliant-purification-foreground;
-  }
-
-  .status-non-compliant {
-    @apply bg-non-compliant text-non-compliant-foreground;
-  }
-
-  .status-doubtful {
-    @apply bg-doubtful text-doubtful-foreground;
-  }
-
-  .status-no-data {
-    @apply bg-no-data text-no-data-foreground;
-  }
-
-  .methodology-card {
-    @apply rounded-xl border-2 p-6 transition-all duration-300;
-  }
-
-  .methodology-card-compliant {
-    @apply border-compliant bg-compliant/5;
-  }
-
-  .methodology-card-purification {
-    @apply border-compliant-purification bg-compliant-purification/5;
-  }
-
-  .methodology-card-fail {
-    @apply border-non-compliant bg-non-compliant/5;
-  }
-
-  .methodology-card-no-data {
-    @apply border-no-data bg-no-data/5;
-  }
-
-  .glass-card {
-    @apply backdrop-blur-md bg-card/80 border border-border/50 shadow-lg;
-  }
-
-  .hero-gradient {
-    background: var(--gradient-hero);
-  }
-
-  .gold-accent {
-    background: var(--gradient-gold);
-  }
+  .btn-invesense:hover { box-shadow: 0 0 20px hsl(190 80% 50% / 0.4); }
+  .btn-outline-invesense { @apply border border-primary/50 bg-transparent text-primary hover:bg-primary/10; }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-
-  .animate-fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
-  }
-
-  .animate-slide-up {
-    animation: slideUp 0.5s ease-out forwards;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  @keyframes slideUp {
-    from { 
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to { 
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+  .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+  .animate-slide-up { animation: slideUp 0.6s ease-out forwards; }
+  .animate-slide-in-left { animation: slideInLeft 0.6s ease-out forwards; }
+  .animate-glow { animation: glow 2s ease-in-out infinite; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes glow { 0%, 100% { box-shadow: 0 0 20px hsl(190 80% 50% / 0.3); } 50% { box-shadow: 0 0 40px hsl(190 80% 50% / 0.5); } }
 }
