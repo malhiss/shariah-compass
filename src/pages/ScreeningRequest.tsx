@@ -79,7 +79,7 @@ export default function ScreeningRequest() {
                 Your screening request for <strong className="text-foreground">{form.ticker}</strong> has been submitted successfully.
               </p>
               
-              <Card className="text-left mb-8 border-border bg-card">
+              <Card className="premium-card text-left mb-8">
                 <CardContent className="pt-6 space-y-4">
                   <div className="flex justify-between items-center py-2 border-b border-border">
                     <span className="text-muted-foreground">Request ID</span>
@@ -147,7 +147,7 @@ export default function ScreeningRequest() {
       <section className="py-12 md:py-16 snap-start">
         <div className="container">
           <div className="max-w-2xl mx-auto">
-            <Card className="border-border bg-card">
+            <Card className="premium-card">
               <CardHeader>
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">

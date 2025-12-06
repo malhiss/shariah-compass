@@ -89,7 +89,7 @@ export default function TickerScreening() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <Card className="border-border bg-card">
+              <Card className="premium-card">
                 <CardContent className="pt-6">
                   <form onSubmit={handleSubmit} className="flex gap-3">
                     <div className="relative flex-1">
@@ -137,7 +137,7 @@ export default function TickerScreening() {
                 transition={{ duration: 0.5 }}
               >
                 {/* Security Info */}
-                <Card className="border-2 border-primary/20 bg-card">
+                <Card className="premium-card border-2 border-primary/20">
                   <CardHeader>
                     <div className="flex items-start gap-4">
                       <motion.div 

@@ -145,7 +145,7 @@ export default function About() {
             {/* Featured Card */}
             <AnimatedSection delay={0.1} className="mb-8">
               <motion.div whileHover={{ y: -3 }} transition={{ duration: 0.2 }}>
-                <Card className="border border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10 overflow-hidden">
+                <Card className="premium-card border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10 overflow-hidden">
                   <CardContent className="p-8 md:p-10">
                     <div className="flex flex-col md:flex-row items-start gap-6">
                       <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center shrink-0">
@@ -181,7 +181,7 @@ export default function About() {
                 return (
                   <StaggerItem key={value.title} className="h-full">
                     <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }} className="h-full">
-                      <Card className="border border-border hover:border-primary/30 transition-all bg-background h-full group">
+                      <Card className="premium-card h-full min-h-[200px] group">
                         <CardContent className="p-6 flex flex-col h-full">
                           <div className="w-12 h-12 rounded-xl bg-primary/10 mb-5 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                             <Icon className="w-6 h-6 text-primary" />
@@ -262,7 +262,7 @@ export default function About() {
                       whileHover={{ y: -5 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <Card className="h-full border border-border bg-card hover:border-primary/30 transition-all group">
+                      <Card className="premium-card h-full min-h-[160px] group">
                         <CardContent className="p-8 flex items-start gap-6">
                           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
                             <Icon className="w-8 h-8 text-primary" />
@@ -290,7 +290,7 @@ export default function About() {
                       whileHover={{ y: -5 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <Card className="h-full border border-border bg-background hover:border-primary/30 transition-all group">
+                      <Card className="premium-card h-full min-h-[180px] group">
                         <CardContent className="p-6 text-center flex flex-col h-full">
                           <div className="w-14 h-14 rounded-xl bg-primary/10 mx-auto mb-4 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                             <Icon className="w-7 h-7 text-primary" />

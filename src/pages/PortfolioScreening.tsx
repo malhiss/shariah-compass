@@ -23,7 +23,7 @@ function SummaryCard({ title, summary }: { title: string; summary: MethodologySu
   ];
 
   return (
-    <Card className="border-border bg-card hover:border-primary/30 transition-colors">
+    <Card className="premium-card min-h-[200px]">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg font-serif">{title}</CardTitle>
       </CardHeader>
@@ -172,7 +172,7 @@ export default function PortfolioScreening() {
         <div className="container">
           <div className="max-w-6xl mx-auto space-y-8">
             {/* Input Section */}
-            <Card className="border-border bg-card">
+            <Card className="premium-card">
               <CardHeader>
                 <div className="flex items-center justify-between flex-wrap gap-4">
                   <div className="flex items-center gap-4">
@@ -307,7 +307,7 @@ export default function PortfolioScreening() {
                 {/* Holdings Table */}
                 <div>
                   <h2 className="text-2xl font-serif font-bold mb-6">Holdings Breakdown</h2>
-                  <Card className="border-border bg-card">
+                  <Card className="premium-card">
                     <CardContent className="p-0">
                       <div className="overflow-x-auto">
                         <Table>

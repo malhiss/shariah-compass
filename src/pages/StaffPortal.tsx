@@ -273,8 +273,8 @@ export default function StaffPortal() {
   const pendingCount = users.filter(u => !u.role).length;
 
   return (
-    <div className="min-h-screen py-8 md:py-12">
-      <div className="container max-w-7xl">
+    <div className="min-h-screen snap-start snap-always">
+      <div className="container max-w-7xl py-8 md:py-12">
         {/* Header */}
         <AnimatedSection className="mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -476,55 +476,47 @@ export default function StaffPortal() {
             <AnimatedSection delay={0.1}>
               <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <StaggerItem>
-                  <Card className="border-border hover:border-primary/30 transition-colors">
-                    <CardContent className="p-5 flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                        <Users className="w-6 h-6 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold">{users.length}</p>
-                        <p className="text-sm text-muted-foreground">Total Users</p>
-                      </div>
-                    </CardContent>
+                  <Card className="stat-card">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <Users className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold">{users.length}</p>
+                      <p className="text-sm text-muted-foreground">Total Users</p>
+                    </div>
                   </Card>
                 </StaggerItem>
                 <StaggerItem>
-                  <Card className="border-border hover:border-compliant/30 transition-colors">
-                    <CardContent className="p-5 flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-compliant/10 flex items-center justify-center">
-                        <User className="w-6 h-6 text-compliant" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold">{clientCount}</p>
-                        <p className="text-sm text-muted-foreground">Clients</p>
-                      </div>
-                    </CardContent>
+                  <Card className="stat-card hover:border-compliant/30">
+                    <div className="w-12 h-12 rounded-xl bg-compliant/10 flex items-center justify-center shrink-0">
+                      <User className="w-6 h-6 text-compliant" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold">{clientCount}</p>
+                      <p className="text-sm text-muted-foreground">Clients</p>
+                    </div>
                   </Card>
                 </StaggerItem>
                 <StaggerItem>
-                  <Card className="border-border hover:border-warning/30 transition-colors">
-                    <CardContent className="p-5 flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center">
-                        <Shield className="w-6 h-6 text-warning" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold">{staffCount}</p>
-                        <p className="text-sm text-muted-foreground">Staff</p>
-                      </div>
-                    </CardContent>
+                  <Card className="stat-card hover:border-warning/30">
+                    <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center shrink-0">
+                      <Shield className="w-6 h-6 text-warning" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold">{staffCount}</p>
+                      <p className="text-sm text-muted-foreground">Staff</p>
+                    </div>
                   </Card>
                 </StaggerItem>
                 <StaggerItem>
-                  <Card className="border-border hover:border-muted-foreground/30 transition-colors">
-                    <CardContent className="p-5 flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
-                        <Clock className="w-6 h-6 text-muted-foreground" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold">{pendingCount}</p>
-                        <p className="text-sm text-muted-foreground">Pending</p>
-                      </div>
-                    </CardContent>
+                  <Card className="stat-card hover:border-muted-foreground/30">
+                    <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                      <Clock className="w-6 h-6 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold">{pendingCount}</p>
+                      <p className="text-sm text-muted-foreground">Pending</p>
+                    </div>
                   </Card>
                 </StaggerItem>
               </StaggerContainer>
@@ -532,7 +524,7 @@ export default function StaffPortal() {
 
             {/* Users Table */}
             <AnimatedSection delay={0.2}>
-              <Card className="border-border">
+              <Card className="premium-card">
                 <CardHeader className="border-b border-border">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
