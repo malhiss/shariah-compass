@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          activity_type: Database["public"]["Enums"]["activity_type"]
+          created_at: string
+          description: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          user_agent: string | null
+          user_email: string | null
+          user_id: string | null
+        }
+        Insert: {
+          activity_type: Database["public"]["Enums"]["activity_type"]
+          created_at?: string
+          description: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          activity_type?: Database["public"]["Enums"]["activity_type"]
+          created_at?: string
+          description?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -77,6 +113,19 @@ export type Database = {
       }
     }
     Enums: {
+      activity_type:
+        | "login_success"
+        | "login_failed"
+        | "logout"
+        | "user_created"
+        | "user_updated"
+        | "user_deleted"
+        | "password_reset"
+        | "role_changed"
+        | "ticker_screening"
+        | "portfolio_screening"
+        | "screening_request"
+        | "ai_chat"
       app_role: "client" | "staff"
     }
     CompositeTypes: {
@@ -205,6 +254,20 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      activity_type: [
+        "login_success",
+        "login_failed",
+        "logout",
+        "user_created",
+        "user_updated",
+        "user_deleted",
+        "password_reset",
+        "role_changed",
+        "ticker_screening",
+        "portfolio_screening",
+        "screening_request",
+        "ai_chat",
+      ],
       app_role: ["client", "staff"],
     },
   },

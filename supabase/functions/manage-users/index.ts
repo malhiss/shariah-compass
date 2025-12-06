@@ -6,6 +6,31 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper function to log activity
+async function logActivity(
+  supabaseAdmin: any,
+  userId: string | null,
+  userEmail: string | null,
+  activityType: string,
+  description: string,
+  metadata: Record<string, any> = {},
+  req?: Request
+) {
+  try {
+    await supabaseAdmin.from("activity_logs").insert({
+      user_id: userId,
+      user_email: userEmail,
+      activity_type: activityType,
+      description,
+      metadata,
+      ip_address: req?.headers.get("x-forwarded-for") || req?.headers.get("x-real-ip") || null,
+      user_agent: req?.headers.get("user-agent") || null,
+    });
+  } catch (error) {
+    console.error("Failed to log activity:", error);
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -99,6 +124,22 @@ serve(async (req) => {
           );
         }
 
+        // Log the activity
+        await logActivity(
+          supabaseAdmin,
+          currentUser.id,
+          currentUser.email || null,
+          "user_created",
+          `Created new ${role} user: ${email}`,
+          { 
+            created_user_id: newUser.user.id, 
+            created_user_email: email,
+            created_user_name: fullName,
+            assigned_role: role 
+          },
+          req
+        );
+
         return new Response(
           JSON.stringify({ success: true, user: { id: newUser.user.id, email: newUser.user.email } }),
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -161,6 +202,10 @@ serve(async (req) => {
           );
         }
 
+        // Get user info for logging
+        const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
+        const previousRole = (await supabaseAdmin.from("user_roles").select("role").eq("user_id", userId).maybeSingle())?.data?.role;
+
         // Delete existing role
         await supabaseAdmin
           .from("user_roles")
@@ -178,6 +223,22 @@ serve(async (req) => {
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
+
+        // Log the activity
+        await logActivity(
+          supabaseAdmin,
+          currentUser.id,
+          currentUser.email || null,
+          "role_changed",
+          `Changed role for ${userData?.user?.email} from ${previousRole || 'none'} to ${role}`,
+          { 
+            target_user_id: userId, 
+            target_user_email: userData?.user?.email,
+            previous_role: previousRole,
+            new_role: role 
+          },
+          req
+        );
 
         return new Response(
           JSON.stringify({ success: true }),
@@ -203,6 +264,9 @@ serve(async (req) => {
           );
         }
 
+        // Get user info for logging before deletion
+        const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
+
         const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
         if (deleteError) {
@@ -211,6 +275,20 @@ serve(async (req) => {
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
+
+        // Log the activity
+        await logActivity(
+          supabaseAdmin,
+          currentUser.id,
+          currentUser.email || null,
+          "user_deleted",
+          `Deleted user: ${userData?.user?.email}`,
+          { 
+            deleted_user_id: userId, 
+            deleted_user_email: userData?.user?.email 
+          },
+          req
+        );
 
         return new Response(
           JSON.stringify({ success: true }),
@@ -228,6 +306,9 @@ serve(async (req) => {
           );
         }
 
+        // Get user info for logging
+        const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
+
         const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
           password: newPassword,
         });
@@ -238,6 +319,77 @@ serve(async (req) => {
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
+
+        // Log the activity
+        await logActivity(
+          supabaseAdmin,
+          currentUser.id,
+          currentUser.email || null,
+          "password_reset",
+          `Reset password for user: ${userData?.user?.email}`,
+          { 
+            target_user_id: userId, 
+            target_user_email: userData?.user?.email 
+          },
+          req
+        );
+
+        return new Response(
+          JSON.stringify({ success: true }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      case "get_activity_logs": {
+        const { limit = 100, offset = 0, activityType, userId: filterUserId } = payload;
+
+        let query = supabaseAdmin
+          .from("activity_logs")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .range(offset, offset + limit - 1);
+
+        if (activityType) {
+          query = query.eq("activity_type", activityType);
+        }
+
+        if (filterUserId) {
+          query = query.eq("user_id", filterUserId);
+        }
+
+        const { data: logs, error: logsError } = await query;
+
+        if (logsError) {
+          return new Response(
+            JSON.stringify({ error: logsError.message }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // Get total count
+        const { count } = await supabaseAdmin
+          .from("activity_logs")
+          .select("*", { count: "exact", head: true });
+
+        return new Response(
+          JSON.stringify({ logs, total: count }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      case "log_activity": {
+        // This action allows logging activities from the frontend
+        const { activityType, description, metadata, targetUserId, targetUserEmail } = payload;
+
+        await logActivity(
+          supabaseAdmin,
+          targetUserId || currentUser.id,
+          targetUserEmail || currentUser.email,
+          activityType,
+          description,
+          metadata || {},
+          req
+        );
 
         return new Response(
           JSON.stringify({ success: true }),
