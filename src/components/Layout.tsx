@@ -25,8 +25,8 @@ export function Layout() {
     <div className="min-h-screen flex flex-col bg-background">
       <ScrollToTop />
       <Header />
-      <main className="flex-1">
-        <AnimatePresence mode="wait">
+      <main className="flex-1 flex flex-col">
+        <AnimatePresence mode="wait" initial={false}>
           <PageTransition key={location.pathname}>
             <Outlet />
           </PageTransition>
@@ -34,7 +34,7 @@ export function Layout() {
       </main>
       
       {/* Footer */}
-      <footer className="border-t border-border bg-card/50">
+      <footer className="border-t border-border bg-card/50 mt-auto">
         <div className="container py-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             {/* Brand */}
