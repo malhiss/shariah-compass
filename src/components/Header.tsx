@@ -7,6 +7,7 @@ import invesenseLogo from '@/assets/invesense-logo.png';
 
 const navItems = [
   { path: '/about', label: 'About' },
+  { path: '/leadership', label: 'Leadership' },
   { path: '/screen', label: 'Screen' },
   { path: '/portfolio', label: 'Portfolio' },
   { path: '/request', label: 'Request' },

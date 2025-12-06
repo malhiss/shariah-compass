@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import Landing from "./pages/Landing";
 import About from "./pages/About";
+import Leadership from "./pages/Leadership";
 import TickerScreening from "./pages/TickerScreening";
 import PortfolioScreening from "./pages/PortfolioScreening";
 import ScreeningRequest from "./pages/ScreeningRequest";
@@ -24,6 +25,7 @@ const App = () => (
           <Route element={<Layout />}>
             <Route path="/" element={<Landing />} />
             <Route path="/about" element={<About />} />
+            <Route path="/leadership" element={<Leadership />} />
             <Route path="/screen" element={<TickerScreening />} />
             <Route path="/portfolio" element={<PortfolioScreening />} />
             <Route path="/request" element={<ScreeningRequest />} />
