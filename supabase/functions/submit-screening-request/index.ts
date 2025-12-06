@@ -1,6 +1,22 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { MongoClient, ObjectId } from "https://deno.land/x/mongo@v0.32.0/mod.ts";
 
+// Helper function to encode special characters in MongoDB URI password
+function encodeMongoUri(uri: string): string {
+  const regex = /^(mongodb(?:\+srv)?:\/\/)([^:]+):([^@]+)@(.+)$/;
+  const match = uri.match(regex);
+  
+  if (!match) {
+    return uri;
+  }
+  
+  const [, protocol, username, password, rest] = match;
+  const encodedUsername = encodeURIComponent(username);
+  const encodedPassword = encodeURIComponent(password);
+  
+  return `${protocol}${encodedUsername}:${encodedPassword}@${rest}`;
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -30,7 +46,7 @@ serve(async (req) => {
     }
 
     const client = new MongoClient();
-    await client.connect(mongoUri);
+    await client.connect(encodeMongoUri(mongoUri));
     const db = client.database('shariah_screening');
 
     // Check if request already exists
