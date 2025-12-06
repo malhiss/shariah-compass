@@ -16,6 +16,7 @@ const protectedNavItems = [
   { path: '/portfolio', label: 'Portfolio' },
   { path: '/request', label: 'Request' },
   { path: '/chat', label: 'AI Chat' },
+  { path: '/my-activity', label: 'My Activity' },
 ];
 
 const staffNavItems = [

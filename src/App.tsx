@@ -17,6 +17,7 @@ import ClientLogin from "./pages/ClientLogin";
 import StaffLogin from "./pages/StaffLogin";
 import StaffPortal from "./pages/StaffPortal";
 import SetupStaff from "./pages/SetupStaff";
+import ClientDashboard from "./pages/ClientDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -62,6 +63,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requireRole="any">
                     <AiChat />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/my-activity" 
+                element={
+                  <ProtectedRoute requireRole="any">
+                    <ClientDashboard />
                   </ProtectedRoute>
                 } 
               />
