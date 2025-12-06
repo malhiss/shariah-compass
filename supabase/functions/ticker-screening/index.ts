@@ -1,10 +1,59 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { MongoClient } from "https://deno.land/x/mongo@v0.32.0/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Helper function to log activity
+async function logActivity(
+  userId: string | null,
+  userEmail: string | null,
+  activityType: string,
+  description: string,
+  metadata: Record<string, any> = {},
+  req?: Request
+) {
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+    await supabaseAdmin.from("activity_logs").insert({
+      user_id: userId,
+      user_email: userEmail,
+      activity_type: activityType,
+      description,
+      metadata,
+      ip_address: req?.headers.get("x-forwarded-for") || req?.headers.get("x-real-ip") || null,
+      user_agent: req?.headers.get("user-agent") || null,
+    });
+  } catch (error) {
+    console.error("Failed to log activity:", error);
+  }
+}
+
+// Helper function to get user from auth header
+async function getUserFromAuth(req: Request) {
+  try {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) return null;
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    return user;
+  } catch {
+    return null;
+  }
+}
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -24,6 +73,9 @@ serve(async (req) => {
 
     const normalizedTicker = ticker.trim().toUpperCase();
     console.log(`Screening ticker: ${normalizedTicker}`);
+
+    // Get the user for logging
+    const user = await getUserFromAuth(req);
 
     const mongoUri = Deno.env.get('MONGODB_URI');
     if (!mongoUri) {
@@ -99,6 +151,25 @@ serve(async (req) => {
       autoBanned: response.autoBanned.available,
       numeric: response.numeric.available,
     });
+
+    // Log the screening activity
+    if (user) {
+      await logActivity(
+        user.id,
+        user.email || null,
+        "ticker_screening",
+        `Screened ticker: ${normalizedTicker}`,
+        {
+          ticker: normalizedTicker,
+          company: response.security.company,
+          invesense_classification: response.invesense.classification,
+          invesense_available: response.invesense.available,
+          autoBanned_status: response.autoBanned.status,
+          numeric_status: response.numeric.status,
+        },
+        req
+      );
+    }
 
     return new Response(
       JSON.stringify(response),
