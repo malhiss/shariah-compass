@@ -249,7 +249,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Methodologies - Auto-scrolling Carousel */}
+      {/* Methodologies */}
       <section className="py-20 md:py-28 snap-start snap-always min-h-screen flex items-center">
         <div className="container">
           <AnimatedSection className="text-center mb-16">
@@ -262,63 +262,29 @@ export default function Landing() {
             </p>
           </AnimatedSection>
           
-          <AnimatedSection delay={0.2} className="max-w-6xl mx-auto">
-            <div className="relative">
-              {/* Navigation buttons */}
-              <button
-                onClick={() => methodsApi?.scrollPrev()}
-                className="absolute -left-4 md:-left-12 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center hover:bg-primary/10 hover:border-primary transition-colors"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => methodsApi?.scrollNext()}
-                className="absolute -right-4 md:-right-12 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center hover:bg-primary/10 hover:border-primary transition-colors"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-
-              {/* Carousel */}
-              <div className="overflow-hidden" ref={methodsRef}>
-                <div className="flex">
-                  {methodologies.map((method) => {
-                    const Icon = method.icon;
-                    return (
-                      <div key={method.name} className="flex-[0_0_100%] min-w-0 md:flex-[0_0_50%] lg:flex-[0_0_33.333%] px-4">
-                        <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }}>
-                          <Card className="group relative overflow-hidden border-border bg-card hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 h-full">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/0 via-primary to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            <CardHeader className="pb-4">
-                              <div className="w-14 h-14 rounded-xl bg-primary/10 mb-6 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                <Icon className="w-7 h-7 text-primary" />
-                              </div>
-                              <CardTitle className="font-serif text-xl">{method.name}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <p className="text-muted-foreground leading-relaxed">{method.description}</p>
-                            </CardContent>
-                          </Card>
-                        </motion.div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Dots */}
-              <div className="flex justify-center gap-2 mt-8">
-                {methodologies.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => methodsApi?.scrollTo(index)}
-                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                      index === methodsIndex ? 'bg-primary w-6' : 'bg-primary/30 hover:bg-primary/50'
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-          </AnimatedSection>
+          <StaggerContainer className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {methodologies.map((method) => {
+              const Icon = method.icon;
+              return (
+                <StaggerItem key={method.name}>
+                  <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }}>
+                    <Card className="group relative overflow-hidden border-border bg-card hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 h-full">
+                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/0 via-primary to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <CardHeader className="pb-4">
+                        <div className="w-14 h-14 rounded-xl bg-primary/10 mb-6 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                          <Icon className="w-7 h-7 text-primary" />
+                        </div>
+                        <CardTitle className="font-serif text-xl">{method.name}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-muted-foreground leading-relaxed">{method.description}</p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                </StaggerItem>
+              );
+            })}
+          </StaggerContainer>
         </div>
       </section>
 
