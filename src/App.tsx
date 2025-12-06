@@ -16,6 +16,7 @@ import AiChat from "./pages/AiChat";
 import ClientLogin from "./pages/ClientLogin";
 import StaffLogin from "./pages/StaffLogin";
 import StaffPortal from "./pages/StaffPortal";
+import SetupStaff from "./pages/SetupStaff";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -75,6 +76,7 @@ const App = () => (
             </Route>
             <Route path="/client-login" element={<ClientLogin />} />
             <Route path="/staff-login" element={<StaffLogin />} />
+            <Route path="/setup" element={<SetupStaff />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
