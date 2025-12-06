@@ -81,7 +81,7 @@ const investingApproach = [
 
 export default function About() {
   return (
-    <div className="min-h-screen overflow-hidden snap-y snap-mandatory h-screen overflow-y-auto scroll-smooth">
+    <div>
       {/* Hero */}
       <section className="py-20 md:py-28 relative overflow-hidden snap-start snap-always min-h-screen flex items-center">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-primary/5" />

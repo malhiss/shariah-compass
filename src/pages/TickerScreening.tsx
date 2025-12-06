@@ -46,9 +46,9 @@ export default function TickerScreening() {
   };
 
   return (
-    <div className="min-h-screen overflow-hidden">
+    <div>
       {/* Hero Section */}
-      <section className="relative py-16 md:py-24 overflow-hidden">
+      <section className="relative py-16 md:py-24 overflow-hidden snap-start snap-always">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
         <motion.div 
           className="absolute inset-0 opacity-30"
@@ -126,7 +126,7 @@ export default function TickerScreening() {
       </section>
 
       {/* Results */}
-      <section className="py-12 md:py-16">
+      <section className="py-12 md:py-16 snap-start">
         <div className="container">
           <div className="max-w-4xl mx-auto">
             {result && (
