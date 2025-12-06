@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Search, Briefcase, FileQuestion, MessageSquare, Scale, CheckCircle, AlertTriangle, XCircle, ArrowRight, ChevronRight } from 'lucide-react';
-import invesenseLogo from '@/assets/invesense-logo.png';
+import Autoplay from 'embla-carousel-autoplay';
+import { useRef } from 'react';
 
 const features = [
   {
@@ -50,6 +52,10 @@ const methodologies = [
 ];
 
 export default function Landing() {
+  const autoplayPlugin = useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: false, stopOnMouseEnter: true })
+  );
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -150,7 +156,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Methodologies */}
+      {/* Methodologies - Auto-scrolling Carousel */}
       <section className="py-20 md:py-28">
         <div className="container">
           <div className="text-center mb-16">
@@ -163,32 +169,54 @@ export default function Landing() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {methodologies.map((method, index) => {
-              const Icon = method.icon;
-              return (
-                <Card 
-                  key={method.name} 
-                  className="group relative overflow-hidden border-border bg-card hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5"
-                >
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/0 via-primary to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <CardHeader className="pb-4">
-                    <div className="w-14 h-14 rounded-xl bg-primary/10 mb-6 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <Icon className="w-7 h-7 text-primary" />
-                    </div>
-                    <CardTitle className="font-serif text-xl">{method.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground leading-relaxed">{method.description}</p>
-                  </CardContent>
-                </Card>
-              );
-            })}
+          <div className="max-w-6xl mx-auto">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              plugins={[autoplayPlugin.current]}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-4">
+                {methodologies.map((method) => {
+                  const Icon = method.icon;
+                  return (
+                    <CarouselItem key={method.name} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                      <Card className="group relative overflow-hidden border-border bg-card hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 h-full">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/0 via-primary to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <CardHeader className="pb-4">
+                          <div className="w-14 h-14 rounded-xl bg-primary/10 mb-6 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                            <Icon className="w-7 h-7 text-primary" />
+                          </div>
+                          <CardTitle className="font-serif text-xl">{method.name}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-muted-foreground leading-relaxed">{method.description}</p>
+                        </CardContent>
+                      </Card>
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex -left-12 border-border hover:bg-primary/10 hover:border-primary" />
+              <CarouselNext className="hidden md:flex -right-12 border-border hover:bg-primary/10 hover:border-primary" />
+            </Carousel>
+            
+            {/* Progress indicators */}
+            <div className="flex justify-center gap-2 mt-8">
+              {methodologies.map((_, index) => (
+                <div
+                  key={index}
+                  className="w-2 h-2 rounded-full bg-primary/30"
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Features Grid */}
+      {/* Features Grid - Auto-scrolling Carousel */}
       <section className="py-20 md:py-28 bg-card/50">
         <div className="container">
           <div className="text-center mb-16">
@@ -201,27 +229,44 @@ export default function Landing() {
             </p>
           </div>
           
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {features.map((feature) => {
-              const Icon = feature.icon;
-              return (
-                <Link key={feature.path} to={feature.path} className="group">
-                  <Card className="h-full border-border bg-background hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
-                    <CardHeader>
-                      <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
-                        <Icon className="w-7 h-7 text-primary group-hover:text-primary-foreground transition-colors" />
-                      </div>
-                      <CardTitle className="text-lg font-serif group-hover:text-primary transition-colors">
-                        {feature.title}
-                      </CardTitle>
-                      <CardDescription className="text-muted-foreground">
-                        {feature.description}
-                      </CardDescription>
-                    </CardHeader>
-                  </Card>
-                </Link>
-              );
-            })}
+          <div className="max-w-6xl mx-auto">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              plugins={[
+                Autoplay({ delay: 4000, stopOnInteraction: false, stopOnMouseEnter: true })
+              ]}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-4">
+                {features.map((feature) => {
+                  const Icon = feature.icon;
+                  return (
+                    <CarouselItem key={feature.path} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/4">
+                      <Link to={feature.path} className="group block h-full">
+                        <Card className="h-full border-border bg-background hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
+                          <CardHeader>
+                            <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+                              <Icon className="w-7 h-7 text-primary group-hover:text-primary-foreground transition-colors" />
+                            </div>
+                            <CardTitle className="text-lg font-serif group-hover:text-primary transition-colors">
+                              {feature.title}
+                            </CardTitle>
+                            <CardDescription className="text-muted-foreground">
+                              {feature.description}
+                            </CardDescription>
+                          </CardHeader>
+                        </Card>
+                      </Link>
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex -left-12 border-border hover:bg-primary/10 hover:border-primary" />
+              <CarouselNext className="hidden md:flex -right-12 border-border hover:bg-primary/10 hover:border-primary" />
+            </Carousel>
           </div>
         </div>
       </section>
