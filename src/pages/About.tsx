@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Shield, Eye, Users, BookOpen, BarChart3, Database, Brain, ArrowRight, Globe, Target, DollarSign, Droplets } from 'lucide-react';
+import { Shield, Eye, Users, BookOpen, BarChart3, Database, Brain, ArrowRight, Globe, Target, DollarSign, Droplets, LogIn, UserCog } from 'lucide-react';
 import { AnimatedSection, StaggerContainer, StaggerItem } from '@/components/AnimatedSection';
 import { motion } from 'framer-motion';
 
@@ -234,36 +234,77 @@ export default function About() {
       </section>
 
       {/* Investing Approach */}
-      <section className="py-20 md:py-28 bg-card/50 snap-start snap-always min-h-screen flex items-center">
-        <div className="container">
+      <section className="py-20 md:py-28 snap-start snap-always min-h-screen flex items-center relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-1/3 -right-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/3 -left-20 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+        </div>
+        
+        <div className="container relative z-10">
           <AnimatedSection className="text-center mb-16">
             <p className="text-primary text-sm font-medium tracking-wider uppercase mb-4">How We Invest</p>
             <h2 className="text-3xl md:text-5xl font-serif font-bold mb-4">Investing Approach</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               Our investment philosophy is built on proven principles and disciplined execution.
             </p>
           </AnimatedSection>
           
-          <StaggerContainer className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {investingApproach.map((item) => {
-              const Icon = item.icon;
-              return (
-                <StaggerItem key={item.title}>
-                  <motion.div 
-                    className="text-center p-8 rounded-2xl border border-border bg-background hover:border-primary/30 transition-all"
-                    whileHover={{ y: -5 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <div className="w-20 h-20 rounded-2xl bg-primary/10 mx-auto mb-6 flex items-center justify-center">
-                      <Icon className="w-10 h-10 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-serif font-semibold mb-3">{item.title}</h3>
-                    <p className="text-muted-foreground">{item.description}</p>
-                  </motion.div>
-                </StaggerItem>
-              );
-            })}
-          </StaggerContainer>
+          <div className="max-w-6xl mx-auto">
+            {/* Top row - 2 featured items */}
+            <StaggerContainer className="grid md:grid-cols-2 gap-6 mb-6">
+              {investingApproach.slice(0, 2).map((item) => {
+                const Icon = item.icon;
+                return (
+                  <StaggerItem key={item.title} className="h-full">
+                    <motion.div 
+                      className="h-full"
+                      whileHover={{ y: -5 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Card className="h-full border border-border bg-card hover:border-primary/30 transition-all group">
+                        <CardContent className="p-8 flex items-start gap-6">
+                          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                            <Icon className="w-8 h-8 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-serif font-semibold mb-2">{item.title}</h3>
+                            <p className="text-muted-foreground leading-relaxed">{item.description}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </StaggerItem>
+                );
+              })}
+            </StaggerContainer>
+            
+            {/* Bottom row - 4 items */}
+            <StaggerContainer className="grid md:grid-cols-4 gap-6">
+              {investingApproach.slice(2).map((item) => {
+                const Icon = item.icon;
+                return (
+                  <StaggerItem key={item.title} className="h-full">
+                    <motion.div 
+                      className="h-full"
+                      whileHover={{ y: -5 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Card className="h-full border border-border bg-background hover:border-primary/30 transition-all group">
+                        <CardContent className="p-6 text-center flex flex-col h-full">
+                          <div className="w-14 h-14 rounded-xl bg-primary/10 mx-auto mb-4 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                            <Icon className="w-7 h-7 text-primary" />
+                          </div>
+                          <h3 className="text-lg font-serif font-semibold mb-2">{item.title}</h3>
+                          <p className="text-muted-foreground text-sm leading-relaxed flex-1">{item.description}</p>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </StaggerItem>
+                );
+              })}
+            </StaggerContainer>
+          </div>
         </div>
       </section>
 
@@ -313,12 +354,21 @@ export default function About() {
             </StaggerContainer>
 
             <AnimatedSection delay={0.4} className="text-center">
-              <Button size="lg" className="btn-invesense group" asChild>
-                <Link to="/screen">
-                  Start Screening
-                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button size="lg" className="btn-invesense group" asChild>
+                  <Link to="/client-login">
+                    <LogIn className="w-5 h-5 mr-2" />
+                    Client Login
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" className="border-border hover:bg-primary/5 hover:border-primary group" asChild>
+                  <Link to="/staff-login">
+                    <UserCog className="w-5 h-5 mr-2" />
+                    Staff Login
+                  </Link>
+                </Button>
+              </div>
             </AnimatedSection>
           </div>
         </div>
