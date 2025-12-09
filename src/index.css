@@ -6,75 +6,79 @@
 
 @layer base {
   :root {
-    /* Premium dark blue theme for high-net-worth investors */
-    --background: 220 25% 8%;
+    /* Invesense dark slate blue theme */
+    --background: 210 18% 28%;
     --foreground: 0 0% 98%;
-    --card: 220 25% 10%;
+    --card: 210 18% 32%;
     --card-foreground: 0 0% 98%;
-    --popover: 220 25% 12%;
+    --popover: 210 18% 25%;
     --popover-foreground: 0 0% 98%;
     
-    /* Primary: Refined gold/amber accent for luxury feel */
-    --primary: 38 75% 55%;
-    --primary-foreground: 220 25% 8%;
+    /* Primary: Invesense cyan/turquoise accent */
+    --primary: 180 45% 65%;
+    --primary-foreground: 210 18% 20%;
     
-    /* Secondary: Muted blue-grey */
-    --secondary: 220 20% 16%;
-    --secondary-foreground: 0 0% 90%;
+    /* Secondary: Lighter slate */
+    --secondary: 210 15% 38%;
+    --secondary-foreground: 0 0% 95%;
     
-    --muted: 220 20% 14%;
-    --muted-foreground: 220 10% 55%;
+    --muted: 210 15% 35%;
+    --muted-foreground: 210 10% 70%;
     
-    /* Accent: Warm gold */
-    --accent: 38 80% 60%;
-    --accent-foreground: 220 25% 8%;
+    /* Accent: Cyan */
+    --accent: 180 50% 60%;
+    --accent-foreground: 210 18% 20%;
     
     /* Status colors */
     --success: 160 55% 42%;
     --success-foreground: 0 0% 100%;
     --warning: 38 85% 55%;
-    --warning-foreground: 220 25% 8%;
+    --warning-foreground: 210 18% 20%;
     --destructive: 0 65% 50%;
     --destructive-foreground: 0 0% 100%;
     --caution: 38 85% 55%;
-    --caution-foreground: 220 25% 8%;
+    --caution-foreground: 210 18% 20%;
     
     /* Compliance status colors */
     --compliant: 160 55% 42%;
     --compliant-foreground: 0 0% 100%;
     --compliant-purification: 38 85% 55%;
-    --compliant-purification-foreground: 220 25% 8%;
+    --compliant-purification-foreground: 210 18% 20%;
     --non-compliant: 0 65% 50%;
     --non-compliant-foreground: 0 0% 100%;
-    --doubtful: 220 15% 45%;
+    --doubtful: 210 15% 50%;
     --doubtful-foreground: 0 0% 100%;
-    --no-data: 220 10% 35%;
-    --no-data-foreground: 220 10% 75%;
+    --no-data: 210 10% 45%;
+    --no-data-foreground: 210 10% 75%;
     
-    --border: 220 20% 18%;
-    --input: 220 20% 15%;
-    --ring: 38 75% 55%;
-    --radius: 0.625rem;
+    --border: 210 15% 38%;
+    --input: 210 15% 32%;
+    --ring: 180 45% 65%;
+    --radius: 0.5rem;
     
     /* Sidebar */
-    --sidebar-background: 220 25% 6%;
+    --sidebar-background: 210 18% 22%;
     --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 38 75% 55%;
-    --sidebar-primary-foreground: 220 25% 8%;
-    --sidebar-accent: 220 20% 14%;
+    --sidebar-primary: 180 45% 65%;
+    --sidebar-primary-foreground: 210 18% 20%;
+    --sidebar-accent: 210 15% 35%;
     --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 220 20% 15%;
-    --sidebar-ring: 38 75% 55%;
+    --sidebar-border: 210 15% 30%;
+    --sidebar-ring: 180 45% 65%;
     
-    /* Gradients */
-    --gradient-hero: linear-gradient(145deg, hsl(220 25% 8%) 0%, hsl(220 30% 12%) 50%, hsl(220 25% 10%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(220 25% 11%) 0%, hsl(220 25% 9%) 100%);
-    --gradient-primary: linear-gradient(135deg, hsl(38 75% 55%) 0%, hsl(38 80% 45%) 100%);
+    /* Invesense gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(210 18% 28%) 0%, hsl(210 20% 32%) 50%, hsl(210 18% 26%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(210 18% 34%) 0%, hsl(210 18% 30%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(180 45% 65%) 0%, hsl(180 50% 55%) 100%);
     
     /* Shadows */
-    --shadow-elegant: 0 10px 40px -15px hsl(220 25% 5% / 0.8);
-    --shadow-glow: 0 0 40px hsl(38 75% 55% / 0.15);
-    --shadow-card: 0 4px 20px -4px hsl(220 25% 5% / 0.5);
+    --shadow-elegant: 0 10px 40px -15px hsl(210 18% 10% / 0.6);
+    --shadow-glow: 0 0 40px hsl(180 45% 65% / 0.15);
+    --shadow-card: 0 4px 20px -4px hsl(210 18% 10% / 0.4);
+    
+    /* White section for content */
+    --section-light: 0 0% 98%;
+    --section-light-foreground: 210 18% 25%;
   }
 }
 
@@ -103,11 +107,11 @@
   .btn-invesense {
     @apply font-medium transition-all duration-300;
     background: var(--gradient-primary);
-    box-shadow: 0 4px 15px hsl(38 75% 55% / 0.25);
+    box-shadow: 0 4px 15px hsl(180 45% 65% / 0.25);
   }
   
   .btn-invesense:hover { 
-    box-shadow: 0 6px 25px hsl(38 75% 55% / 0.4);
+    box-shadow: 0 6px 25px hsl(180 45% 65% / 0.4);
     transform: translateY(-1px);
   }
   
@@ -117,13 +121,19 @@
   
   /* Premium card styling */
   .premium-card {
-    @apply bg-card border border-border rounded-xl transition-all duration-300;
+    @apply bg-card border border-border rounded-lg transition-all duration-300;
     box-shadow: var(--shadow-card);
   }
   
   .premium-card:hover {
-    @apply border-primary/30;
+    @apply border-primary/40;
     box-shadow: var(--shadow-elegant);
+  }
+  
+  /* White section for Invesense style */
+  .section-light {
+    background: hsl(var(--section-light));
+    color: hsl(var(--section-light-foreground));
   }
   
   /* Stat card with consistent sizing */
@@ -138,7 +148,7 @@
   
   /* Badge styling */
   .badge-premium {
-    @apply inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5 text-primary text-sm font-medium;
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium;
   }
   
   /* Glass effect */
@@ -149,6 +159,16 @@
   /* Divider line */
   .divider-gradient {
     @apply h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent;
+  }
+  
+  /* Invesense leadership card */
+  .leadership-card {
+    @apply overflow-hidden rounded-lg shadow-lg transition-all duration-300;
+  }
+  
+  .leadership-card:hover {
+    @apply shadow-xl;
+    transform: translateY(-4px);
   }
 }
 
@@ -189,8 +209,8 @@
   }
   
   @keyframes glow { 
-    0%, 100% { box-shadow: 0 0 20px hsl(38 75% 55% / 0.2); } 
-    50% { box-shadow: 0 0 40px hsl(38 75% 55% / 0.35); } 
+    0%, 100% { box-shadow: 0 0 20px hsl(180 45% 65% / 0.2); } 
+    50% { box-shadow: 0 0 40px hsl(180 45% 65% / 0.35); } 
   }
   
   @keyframes float {
@@ -199,8 +219,8 @@
   }
   
   /* Text gradients */
-  .text-gradient-gold {
-    background: linear-gradient(135deg, hsl(38 75% 55%) 0%, hsl(38 85% 70%) 100%);
+  .text-gradient-cyan {
+    background: linear-gradient(135deg, hsl(180 45% 65%) 0%, hsl(180 55% 75%) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
