@@ -18,6 +18,7 @@ import StaffLogin from "./pages/StaffLogin";
 import StaffPortal from "./pages/StaffPortal";
 import SetupStaff from "./pages/SetupStaff";
 import ClientDashboard from "./pages/ClientDashboard";
+import ShariahDashboard from "./pages/ShariahDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -79,6 +80,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requireRole="staff">
                     <StaffPortal />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/shariah-dashboard" 
+                element={
+                  <ProtectedRoute requireRole="any">
+                    <ShariahDashboard />
                   </ProtectedRoute>
                 } 
               />
