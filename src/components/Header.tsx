@@ -13,10 +13,11 @@ const publicNavItems = [
 
 const protectedNavItems = [
   { path: '/screen', label: 'Screen' },
-  { path: '/portfolio', label: 'Portfolio' },
+  { path: '/portfolio', label: 'Dividends Purification' },
   { path: '/request', label: 'Request' },
   { path: '/chat', label: 'AI Chat' },
   { path: '/my-activity', label: 'My Activity' },
+  { path: '/shariah-dashboard', label: 'Dashboard' },
 ];
 
 const staffNavItems = [

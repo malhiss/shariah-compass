@@ -146,8 +146,6 @@ export default function Landing() {
             >
               <span className="text-foreground">Invest with </span>
               <span className="text-primary">Confidence</span>
-              <br />
-              <span className="text-foreground">and Faith</span>
             </motion.h1>
             
             <motion.p 

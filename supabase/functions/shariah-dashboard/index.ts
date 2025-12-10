@@ -35,12 +35,27 @@ serve(async (req) => {
       throw new Error("MONGODB_URI environment variable is not set");
     }
 
-    const mongoUri = encodeMongoUri(rawUri);
+    console.log("Attempting MongoDB connection...");
+    
+    // Try with encoded URI first, then raw if that fails
+    let mongoUri = encodeMongoUri(rawUri);
     client = new MongoClient();
-    await client.connect(mongoUri);
+    
+    try {
+      await client.connect(mongoUri);
+      console.log("Connected with encoded URI");
+    } catch (encodedError) {
+      console.log("Encoded URI failed, trying raw URI...");
+      client = new MongoClient();
+      await client.connect(rawUri);
+      console.log("Connected with raw URI");
+    }
 
     const db = client.database("shariah_screening");
+    console.log("Database selected: shariah_screening");
+    
     const { action, filters } = await req.json();
+    console.log("Action:", action, "Filters:", JSON.stringify(filters));
 
     let result;
 
