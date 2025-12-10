@@ -59,17 +59,23 @@ serve(async (req) => {
     const { action, filters } = await req.json();
     console.log("Action:", action, "Filters:", JSON.stringify(filters));
 
-    let result;
-
     // Check if using Data API or native driver
     const apiKey = Deno.env.get("MONGODB_API_KEY");
+    const mongoUri = Deno.env.get("MONGODB_URI");
     
-    if (apiKey) {
-      // Use MongoDB Atlas Data API
+    console.log("API Key present:", !!apiKey);
+    console.log("URI present:", !!mongoUri);
+
+    let result;
+    
+    if (apiKey && apiKey.trim() !== "") {
+      console.log("Using MongoDB Data API...");
       result = await handleWithDataAPI(action, filters, apiKey);
-    } else {
-      // Use native MongoDB driver
+    } else if (mongoUri) {
+      console.log("Using native MongoDB driver...");
       result = await handleWithNativeDriver(action, filters);
+    } else {
+      throw new Error("No MongoDB credentials configured");
     }
 
     return new Response(JSON.stringify(result), {
