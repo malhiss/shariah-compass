@@ -1,16 +1,11 @@
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Progress } from '@/components/ui/progress';
-import { VerdictBadge, ZakatBadge, RiskBadge, BooleanBadge } from './VerdictBadge';
-import { formatPercent, formatCurrency, formatDate } from '@/types/mongodb';
-import type { ClientFacingRecord } from '@/types/mongodb';
-import { Building2, Scale, AlertTriangle, FileText, Coins } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import { VerdictBadge, ZakatBadge, RiskBadge, BooleanBadge } from "./VerdictBadge";
+import { formatPercent, formatCurrency, formatDate } from "@/types/mongodb";
+import type { ClientFacingRecord } from "@/types/mongodb";
+import { Building2, Scale, AlertTriangle, FileText, Coins } from "lucide-react";
 
 interface RecordDetailDrawerProps {
   record: ClientFacingRecord | null;
@@ -18,15 +13,7 @@ interface RecordDetailDrawerProps {
   onClose: () => void;
 }
 
-function RatioBar({
-  label,
-  value,
-  threshold,
-}: {
-  label: string;
-  value: number | null;
-  threshold: number;
-}) {
+function RatioBar({ label, value, threshold }: { label: string; value: number | null; threshold: number }) {
   const hasValue = value !== null && value !== undefined;
   const percentage = hasValue ? Math.min((value / threshold) * 100, 150) : 0;
   const isOverThreshold = hasValue && value > threshold;
@@ -39,9 +26,9 @@ function RatioBar({
           className={
             hasValue
               ? isOverThreshold
-                ? 'text-non-compliant font-semibold'
-                : 'text-compliant font-semibold'
-              : 'text-muted-foreground'
+                ? "text-non-compliant font-semibold"
+                : "text-compliant font-semibold"
+              : "text-muted-foreground"
           }
         >
           {formatPercent(value)} / {threshold}%
@@ -49,40 +36,38 @@ function RatioBar({
       </div>
       <Progress
         value={Math.min(percentage, 100)}
-        className={`h-2 ${isOverThreshold ? '[&>div]:bg-non-compliant' : '[&>div]:bg-compliant'}`}
+        className={`h-2 ${isOverThreshold ? "[&>div]:bg-non-compliant" : "[&>div]:bg-compliant"}`}
       />
     </div>
   );
 }
 
-export function RecordDetailDrawer({
-  record,
-  open,
-  onClose,
-}: RecordDetailDrawerProps) {
+export function RecordDetailDrawer({ record, open, onClose }: RecordDetailDrawerProps) {
   if (!record) return null;
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
+    <Sheet
+      open={open}
+      onOpenChange={(isOpen) => {
+        // Only trigger close when the sheet is being closed
+        if (!isOpen) onClose();
+      }}
+    >
       <SheetContent className="w-full sm:max-w-2xl overflow-y-auto bg-card border-border">
         <SheetHeader>
           <SheetTitle className="text-2xl font-serif flex items-center gap-3">
             <span>{record.Ticker}</span>
             <span className="text-muted-foreground font-normal">—</span>
-            <span className="text-muted-foreground font-normal text-lg">
-              {record.Company || 'Unknown'}
-            </span>
+            <span className="text-muted-foreground font-normal text-lg">{record.Company || "Unknown"}</span>
           </SheetTitle>
         </SheetHeader>
 
         <div className="mt-6 space-y-6">
           {/* Header Info */}
           <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-            <span className="px-2 py-1 rounded bg-muted/20">{record.Sector}</span>
-            <span className="px-2 py-1 rounded bg-muted/20">{record.Industry}</span>
-            <span className="px-2 py-1 rounded bg-muted/20">
-              {record.Security_Type}
-            </span>
+            <span className="px-2 py-1 rounded bg-muted/20">{record.Sector || "N/A"}</span>
+            <span className="px-2 py-1 rounded bg-muted/20">{record.Industry || "N/A"}</span>
+            <span className="px-2 py-1 rounded bg-muted/20">{record.Security_Type || "N/A"}</span>
           </div>
 
           {/* Zakat Section */}
@@ -101,31 +86,25 @@ export function RecordDetailDrawer({
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Zakatable Assets</p>
-                  <p className="font-semibold">
-                    {formatPercent(record.Zakatable_Assets_Ratio_Percent)}
-                  </p>
+                  <p className="font-semibold">{formatPercent(record.Zakatable_Assets_Ratio_Percent)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Zakat per Share</p>
-                  <p className="font-semibold">
-                    {formatCurrency(record.Zakat_Per_Share_USD)}
-                  </p>
+                  <p className="font-semibold">{formatCurrency(record.Zakat_Per_Share_USD)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Zakat per 100 Units</p>
-                  <p className="font-semibold">
-                    {formatCurrency(record.Zakat_Per_100_Units_USD)}
-                  </p>
+                  <p className="font-semibold">{formatCurrency(record.Zakat_Per_100_Units_USD)}</p>
                 </div>
               </div>
               <Separator />
               <div>
                 <p className="text-sm text-muted-foreground">Methodology</p>
-                <p className="text-sm">{record.Zakat_Methodology || 'N/A'}</p>
+                <p className="text-sm">{record.Zakat_Methodology || "N/A"}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Notes</p>
-                <p className="text-sm">{record.Zakat_Notes || 'N/A'}</p>
+                <p className="text-sm">{record.Zakat_Notes || "N/A"}</p>
               </div>
             </CardContent>
           </Card>
@@ -154,11 +133,11 @@ export function RecordDetailDrawer({
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Verdict Strength</p>
-                  <p className="font-medium">{record.Verdict_Strength || 'N/A'}</p>
+                  <p className="font-medium">{record.Verdict_Strength || "N/A"}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Compliance Status</p>
-                  <p className="font-medium">{record.Compliance_Status || 'N/A'}</p>
+                  <p className="font-medium">{record.Compliance_Status || "N/A"}</p>
                 </div>
               </div>
             </CardContent>
@@ -173,27 +152,13 @@ export function RecordDetailDrawer({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
-              <RatioBar
-                label="Debt Ratio"
-                value={record.Debt_Ratio_Percent}
-                threshold={33}
-              />
-              <RatioBar
-                label="Cash & Investment Ratio"
-                value={record.Cash_Investment_Ratio_Percent}
-                threshold={33}
-              />
-              <RatioBar
-                label="Non-Permissible Income"
-                value={record.Non_Permissible_Income_Percent}
-                threshold={5}
-              />
+              <RatioBar label="Debt Ratio" value={record.Debt_Ratio_Percent} threshold={33} />
+              <RatioBar label="Cash & Investment Ratio" value={record.Cash_Investment_Ratio_Percent} threshold={33} />
+              <RatioBar label="Non-Permissible Income" value={record.Non_Permissible_Income_Percent} threshold={5} />
               <Separator />
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">
-                    Haram Revenue (Point Est.)
-                  </p>
+                  <p className="text-sm text-muted-foreground">Haram Revenue (Point Est.)</p>
                   <p className="font-semibold text-warning">
                     {formatPercent(record.Non_Compliant_Revenue_Point_Estimate)}
                   </p>
@@ -204,17 +169,11 @@ export function RecordDetailDrawer({
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Purification %</p>
-                  <p className="font-semibold">
-                    {formatPercent(record.Purification_Percentage)}
-                  </p>
+                  <p className="font-semibold">{formatPercent(record.Purification_Percentage)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">
-                    Purification Amount (USD mn)
-                  </p>
-                  <p className="font-semibold">
-                    {formatCurrency(record.Purification_Amount_Estimated_USD_mn)}
-                  </p>
+                  <p className="text-sm text-muted-foreground">Purification Amount (USD mn)</p>
+                  <p className="font-semibold">{formatCurrency(record.Purification_Amount_Estimated_USD_mn)}</p>
                 </div>
               </div>
             </CardContent>
@@ -240,16 +199,11 @@ export function RecordDetailDrawer({
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Auto-Banned</p>
-                  <BooleanBadge
-                    value={record.Auto_Banned}
-                    trueLabel="Banned"
-                    falseLabel="No"
-                    className="mt-1"
-                  />
+                  <BooleanBadge value={record.Auto_Banned} trueLabel="Banned" falseLabel="No" className="mt-1" />
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">QA Status</p>
-                  <p className="font-medium">{record.QA_Status || 'N/A'}</p>
+                  <p className="font-medium">{record.QA_Status || "N/A"}</p>
                 </div>
               </div>
               {record.Dual_Use_Comment && (
@@ -267,9 +221,7 @@ export function RecordDetailDrawer({
               {record.Auto_Banned_Reason && (
                 <div>
                   <p className="text-sm text-muted-foreground">Auto-Ban Reason</p>
-                  <p className="text-sm text-non-compliant">
-                    {record.Auto_Banned_Reason}
-                  </p>
+                  <p className="text-sm text-non-compliant">{record.Auto_Banned_Reason}</p>
                 </div>
               )}
             </CardContent>
@@ -304,9 +256,7 @@ export function RecordDetailDrawer({
               )}
               {record.Shariah_References && (
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">
-                    Shariah References
-                  </p>
+                  <p className="text-sm text-muted-foreground mb-1">Shariah References</p>
                   <p className="text-sm">{record.Shariah_References}</p>
                 </div>
               )}

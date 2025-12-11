@@ -1,23 +1,30 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DashboardFilters } from '@/components/dashboard/DashboardFilters';
-import { ScreeningTable } from '@/components/dashboard/ScreeningTable';
-import { RecordDetailDrawer } from '@/components/dashboard/RecordDetailDrawer';
-import { getClientFacingRecords } from '@/lib/shariah-api';
-import { Scale, Coins, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import type { ClientFacingRecord, ScreeningFilters, ViewMode, PaginatedResponse } from '@/types/mongodb';
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
+import { ScreeningTable } from "@/components/dashboard/ScreeningTable";
+import { RecordDetailDrawer } from "@/components/dashboard/RecordDetailDrawer";
+import { getClientFacingRecords } from "@/lib/shariah-api";
+import { Scale, Coins, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import type { ClientFacingRecord, ScreeningFilters, ViewMode, PaginatedResponse } from "@/types/mongodb";
 
 export default function ShariahDashboard() {
-  const [viewMode, setViewMode] = useState<ViewMode>('shariah');
-  const [filters, setFilters] = useState<ScreeningFilters>({ page: 1, pageSize: 50 });
+  const [viewMode, setViewMode] = useState<ViewMode>("shariah");
+  const [filters, setFilters] = useState<ScreeningFilters>({
+    page: 1,
+    pageSize: 50,
+    // Optional: make sort explicit instead of relying on backend default
+    // sortBy: "Screening_Timestamp",
+    // sortOrder: "desc",
+  });
   const [data, setData] = useState<PaginatedResponse<ClientFacingRecord> | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedRecord, setSelectedRecord] = useState<ClientFacingRecord | null>(null);
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   const fetchData = async () => {
@@ -26,18 +33,28 @@ export default function ShariahDashboard() {
       const result = await getClientFacingRecords(filters);
       setData(result);
     } catch (error) {
-      console.error('Failed to fetch data:', error);
+      console.error("Failed to fetch data:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  // IMPORTANT: when filters change (search, sector, zakat status, etc),
+  // reset page back to 1 so you don't end up on an empty page.
   const handleFiltersChange = (newFilters: ScreeningFilters) => {
-    setFilters(newFilters);
+    setFilters((prev) => ({
+      ...prev,
+      ...newFilters,
+      page: 1,
+      pageSize: prev.pageSize ?? 50,
+    }));
   };
 
   const handlePageChange = (newPage: number) => {
-    setFilters({ ...filters, page: newPage });
+    setFilters((prev) => ({
+      ...prev,
+      page: newPage,
+    }));
   };
 
   return (
@@ -65,11 +82,17 @@ export default function ShariahDashboard() {
           <div className="mb-6">
             <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
               <TabsList className="bg-muted/30">
-                <TabsTrigger value="shariah" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <TabsTrigger
+                  value="shariah"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                >
                   <Scale className="w-4 h-4 mr-2" />
                   Shariah
                 </TabsTrigger>
-                <TabsTrigger value="zakat" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <TabsTrigger
+                  value="zakat"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                >
                   <Coins className="w-4 h-4 mr-2" />
                   Zakat
                 </TabsTrigger>
@@ -80,11 +103,7 @@ export default function ShariahDashboard() {
           {/* Filters */}
           <Card className="premium-card mb-6">
             <CardContent className="p-4">
-              <DashboardFilters
-                filters={filters}
-                onFiltersChange={handleFiltersChange}
-                viewMode={viewMode}
-              />
+              <DashboardFilters filters={filters} onFiltersChange={handleFiltersChange} viewMode={viewMode} />
             </CardContent>
           </Card>
 
@@ -146,11 +165,7 @@ export default function ShariahDashboard() {
       </section>
 
       {/* Detail Drawer */}
-      <RecordDetailDrawer
-        record={selectedRecord}
-        open={!!selectedRecord}
-        onClose={() => setSelectedRecord(null)}
-      />
+      <RecordDetailDrawer record={selectedRecord} open={!!selectedRecord} onClose={() => setSelectedRecord(null)} />
     </div>
   );
 }

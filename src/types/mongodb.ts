@@ -12,13 +12,13 @@ export interface ClientFacingRecord {
   Security_Type: string;
 
   // Verdict & labels
-  Final_Verdict: 'COMPLIANT' | 'COMPLIANT_WITH_PURIFICATION' | 'NON_COMPLIANT' | 'DOUBTFUL_REVIEW' | null;
-  Shariah_Compliant: 'YES' | 'NO' | 'DOUBTFUL' | null;
-  Numeric_Screening_Result: 'PASS' | 'FAIL' | null;
-  Qualitative_Screening_Result: 'PASS' | 'CAUTION' | 'FAIL' | null;
+  Final_Verdict: "COMPLIANT" | "COMPLIANT_WITH_PURIFICATION" | "NON_COMPLIANT" | "DOUBTFUL_REVIEW" | null;
+  Shariah_Compliant: "YES" | "NO" | "DOUBTFUL" | null;
+  Numeric_Screening_Result: "PASS" | "FAIL" | null;
+  Qualitative_Screening_Result: "PASS" | "CAUTION" | "FAIL" | null;
   Compliance_Status: string | null;
-  Verdict_Strength: 'Strong' | 'Moderate' | 'Weak' | null;
-  Compliance_Risk_Level: 'Low' | 'Medium' | 'High' | null;
+  Verdict_Strength: "Strong" | "Moderate" | "Weak" | null;
+  Compliance_Risk_Level: "Low" | "Medium" | "High" | null;
   Key_Risk_Factors: string | null;
 
   // Core ratios (0-100)
@@ -27,7 +27,7 @@ export interface ClientFacingRecord {
   Non_Permissible_Income_Percent: number | null;
 
   // Purification
-  Purification_Required: boolean | 'YES' | 'NO' | null;
+  Purification_Required: boolean | "YES" | "NO" | null;
   Purification_Percentage: number | null;
   Purification_Amount_Estimated_USD_mn: number | null;
 
@@ -35,11 +35,11 @@ export interface ClientFacingRecord {
   Non_Compliant_Revenue_Point_Estimate: number | null;
 
   // Dual-use
-  Dual_Use_Product: 'YES' | 'NO' | null;
+  Dual_Use_Product: "YES" | "NO" | null;
   Dual_Use_Comment: string | null;
 
   // Governance
-  Board_Review_Needed: 'YES' | 'NO' | null;
+  Board_Review_Needed: "YES" | "NO" | null;
   Doubt_Reason: string | null;
   Portfolio_Manager_Notes: string | null;
   Shariah_References: string | null;
@@ -66,7 +66,7 @@ export interface ClientFacingRecord {
   inserted_at: string | null;
 
   // Zakat fields
-  Zakat_Status?: 'ZAKATABLE' | 'NON_ZAKATABLE' | 'MIXED' | 'UNKNOWN' | null;
+  Zakat_Status?: "ZAKATABLE" | "NON_ZAKATABLE" | "MIXED" | "UNKNOWN" | null;
   Zakatable_Assets_Ratio_Percent?: number | null;
   Zakat_Per_Share_USD?: number | null;
   Zakat_Per_100_Units_USD?: number | null;
@@ -86,7 +86,7 @@ export interface IndustryMethodologyRecord {
   auto_banned: boolean;
   auto_banned_reason: string;
   industry_classification: string;
-  industry_methodology_status: 'AUTO_BANNED' | 'ALLOWED_BY_INDUSTRY';
+  industry_methodology_status: "AUTO_BANNED" | "ALLOWED_BY_INDUSTRY";
   forbiddenIndustryMatched: boolean;
   forbiddenSecurityMatched: boolean;
   pref_trust_shares_flag: boolean;
@@ -129,7 +129,7 @@ export interface NumericOnlyRecord {
   NPIN_Within_Limit: boolean | null;
 
   // Status
-  Numeric_Status: 'PASS' | 'FAIL' | null;
+  Numeric_Status: "PASS" | "FAIL" | null;
   Numeric_Pass: boolean | null;
   Numeric_Fail_Reason: string | null;
   Numeric_QA_Flag: boolean | null;
@@ -150,14 +150,17 @@ export interface ScreeningFilters {
   riskLevel?: string;
   shariahCompliant?: string;
   boardReviewNeeded?: string;
-  autoBanned?: string;
+  autoBanned?: "YES" | "NO" | "all";
   zakatStatus?: string;
   zakatableAssetsMin?: number;
   zakatMethodology?: string;
   page?: number;
   pageSize?: number;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
+
+  // for numeric-only tab / API
+  numericStatus?: string;
 }
 
 export interface PaginatedResponse<T> {
@@ -169,84 +172,91 @@ export interface PaginatedResponse<T> {
 }
 
 // ==================== View Mode ====================
-export type ViewMode = 'shariah' | 'zakat';
+export type ViewMode = "shariah" | "zakat";
 
 // ==================== Helper Functions ====================
-export function formatPercent(value: number | null | undefined): string {
-  if (value === null || value === undefined) return 'N/A';
-  return `${value.toFixed(2)}%`;
+export function formatPercent(value: number | null | undefined, decimals: number = 2): string {
+  if (value === null || value === undefined) return "N/A";
+  if (Number.isNaN(value)) return "N/A";
+  return `${value.toFixed(decimals)}%`;
 }
 
-export function formatCurrency(value: number | null | undefined): string {
-  if (value === null || value === undefined) return 'N/A';
-  return value.toFixed(2);
+export function formatCurrency(value: number | null | undefined, decimals: number = 2): string {
+  if (value === null || value === undefined) return "N/A";
+  if (Number.isNaN(value)) return "N/A";
+  return value.toFixed(decimals);
 }
 
 export function formatDate(dateStr: string | null | undefined): string {
-  if (!dateStr) return 'N/A';
+  if (!dateStr) return "N/A";
   try {
     const date = new Date(dateStr);
-    return date.toISOString().split('T')[0];
+    if (Number.isNaN(date.getTime())) return "N/A";
+    return date.toISOString().split("T")[0]; // YYYY-MM-DD
   } catch {
-    return dateStr;
+    return "N/A";
   }
 }
 
 export function getVerdictColor(verdict: string | null): string {
   switch (verdict) {
-    case 'COMPLIANT':
-      return 'compliant';
-    case 'COMPLIANT_WITH_PURIFICATION':
-      return 'warning';
-    case 'NON_COMPLIANT':
-      return 'non-compliant';
-    case 'DOUBTFUL_REVIEW':
-      return 'doubtful';
+    case "COMPLIANT":
+      return "compliant";
+    case "COMPLIANT_WITH_PURIFICATION":
+      return "warning";
+    case "NON_COMPLIANT":
+      return "non-compliant";
+    case "DOUBTFUL_REVIEW":
+      return "doubtful";
     default:
-      return 'no-data';
+      return "no-data";
   }
 }
 
 export function getZakatStatusColor(status: string | null | undefined): string {
   switch (status) {
-    case 'ZAKATABLE':
-      return 'compliant';
-    case 'NON_ZAKATABLE':
-      return 'non-compliant';
-    case 'MIXED':
-      return 'warning';
-    case 'UNKNOWN':
+    case "ZAKATABLE":
+      return "compliant";
+    case "NON_ZAKATABLE":
+      return "non-compliant";
+    case "MIXED":
+      return "warning";
+    case "UNKNOWN":
     default:
-      return 'no-data';
+      return "no-data";
   }
 }
 
 export function getRiskLevelColor(level: string | null): string {
   switch (level) {
-    case 'Low':
-      return 'compliant';
-    case 'Medium':
-      return 'warning';
-    case 'High':
-      return 'non-compliant';
+    case "Low":
+      return "compliant";
+    case "Medium":
+      return "warning";
+    case "High":
+      return "non-compliant";
     default:
-      return 'no-data';
+      return "no-data";
   }
 }
 
 export function coerceToNumber(value: unknown): number | null {
-  if (value === null || value === undefined || value === '') return null;
-  const num = typeof value === 'string' ? parseFloat(value) : Number(value);
-  return isNaN(num) ? null : num;
+  if (value === null || value === undefined || value === "") return null;
+  const num = typeof value === "string" ? parseFloat(value) : Number(value);
+  return Number.isNaN(num) ? null : num;
 }
 
 export function coerceToBoolean(value: unknown): boolean | null {
   if (value === null || value === undefined) return null;
-  if (typeof value === 'boolean') return value;
-  if (typeof value === 'string') {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
     const lower = value.toLowerCase();
-    if (lower === 'yes' || lower === 'true' || lower === '1') return true;
-    if (lower === 'no' || lower === 'false' || lower === '0') return false;
+    if (lower === "yes" || lower === "true" || lower === "1") return true;
+    if (lower === "no" || lower === "false" || lower === "0") return false;
+  }
+  if (typeof value === "number") {
+    if (value === 1) return true;
+    if (value === 0) return false;
   }
   return null;
 }
