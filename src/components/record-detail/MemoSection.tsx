@@ -9,7 +9,8 @@ interface MemoSectionProps {
 
 export function MemoSection({ record }: MemoSectionProps) {
   const memoUrl = getMemoUrl(record);
-  const memoContent = record.shariah_memo;
+  // Try new field name first, then legacy
+  const memoContent = record.shariah_memo_markdown || record.shariah_memo;
 
   const hasMemo = memoUrl || memoContent;
 

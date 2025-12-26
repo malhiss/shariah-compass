@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { formatPercent, coerceToNumber } from '@/types/mongodb';
+import { formatPercent } from '@/types/mongodb';
+import { normalizeHaramSegments, getHaramPct, getHalalPct } from '@/types/screening-record';
 import type { ScreeningRecord, HaramSegment } from '@/types/screening-record';
 import { ChevronDown, ChevronUp, XCircle, CheckCircle2, AlertCircle } from 'lucide-react';
 
@@ -19,10 +20,12 @@ interface SegmentRowProps {
 }
 
 function SegmentRow({ segment, isExpanded, onToggle }: SegmentRowProps) {
-  const pointEstimate = segment.haram_pct_of_total_revenue_point_estimate;
-  const lower = segment.haram_pct_of_total_revenue_lower;
-  const upper = segment.haram_pct_of_total_revenue_upper;
-  const hasDetails = segment.description || segment.global_reasoning || segment.limitations;
+  // Support both new and legacy field names
+  const pointEstimate = segment.point ?? segment.haram_pct_of_total_revenue_point_estimate;
+  const lower = segment.lower ?? segment.haram_pct_of_total_revenue_lower;
+  const upper = segment.upper ?? segment.haram_pct_of_total_revenue_upper;
+  const reasoning = segment.reasoning ?? segment.global_reasoning;
+  const hasDetails = segment.description || reasoning || segment.limitations;
 
   return (
     <div className="border-b border-border/50 last:border-0">
@@ -60,10 +63,10 @@ function SegmentRow({ segment, isExpanded, onToggle }: SegmentRowProps) {
               {segment.description}
             </p>
           )}
-          {segment.global_reasoning && (
+          {reasoning && (
             <div>
               <p className="text-xs font-medium text-muted-foreground mb-1">Reasoning</p>
-              <p className="text-sm text-muted-foreground">{segment.global_reasoning}</p>
+              <p className="text-sm text-muted-foreground">{reasoning}</p>
             </div>
           )}
           {segment.limitations && (
@@ -83,9 +86,9 @@ export function BreakdownPanels({ record }: BreakdownPanelsProps) {
   const [halalOpen, setHalalOpen] = useState(false);
   const [expandedSegments, setExpandedSegments] = useState<Set<number>>(new Set());
 
-  const segments = record.haram_segments || [];
-  const haramPct = coerceToNumber(record.haram_revenue_pct_for_screening ?? record.Non_Compliant_Revenue_Point_Estimate);
-  const halalPct = haramPct !== null ? Math.max(0, 100 - haramPct) : null;
+  const segments = normalizeHaramSegments(record);
+  const haramPct = getHaramPct(record);
+  const halalPct = getHalalPct(record);
 
   const toggleSegment = (index: number) => {
     setExpandedSegments((prev) => {
@@ -128,7 +131,7 @@ export function BreakdownPanels({ record }: BreakdownPanelsProps) {
                 <div className="text-center py-6">
                   <AlertCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                   <p className="text-sm text-muted-foreground">
-                    No haram segment estimate available for this record.
+                    No non-halal segments identified
                   </p>
                 </div>
               ) : (
@@ -175,7 +178,7 @@ export function BreakdownPanels({ record }: BreakdownPanelsProps) {
               <div className="border-b border-border/50 py-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-sm">All other revenue (residual)</p>
+                    <p className="font-medium text-sm">Residual halal revenue</p>
                     <p className="text-xs text-muted-foreground mt-0.5 font-mono">
                       {halalPct !== null ? `${halalPct.toFixed(2)}%` : 'N/A'}
                     </p>
@@ -184,8 +187,7 @@ export function BreakdownPanels({ record }: BreakdownPanelsProps) {
               </div>
               <div className="pt-3">
                 <p className="text-xs text-muted-foreground bg-muted/10 p-3 rounded">
-                  Halal residual is calculated as 100% minus estimated not-halal segments. 
-                  Company-level segment disclosure may be limited.
+                  Calculated as 100% minus estimated non-halal revenue.
                 </p>
               </div>
             </CardContent>

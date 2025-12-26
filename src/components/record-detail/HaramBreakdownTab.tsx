@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatPercent } from '@/types/mongodb';
+import { normalizeHaramSegments, getHaramPct } from '@/types/screening-record';
 import type { ScreeningRecord, HaramSegment } from '@/types/screening-record';
 import { PieChart, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 
@@ -15,9 +15,9 @@ interface HaramBreakdownTabProps {
 export function HaramBreakdownTab({ record }: HaramBreakdownTabProps) {
   const [expandedSegments, setExpandedSegments] = useState<Set<number>>(new Set());
 
-  const segments = record.haram_segments || [];
+  const segments = normalizeHaramSegments(record);
   const haramTotalDisplay = record.haram_total_pct_display;
-  const haramForScreening = record.haram_revenue_pct_for_screening ?? record.Non_Compliant_Revenue_Point_Estimate;
+  const haramForScreening = getHaramPct(record);
   const topSegmentsLabel = record.haram_top_segments_label;
 
   const toggleSegment = (index: number) => {
@@ -110,9 +110,10 @@ export function HaramBreakdownTab({ record }: HaramBreakdownTabProps) {
                 <TableBody>
                   {segments.map((segment: HaramSegment, index: number) => {
                     const isExpanded = expandedSegments.has(index);
-                    const pointEstimate = segment.haram_pct_of_total_revenue_point_estimate;
-                    const lower = segment.haram_pct_of_total_revenue_lower;
-                    const upper = segment.haram_pct_of_total_revenue_upper;
+                    const pointEstimate = segment.point ?? segment.haram_pct_of_total_revenue_point_estimate;
+                    const lower = segment.lower ?? segment.haram_pct_of_total_revenue_lower;
+                    const upper = segment.upper ?? segment.haram_pct_of_total_revenue_upper;
+                    const reasoning = segment.reasoning ?? segment.global_reasoning;
 
                     return (
                       <>
@@ -145,7 +146,7 @@ export function HaramBreakdownTab({ record }: HaramBreakdownTabProps) {
                             )}
                           </TableCell>
                           <TableCell className="text-center">
-                            {(segment.global_reasoning || segment.limitations) && (
+                            {(reasoning || segment.limitations) && (
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -161,15 +162,15 @@ export function HaramBreakdownTab({ record }: HaramBreakdownTabProps) {
                             )}
                           </TableCell>
                         </TableRow>
-                        {isExpanded && (segment.global_reasoning || segment.limitations) && (
+                        {isExpanded && (reasoning || segment.limitations) && (
                           <TableRow key={`${index}-expanded`} className="border-border bg-muted/10">
                             <TableCell colSpan={5} className="p-4">
                               <div className="space-y-3">
-                                {segment.global_reasoning && (
+                                {reasoning && (
                                   <div>
                                     <h5 className="text-sm font-medium mb-1">Reasoning</h5>
                                     <p className="text-sm text-muted-foreground">
-                                      {segment.global_reasoning}
+                                      {reasoning}
                                     </p>
                                   </div>
                                 )}
