@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { PieChart as PieChartIcon, Info, AlertCircle } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { coerceToNumber } from '@/types/mongodb';
+import { getHaramPct, normalizeHaramSegments } from '@/types/screening-record';
 import type { ScreeningRecord } from '@/types/screening-record';
 
 interface RevenueCompositionProps {
@@ -10,10 +11,11 @@ interface RevenueCompositionProps {
 }
 
 export function RevenueComposition({ record }: RevenueCompositionProps) {
-  const haramPct = coerceToNumber(record.haram_revenue_pct_for_screening ?? record.Non_Compliant_Revenue_Point_Estimate);
+  const haramPct = coerceToNumber(getHaramPct(record));
   const haramDisplay = record.haram_total_pct_display;
   const topSegmentsLabel = record.haram_top_segments_label;
-  const hasSegments = record.haram_segments && record.haram_segments.length > 0;
+  const segments = normalizeHaramSegments(record);
+  const hasSegments = segments.length > 0;
 
   // Calculate halal percentage
   const notHalalPct = haramPct !== null ? Math.min(haramPct, 100) : 0;

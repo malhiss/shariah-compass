@@ -60,76 +60,72 @@ function getStatusBadge(status: TileStatus) {
 
 export function ScreeningTiles({ record }: ScreeningTilesProps) {
   // Business Activity tile logic
+  const businessStatus = record.business_status;
   const llmFailFlag = record.llm_has_fail_flag;
   const llmCautionFlag = record.llm_has_caution_flag;
   const evidence = normalizeEvidence(record);
   const evidenceCount = evidence.length;
 
-  let businessStatus: TileStatus = 'pass';
-  if (llmFailFlag) {
-    businessStatus = 'fail';
-  } else if (llmCautionFlag) {
-    businessStatus = 'review';
+  let businessTileStatus: TileStatus = 'pass';
+  let businessSubtext = 'No red flags identified';
+  
+  if (businessStatus === 'FAIL' || llmFailFlag) {
+    businessTileStatus = 'fail';
+    businessSubtext = 'LLM Fail flag detected';
+  } else if (businessStatus === 'CAUTION' || businessStatus === 'REVIEW' || llmCautionFlag) {
+    businessTileStatus = 'review';
+    businessSubtext = 'LLM caution flag detected';
   }
 
-  // Financial ratios
-  const debtRatio = coerceToNumber(record.Debt_Ratio ?? record.Debt_Ratio_Percent);
-  const cashInvRatio = coerceToNumber(record.CashInv_Ratio ?? record.Cash_Investment_Ratio_Percent);
-  const npinRatio = coerceToNumber(record.NPIN_Ratio ?? record.Non_Permissible_Income_Percent);
+  // Use snake_case fields with fallback to PascalCase
+  const debtRatio = record.debt_ratio_pct ?? coerceToNumber(record.Debt_Ratio ?? record.Debt_Ratio_Percent);
+  const cashInvRatio = record.cash_inv_ratio_pct ?? coerceToNumber(record.CashInv_Ratio ?? record.Cash_Investment_Ratio_Percent);
+  const npinRatio = record.npin_ratio_pct ?? coerceToNumber(record.NPIN_Ratio ?? record.Non_Permissible_Income_Percent);
 
-  // Normalize ratios (convert from percent to decimal if > 1)
-  const normalizeRatio = (val: number | null): number | null => {
-    if (val === null) return null;
-    return val > 1 ? val / 100 : val;
-  };
-
-  const normalizedDebt = normalizeRatio(debtRatio);
-  const normalizedCashInv = normalizeRatio(cashInvRatio);
-  const normalizedNpin = normalizeRatio(npinRatio);
-
-  // Determine statuses
-  const getFinancialStatus = (value: number | null, threshold: number): TileStatus => {
+  // Get statuses from API or calculate
+  const getStatus = (apiStatus: string | null | undefined, value: number | null, threshold: number): TileStatus => {
+    if (apiStatus === 'PASS') return 'pass';
+    if (apiStatus === 'FAIL') return 'fail';
     if (value === null) return 'unknown';
     return value <= threshold ? 'pass' : 'fail';
   };
 
   const formatPercent = (val: number | null): string | null => {
     if (val === null) return null;
-    const displayVal = val > 1 ? val : val * 100;
-    return `${displayVal.toFixed(2)}%`;
+    return `${val.toFixed(2)}%`;
   };
 
   const tiles: TileData[] = [
     {
       label: 'Business Activity',
       icon: <Briefcase className="w-5 h-5" />,
-      status: businessStatus,
+      status: businessTileStatus,
       value: null,
-      subtext: `Evidence flags: ${evidenceCount}`,
+      subtext: businessSubtext,
     },
     {
       label: 'Debt Ratio',
       icon: <Scale className="w-5 h-5" />,
-      status: getFinancialStatus(normalizedDebt, THRESHOLDS.debt),
-      value: formatPercent(normalizedDebt),
-      formula: record.Debt_Ratio_Formula,
-      subtext: '≤ 33%',
+      status: getStatus(record.debt_status, debtRatio, record.debt_threshold_pct ?? 33),
+      value: formatPercent(debtRatio),
+      formula: record.debt_ratio_formula || record.Debt_Ratio_Formula,
+      subtext: `≤ ${record.debt_threshold_pct ?? 33}%`,
     },
     {
       label: 'Cash & Investments',
       icon: <DollarSign className="w-5 h-5" />,
-      status: getFinancialStatus(normalizedCashInv, THRESHOLDS.cashInv),
-      value: formatPercent(normalizedCashInv),
-      formula: record.CashInv_Ratio_Formula,
-      subtext: '≤ 33%',
+      status: getStatus(record.cash_inv_status, cashInvRatio, record.cash_inv_threshold_pct ?? 33),
+      value: formatPercent(cashInvRatio),
+      formula: record.cash_inv_ratio_formula || record.CashInv_Ratio_Formula,
+      subtext: `≤ ${record.cash_inv_threshold_pct ?? 33}%`,
     },
     {
       label: 'NPIN',
       icon: <TrendingDown className="w-5 h-5" />,
-      status: getFinancialStatus(normalizedNpin, THRESHOLDS.npin),
-      value: formatPercent(normalizedNpin),
-      formula: record.NPIN_Ratio_Formula,
-      subtext: '≤ 5%',
+      status: getStatus(record.npin_status, npinRatio, record.npin_threshold_pct ?? 5),
+      value: formatPercent(npinRatio),
+      formula: record.npin_ratio_formula || record.NPIN_Ratio_Formula,
+      subtext: `≤ ${record.npin_threshold_pct ?? 5}%`,
     },
   ];
 
