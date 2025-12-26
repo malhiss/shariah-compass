@@ -2,37 +2,46 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { MongoClient } from "https://deno.land/x/mongo@v0.32.0/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-// Helper function to encode special characters in MongoDB URI password
-function encodeMongoUri(uri: string): string {
-  // Parse the URI to extract and encode the password
-  const regex = /^(mongodb(?:\+srv)?:\/\/)([^:]+):([^@]+)@(.+)$/;
-  const match = uri.match(regex);
-  
-  if (!match) {
-    // If URI doesn't match expected format, return as-is
-    return uri;
-  }
-  
-  const [, protocol, username, password, rest] = match;
-  const encodedUsername = encodeURIComponent(username);
-  const encodedPassword = encodeURIComponent(password);
-  
-  return `${protocol}${encodedUsername}:${encodedPassword}@${rest}`;
-}
-
+// --- CORS ---
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Helper function to log activity
+// Helper: encode special characters in password portion of MongoDB URI (safe)
+function encodeMongoUri(uri: string): string {
+  // mongodb+srv://username:password@host/db?opts
+  const regex = /^(mongodb(?:\+srv)?:\/\/)([^:]+):([^@]+)@(.+)$/;
+  const match = uri.match(regex);
+
+  if (!match) return uri;
+
+  const [, protocol, username, password, rest] = match;
+  const encodedPassword = encodeURIComponent(password);
+  return `${protocol}${username}:${encodedPassword}@${rest}`;
+}
+
+// Helper: best-effort DB name extraction from MongoDB URI path
+function dbNameFromMongoUri(uri: string): string | null {
+  // Examples:
+  // mongodb+srv://u:p@host/DBNAME?x=y
+  // mongodb+srv://u:p@host/?x=y   (no db)
+  const m = uri.match(/mongodb(?:\+srv)?:\/\/[^@]+@[^/]+\/([^?/]*)/);
+  if (!m) return null;
+
+  const raw = (m[1] || "").trim();
+  if (!raw) return null;
+  return decodeURIComponent(raw);
+}
+
+// Helper: log activity to Supabase (does not block)
 async function logActivity(
   userId: string | null,
   userEmail: string | null,
   activityType: string,
   description: string,
   metadata: Record<string, any> = {},
-  req?: Request
+  req?: Request,
 ) {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -48,13 +57,12 @@ async function logActivity(
       ip_address: req?.headers.get("x-forwarded-for") || req?.headers.get("x-real-ip") || null,
       user_agent: req?.headers.get("user-agent") || null,
     });
-  } catch (error) {
-    console.error("Failed to log activity:", error);
+  } catch (err) {
+    console.error("Failed to log activity:", err);
   }
 }
 
-
-// Helper to verify authenticated user
+// Helper: verify authenticated user via Supabase Auth
 async function verifyAuth(req: Request): Promise<{ userId: string; email: string | null } | null> {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) return null;
@@ -66,143 +74,177 @@ async function verifyAuth(req: Request): Promise<{ userId: string; email: string
     global: { headers: { Authorization: authHeader } },
   });
 
-  const { data: { user }, error } = await supabaseClient.auth.getUser();
+  const {
+    data: { user },
+    error,
+  } = await supabaseClient.auth.getUser();
   if (error || !user) return null;
 
   return { userId: user.id, email: user.email || null };
 }
 
 serve(async (req) => {
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
+  // CORS preflight
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let mongoClient: MongoClient | null = null;
+
   try {
-    // Verify authentication
+    // Auth required
     const authUser = await verifyAuth(req);
     if (!authUser) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized - Authentication required' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const { ticker } = await req.json();
-    
-    if (!ticker || typeof ticker !== 'string') {
-      return new Response(
-        JSON.stringify({ error: 'Ticker is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Parse input
+    const body = await req.json().catch(() => ({}));
+    const ticker = body?.ticker;
+
+    if (!ticker || typeof ticker !== "string") {
+      return new Response(JSON.stringify({ error: "Ticker is required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const normalizedTicker = ticker.trim().toUpperCase();
-    console.log(`User: ${authUser.email}, Screening ticker: ${normalizedTicker}`);
+    console.log(`ticker-screening invoked. user=${authUser.email} ticker=${normalizedTicker}`);
 
-    const mongoUri = Deno.env.get('MONGODB_URI');
-    if (!mongoUri) {
-      throw new Error('MongoDB URI not configured');
+    // Get Mongo URI
+    const rawMongoUri = Deno.env.get("MONGODB_URI");
+    if (!rawMongoUri) {
+      console.error("MONGODB_URI missing from secrets");
+      return new Response(JSON.stringify({ error: "MongoDB URI not configured" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const client = new MongoClient();
-    await client.connect(encodeMongoUri(mongoUri));
-    
-    const db = client.database('shariah_screening');
+    // Choose DB name:
+    // 1) explicit secret MONGODB_DB
+    // 2) infer from URI path
+    // 3) fallback to a safe default (but your current DB is Shariah-screening-n8n)
+    const envDb = Deno.env.get("MONGODB_DB")?.trim();
+    const uriDb = dbNameFromMongoUri(rawMongoUri);
+    const dbName = envDb || uriDb || "Shariah-screening-n8n";
 
-    // Query all three methodologies in parallel
-    const [invesenseResult, autoBannedPass, autoBannedFail, numericPass, numericFail, masterSheet] = await Promise.all([
-      db.collection('client_facing_results').findOne({ Ticker: normalizedTicker }),
-      db.collection('Auto-banned-Pass').findOne({ Ticker: normalizedTicker }),
-      db.collection('Auto-banned-Fail').findOne({ Ticker: normalizedTicker }),
-      db.collection('numeric_pass').findOne({ Ticker: normalizedTicker }),
-      db.collection('numeric_fail').findOne({ Ticker: normalizedTicker }),
-      db.collection('Master-Sheet').findOne({ Ticker: normalizedTicker }),
-    ]);
+    console.log(`Mongo config: hasUri=true dbName=${dbName} (env=${Boolean(envDb)} uri=${Boolean(uriDb)})`);
 
-    // Also check for QA issues
-    const qaResult = await db.collection('client_facing_qa').findOne({ Ticker: normalizedTicker });
+    // Connect Mongo
+    mongoClient = new MongoClient();
+    await mongoClient.connect(encodeMongoUri(rawMongoUri));
 
-    await client.close();
+    const db = mongoClient.database(dbName);
 
-    // Build response
+    // Query all relevant collections in parallel
+    const [invesenseResult, autoBannedPass, autoBannedFail, numericPass, numericFail, masterSheet, qaResult] =
+      await Promise.all([
+        db.collection("client_facing_results").findOne({ Ticker: normalizedTicker }),
+        db.collection("Auto-banned-Pass").findOne({ Ticker: normalizedTicker }),
+        db.collection("Auto-banned-Fail").findOne({ Ticker: normalizedTicker }),
+        db.collection("numeric_pass").findOne({ Ticker: normalizedTicker }),
+        db.collection("numeric_fail").findOne({ Ticker: normalizedTicker }),
+        db.collection("Master-Sheet").findOne({ Ticker: normalizedTicker }),
+        db.collection("client_facing_qa").findOne({ Ticker: normalizedTicker }),
+      ]);
+
+    // Build response (keep your existing shape)
     const response = {
       security: {
         ticker: normalizedTicker,
-        company: invesenseResult?.Company || masterSheet?.Company || autoBannedPass?.Company || autoBannedFail?.Company || null,
+        company:
+          invesenseResult?.Company ||
+          masterSheet?.Company ||
+          autoBannedPass?.Company ||
+          autoBannedFail?.Company ||
+          null,
         sector: masterSheet?.Sector || null,
         industry: masterSheet?.Industry || autoBannedPass?.Industry || autoBannedFail?.Industry || null,
-        typeOfSecurity: masterSheet?.typeOfSecurity || autoBannedPass?.Security_Type || autoBannedFail?.Security_Type || null,
-        reportDate: masterSheet?.report_date || null,
       },
+
       invesense: {
-        classification: invesenseResult?.final_classification || null,
+        status: invesenseResult?.final_classification || null,
+        finalClassification: invesenseResult?.final_classification || null,
         debtRatio: invesenseResult?.Debt_Ratio ?? null,
         cashInvRatio: invesenseResult?.CashInv_Ratio ?? null,
         npinRatio: invesenseResult?.NPIN_Ratio ?? null,
-        purificationRequired: invesenseResult?.purification_required === true || invesenseResult?.purification_required === 'true',
+
+        purificationRequired:
+          invesenseResult?.purification_required === true ||
+          invesenseResult?.purification_required === "true" ||
+          invesenseResult?.purification_required === 1 ||
+          invesenseResult?.purification_requied === true, // backward typo support
         purificationPctRecommended: invesenseResult?.purification_pct_recommended ?? null,
+
         keyDrivers: invesenseResult?.key_drivers || [],
         shariahSummary: invesenseResult?.shariah_summary || null,
         notesForPortfolioManager: invesenseResult?.notes_for_portfolio_manager || null,
         needsBoardReview: invesenseResult?.needs_board_review === true,
+
         haramRevenuePercent: invesenseResult?.haram_revenue_percent ?? null,
+
         qaStatus: qaResult?.qa_status || null,
         qaIssues: qaResult?.qa_issues || [],
         available: !!invesenseResult,
       },
+
       autoBanned: {
-        status: autoBannedPass ? 'PASS' : autoBannedFail ? 'FAIL' : null,
-        autoBanned: autoBannedFail?.auto_banned === true || autoBannedFail?.auto_banned === 'true',
+        status: autoBannedPass ? "PASS" : autoBannedFail ? "FAIL" : null,
+        autoBanned: autoBannedFail?.auto_banned === true || autoBannedFail?.auto_banned === "true",
         autoBannedReason: autoBannedFail?.auto_banned_reason || null,
-        industry: autoBannedPass?.Industry || autoBannedFail?.Industry || null,
-        securityType: autoBannedPass?.Security_Type || autoBannedFail?.Security_Type || null,
+        industry: autoBannedFail?.Industry || autoBannedPass?.Industry || null,
         available: !!(autoBannedPass || autoBannedFail),
       },
+
       numeric: {
-        status: numericPass ? 'PASS' : numericFail ? 'FAIL' : null,
+        status: numericPass ? "PASS" : numericFail ? "FAIL" : null,
         debtRatio: numericPass?.Debt_Ratio ?? numericFail?.Debt_Ratio ?? null,
         cashInvRatio: numericPass?.CashInv_Ratio ?? numericFail?.CashInv_Ratio ?? null,
         npinRatio: numericPass?.NPIN_Ratio ?? numericFail?.NPIN_Ratio ?? null,
         failReason: numericFail?.numeric_fail_reason || null,
         available: !!(numericPass || numericFail),
       },
+
+      meta: {
+        dbNameUsed: dbName,
+        hasMasterSheet: !!masterSheet,
+      },
     };
 
-    console.log(`Screening complete for ${normalizedTicker}:`, {
-      invesense: response.invesense.available,
-      autoBanned: response.autoBanned.available,
-      numeric: response.numeric.available,
-    });
-
-    // Log the screening activity
-    await logActivity(
+    // Activity log (non-blocking)
+    logActivity(
       authUser.userId,
       authUser.email,
       "ticker_screening",
-      `Screened ticker: ${normalizedTicker}`,
-      {
-        ticker: normalizedTicker,
-        company: response.security.company,
-        invesense_classification: response.invesense.classification,
-        invesense_available: response.invesense.available,
-        autoBanned_status: response.autoBanned.status,
-        numeric_status: response.numeric.status,
-      },
-      req
+      `Screened ticker ${normalizedTicker}`,
+      { ticker: normalizedTicker, db: dbName },
+      req,
     );
 
-    return new Response(
-      JSON.stringify(response),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify(response), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (err: any) {
+    // Important: log full error server-side
+    console.error("Ticker screening error:", err);
 
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Ticker screening error:', error);
-    return new Response(
-      JSON.stringify({ error: message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    const message = typeof err?.message === "string" ? err.message : "Unknown error";
+
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } finally {
+    try {
+      if (mongoClient) await mongoClient.close();
+    } catch (closeErr) {
+      console.error("Failed closing Mongo client:", closeErr);
+    }
   }
 });
