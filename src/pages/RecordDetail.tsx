@@ -5,13 +5,16 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { VerdictActionBox } from '@/components/record-detail/VerdictActionBox';
+import { RecordHeader } from '@/components/record-detail/RecordHeader';
+import { VerdictBar } from '@/components/record-detail/VerdictBar';
+import { ScreeningTiles } from '@/components/record-detail/ScreeningTiles';
+import { RevenueComposition } from '@/components/record-detail/RevenueComposition';
+import { BreakdownPanels } from '@/components/record-detail/BreakdownPanels';
 import { NumericScreenTab } from '@/components/record-detail/NumericScreenTab';
-import { HaramBreakdownTab } from '@/components/record-detail/HaramBreakdownTab';
 import { EvidenceTab } from '@/components/record-detail/EvidenceTab';
 import { QATab } from '@/components/record-detail/QATab';
 import { MemoSection } from '@/components/record-detail/MemoSection';
-import { ArrowLeft, RefreshCw, AlertTriangle, Calculator, PieChart, FileSearch, ClipboardCheck, FileText } from 'lucide-react';
+import { ArrowLeft, RefreshCw, AlertTriangle, FileSearch, Calculator, FileText, ClipboardCheck } from 'lucide-react';
 
 export default function RecordDetail() {
   const { upsertKey } = useParams<{ upsertKey: string }>();
@@ -21,15 +24,31 @@ export default function RecordDetail() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="container py-8">
-        <div className="flex items-center gap-4 mb-6">
-          <Skeleton className="h-10 w-24" />
-          <Skeleton className="h-8 w-48" />
+      <div className="container py-6 space-y-6">
+        {/* Header skeleton */}
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-32" />
+          <div className="flex items-center gap-4">
+            <Skeleton className="w-14 h-14 rounded-xl" />
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-64" />
+              <Skeleton className="h-4 w-40" />
+            </div>
+          </div>
         </div>
-        <div className="space-y-6">
-          <Skeleton className="h-48 w-full" />
-          <Skeleton className="h-64 w-full" />
+
+        {/* Verdict bar skeleton */}
+        <Skeleton className="h-20 w-full" />
+
+        {/* Tiles skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-32" />
+          ))}
         </div>
+
+        {/* Chart skeleton */}
+        <Skeleton className="h-80 w-full" />
       </div>
     );
   }
@@ -79,43 +98,38 @@ export default function RecordDetail() {
   }
 
   return (
-    <div className="container py-8">
-      {/* Back navigation */}
-      <div className="mb-6">
-        <Link to="/shariah-dashboard">
-          <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
-          </Button>
-        </Link>
-      </div>
+    <div className="container py-6 space-y-6">
+      {/* A) Header block */}
+      <RecordHeader record={record} />
 
-      {/* Verdict & Action Box - Feature 1 */}
-      <VerdictActionBox record={record} />
+      {/* B) Verdict & Action Bar (sticky) */}
+      <VerdictBar record={record} />
 
-      {/* Tabs for different views */}
-      <Tabs defaultValue="numeric" className="mt-8">
+      {/* C) Screening tiles row */}
+      <ScreeningTiles record={record} />
+
+      {/* D) Revenue Composition section */}
+      <RevenueComposition record={record} />
+
+      {/* E) Breakdown panels */}
+      <BreakdownPanels record={record} />
+
+      {/* Tabs for detailed views */}
+      <Tabs defaultValue="evidence" className="mt-8">
         <TabsList className="bg-muted/30 flex-wrap h-auto gap-1 p-1">
-          <TabsTrigger
-            value="numeric"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-          >
-            <Calculator className="w-4 h-4 mr-2" />
-            Numeric Screen
-          </TabsTrigger>
-          <TabsTrigger
-            value="haram"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-          >
-            <PieChart className="w-4 h-4 mr-2" />
-            Haram Breakdown
-          </TabsTrigger>
           <TabsTrigger
             value="evidence"
             className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
             <FileSearch className="w-4 h-4 mr-2" />
             Evidence
+          </TabsTrigger>
+          <TabsTrigger
+            value="numeric"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+          >
+            <Calculator className="w-4 h-4 mr-2" />
+            Numeric
           </TabsTrigger>
           <TabsTrigger
             value="memo"
@@ -135,16 +149,12 @@ export default function RecordDetail() {
           )}
         </TabsList>
 
-        <TabsContent value="numeric" className="mt-6">
-          <NumericScreenTab record={record} />
-        </TabsContent>
-
-        <TabsContent value="haram" className="mt-6">
-          <HaramBreakdownTab record={record} />
-        </TabsContent>
-
         <TabsContent value="evidence" className="mt-6">
           <EvidenceTab record={record} />
+        </TabsContent>
+
+        <TabsContent value="numeric" className="mt-6">
+          <NumericScreenTab record={record} />
         </TabsContent>
 
         <TabsContent value="memo" className="mt-6">
