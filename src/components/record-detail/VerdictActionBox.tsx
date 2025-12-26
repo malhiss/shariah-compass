@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { formatDate, coerceToBoolean } from '@/types/mongodb';
-import { getClassificationLabel, getClassificationColor } from '@/types/screening-record';
+import { getClassificationLabel, getClassificationColor, getRecordTicker, getRecordCompanyName, getRecordReportDate } from '@/types/screening-record';
 import type { ScreeningRecord } from '@/types/screening-record';
 import { Scale, AlertTriangle, Calendar, Building2, CheckCircle2 } from 'lucide-react';
 
@@ -16,6 +16,14 @@ export function VerdictActionBox({ record }: VerdictActionBoxProps) {
   const classification = record.final_classification || record.Final_Verdict;
   const colorClass = getClassificationColor(classification);
   const label = getClassificationLabel(classification);
+
+  // Get identity fields with fallbacks
+  const ticker = getRecordTicker(record);
+  const companyName = getRecordCompanyName(record);
+  const reportDate = getRecordReportDate(record);
+  const sector = record.sector || record.Sector;
+  const industry = record.industry || record.Industry;
+  const securityType = record.security_type || record.Security_Type;
 
   // Determine action requirements
   const purificationRequired = coerceToBoolean(record.purification_required ?? record.Purification_Required);
@@ -35,15 +43,15 @@ export function VerdictActionBox({ record }: VerdictActionBoxProps) {
               <Building2 className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-serif">{record.Ticker}</CardTitle>
-              <p className="text-muted-foreground">{record.Company || 'Unknown Company'}</p>
+              <CardTitle className="text-2xl font-serif">{ticker}</CardTitle>
+              <p className="text-muted-foreground">{companyName}</p>
             </div>
           </div>
 
           {/* Report date */}
           <div className="flex items-center gap-2 text-muted-foreground">
             <Calendar className="w-4 h-4" />
-            <span className="text-sm">Report Date: {formatDate(record.Report_Date)}</span>
+            <span className="text-sm">Report Date: {formatDate(reportDate)}</span>
           </div>
         </div>
       </CardHeader>
@@ -51,19 +59,19 @@ export function VerdictActionBox({ record }: VerdictActionBoxProps) {
       <CardContent className="space-y-6">
         {/* Tags */}
         <div className="flex flex-wrap gap-2">
-          {record.Sector && (
+          {sector && (
             <Badge variant="secondary" className="bg-muted/30">
-              {record.Sector}
+              {sector}
             </Badge>
           )}
-          {record.Industry && (
+          {industry && (
             <Badge variant="secondary" className="bg-muted/30">
-              {record.Industry}
+              {industry}
             </Badge>
           )}
-          {record.Security_Type && (
+          {securityType && (
             <Badge variant="secondary" className="bg-muted/30">
-              {record.Security_Type}
+              {securityType}
             </Badge>
           )}
         </div>
