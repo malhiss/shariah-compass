@@ -1,22 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { MongoClient } from "https://deno.land/x/mongo@v0.32.0/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-// Helper function to encode special characters in MongoDB URI password
-function encodeMongoUri(uri: string): string {
-  const regex = /^(mongodb(?:\+srv)?:\/\/)([^:]+):([^@]+)@(.+)$/;
-  const match = uri.match(regex);
-  
-  if (!match) {
-    return uri;
-  }
-  
-  const [, protocol, username, password, rest] = match;
-  const encodedUsername = encodeURIComponent(username);
-  const encodedPassword = encodeURIComponent(password);
-  
-  return `${protocol}${encodedUsername}:${encodedPassword}@${rest}`;
-}
+import { findByTickers, type ScreeningRecord } from "../_shared/sample-data.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -81,7 +65,6 @@ serve(async (req) => {
   }
 
   try {
-    // Verify authentication
     const authUser = await verifyAuth(req);
     if (!authUser) {
       return new Response(
@@ -101,89 +84,68 @@ serve(async (req) => {
 
     console.log(`User: ${authUser.email}, Screening portfolio with ${holdings.length} holdings`);
 
-    const mongoUri = Deno.env.get('MONGODB_URI');
-    if (!mongoUri) {
-      throw new Error('MongoDB URI not configured');
-    }
-
-    const client = new MongoClient();
-    await client.connect(encodeMongoUri(mongoUri));
-    const db = client.database('shariah_screening');
-
     // Get all unique tickers
     const tickers = holdings.map((h: Holding) => h.ticker.trim().toUpperCase());
     
-    // Query all collections
-    const [invesenseResults, autoBannedPassResults, autoBannedFailResults, numericPassResults, numericFailResults, masterSheets] = await Promise.all([
-      db.collection('client_facing_results').find({ Ticker: { $in: tickers } }).toArray(),
-      db.collection('Auto-banned-Pass').find({ Ticker: { $in: tickers } }).toArray(),
-      db.collection('Auto-banned-Fail').find({ Ticker: { $in: tickers } }).toArray(),
-      db.collection('numeric_pass').find({ Ticker: { $in: tickers } }).toArray(),
-      db.collection('numeric_fail').find({ Ticker: { $in: tickers } }).toArray(),
-      db.collection('Master-Sheet').find({ Ticker: { $in: tickers } }).toArray(),
-    ]);
+    // Find all records from sample data
+    const recordsMap = findByTickers(tickers);
 
-    await client.close();
-
-    // Create lookup maps
-    const invesenseMap = new Map(invesenseResults.map(r => [r.Ticker, r]));
-    const autoBannedPassMap = new Map(autoBannedPassResults.map(r => [r.Ticker, r]));
-    const autoBannedFailMap = new Map(autoBannedFailResults.map(r => [r.Ticker, r]));
-    const numericPassMap = new Map(numericPassResults.map(r => [r.Ticker, r]));
-    const numericFailMap = new Map(numericFailResults.map(r => [r.Ticker, r]));
-    const masterMap = new Map(masterSheets.map(r => [r.Ticker, r]));
-
-    // Calculate total portfolio value
+    // Calculate total portfolio value and build results
     let totalValue = 0;
     const holdingResults = holdings.map((h: Holding) => {
       const ticker = h.ticker.trim().toUpperCase();
       const value = h.quantity * h.price;
       totalValue += value;
 
-      const invesense = invesenseMap.get(ticker);
-      const autoBannedPass = autoBannedPassMap.get(ticker);
-      const autoBannedFail = autoBannedFailMap.get(ticker);
-      const numericPass = numericPassMap.get(ticker);
-      const numericFail = numericFailMap.get(ticker);
-      const master = masterMap.get(ticker);
+      const record = recordsMap.get(ticker);
+      
+      const numericPass = record ? (
+        record.debt_status === "PASS" && 
+        record.cash_inv_status === "PASS" && 
+        record.npin_status === "PASS"
+      ) : null;
 
       return {
         ticker,
         quantity: h.quantity,
         price: h.price,
         value,
-        company: invesense?.Company || master?.Company || autoBannedPass?.Company || autoBannedFail?.Company || null,
+        company: record?.company_name || null,
         invesense: {
-          classification: invesense?.final_classification || null,
-          debtRatio: invesense?.Debt_Ratio ?? null,
-          cashInvRatio: invesense?.CashInv_Ratio ?? null,
-          npinRatio: invesense?.NPIN_Ratio ?? null,
-          purificationRequired: invesense?.purification_required === true,
-          purificationPctRecommended: invesense?.purification_pct_recommended ?? null,
+          classification: record?.final_classification || null,
+          debtRatio: record?.debt_ratio_pct ?? null,
+          cashInvRatio: record?.cash_inv_ratio_pct ?? null,
+          npinRatio: record?.npin_ratio_pct ?? null,
+          purificationRequired: record?.purification_required === true,
+          purificationPctRecommended: record?.purification_pct_recommended ?? null,
           keyDrivers: [],
-          shariahSummary: null,
-          notesForPortfolioManager: null,
-          needsBoardReview: false,
-          haramRevenuePercent: null,
-          qaStatus: null,
+          shariahSummary: record?.shariah_summary || null,
+          notesForPortfolioManager: record?.notes_for_portfolio_manager || null,
+          needsBoardReview: record?.needs_board_review === true,
+          haramRevenuePercent: record?.haram_pct_point ?? null,
+          qaStatus: record?.qa_status || null,
           qaIssues: [],
-          available: !!invesense,
+          available: !!record,
         },
         autoBanned: {
-          status: autoBannedPass ? 'PASS' : autoBannedFail ? 'FAIL' : null,
-          autoBanned: autoBannedFail?.auto_banned === true,
-          autoBannedReason: autoBannedFail?.auto_banned_reason || null,
-          industry: autoBannedPass?.Industry || autoBannedFail?.Industry || null,
-          securityType: autoBannedPass?.Security_Type || autoBannedFail?.Security_Type || null,
-          available: !!(autoBannedPass || autoBannedFail),
+          status: record ? (record.auto_banned ? 'FAIL' : 'PASS') : null,
+          autoBanned: record?.auto_banned === true,
+          autoBannedReason: record?.auto_banned_reason_clean || null,
+          industry: record?.industry || null,
+          securityType: record?.security_type || null,
+          available: !!record,
         },
         numeric: {
-          status: numericPass ? 'PASS' : numericFail ? 'FAIL' : null,
-          debtRatio: numericPass?.Debt_Ratio ?? numericFail?.Debt_Ratio ?? null,
-          cashInvRatio: numericPass?.CashInv_Ratio ?? numericFail?.CashInv_Ratio ?? null,
-          npinRatio: numericPass?.NPIN_Ratio ?? numericFail?.NPIN_Ratio ?? null,
-          failReason: numericFail?.numeric_fail_reason || null,
-          available: !!(numericPass || numericFail),
+          status: record ? (numericPass ? 'PASS' : 'FAIL') : null,
+          debtRatio: record?.debt_ratio_pct ?? null,
+          cashInvRatio: record?.cash_inv_ratio_pct ?? null,
+          npinRatio: record?.npin_ratio_pct ?? null,
+          failReason: record && !numericPass ? `Failed: ${[
+            record.debt_status === "FAIL" ? "Debt" : null,
+            record.cash_inv_status === "FAIL" ? "Cash/Inv" : null,
+            record.npin_status === "FAIL" ? "NPIN" : null,
+          ].filter(Boolean).join(", ")}` : null,
+          available: !!record,
         },
       };
     });
