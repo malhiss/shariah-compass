@@ -31,7 +31,7 @@ interface Holding {
 
 // Helper function to log activity
 async function logActivity(
-  userId: string | null,
+  userId: string,
   userEmail: string | null,
   activityType: string,
   description: string,
@@ -57,24 +57,22 @@ async function logActivity(
   }
 }
 
-// Helper function to get user from auth header
-async function getUserFromAuth(req: Request) {
-  try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) return null;
+// Helper to verify authenticated user
+async function verifyAuth(req: Request): Promise<{ userId: string; email: string | null } | null> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) return null;
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    
-    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    return user;
-  } catch {
-    return null;
-  }
+  const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: authHeader } },
+  });
+
+  const { data: { user }, error } = await supabaseClient.auth.getUser();
+  if (error || !user) return null;
+
+  return { userId: user.id, email: user.email || null };
 }
 
 serve(async (req) => {
@@ -83,6 +81,15 @@ serve(async (req) => {
   }
 
   try {
+    // Verify authentication
+    const authUser = await verifyAuth(req);
+    if (!authUser) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { holdings } = await req.json();
     
     if (!holdings || !Array.isArray(holdings) || holdings.length === 0) {
@@ -92,10 +99,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Screening portfolio with ${holdings.length} holdings`);
-
-    // Get the user for logging
-    const user = await getUserFromAuth(req);
+    console.log(`User: ${authUser.email}, Screening portfolio with ${holdings.length} holdings`);
 
     const mongoUri = Deno.env.get('MONGODB_URI');
     if (!mongoUri) {
@@ -225,20 +229,18 @@ serve(async (req) => {
     console.log(`Portfolio screening complete. Total value: ${totalValue}`);
 
     // Log the screening activity
-    if (user) {
-      await logActivity(
-        user.id,
-        user.email || null,
-        "portfolio_screening",
-        `Screened portfolio with ${holdings.length} holdings (Total value: $${totalValue.toLocaleString()})`,
-        {
-          holdings_count: holdings.length,
-          tickers: tickers,
-          total_value: totalValue,
-        },
-        req
-      );
-    }
+    await logActivity(
+      authUser.userId,
+      authUser.email,
+      "portfolio_screening",
+      `Screened portfolio with ${holdings.length} holdings (Total value: $${totalValue.toLocaleString()})`,
+      {
+        holdings_count: holdings.length,
+        tickers: tickers,
+        total_value: totalValue,
+      },
+      req
+    );
 
     return new Response(
       JSON.stringify(response),

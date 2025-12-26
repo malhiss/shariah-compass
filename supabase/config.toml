@@ -4,4 +4,19 @@ project_id = "tiybjipvwexmjdslgudf"
 verify_jwt = false
 
 [functions.shariah-dashboard]
-verify_jwt = false
+verify_jwt = true
+
+[functions.ticker-screening]
+verify_jwt = true
+
+[functions.portfolio-screening]
+verify_jwt = true
+
+[functions.ai-chat]
+verify_jwt = true
+
+[functions.submit-screening-request]
+verify_jwt = true
+
+[functions.manage-users]
+verify_jwt = true

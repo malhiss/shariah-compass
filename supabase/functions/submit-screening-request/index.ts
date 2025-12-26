@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { MongoClient, ObjectId } from "https://deno.land/x/mongo@v0.32.0/mod.ts";
+import { MongoClient } from "https://deno.land/x/mongo@v0.32.0/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // Helper function to encode special characters in MongoDB URI password
 function encodeMongoUri(uri: string): string {
@@ -22,12 +23,39 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helper to verify authenticated user
+async function verifyAuth(req: Request): Promise<{ userId: string; email: string | null } | null> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) return null;
+
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+
+  const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: authHeader } },
+  });
+
+  const { data: { user }, error } = await supabaseClient.auth.getUser();
+  if (error || !user) return null;
+
+  return { userId: user.id, email: user.email || null };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Verify authentication
+    const authUser = await verifyAuth(req);
+    if (!authUser) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { ticker, exchange, isin, email, methodology, useCase } = await req.json();
     
     if (!ticker || typeof ticker !== 'string') {
@@ -38,7 +66,7 @@ serve(async (req) => {
     }
 
     const normalizedTicker = ticker.trim().toUpperCase();
-    console.log(`Submitting screening request for: ${normalizedTicker}`);
+    console.log(`User: ${authUser.email}, Submitting screening request for: ${normalizedTicker}`);
 
     const mongoUri = Deno.env.get('MONGODB_URI');
     if (!mongoUri) {
@@ -73,10 +101,11 @@ serve(async (req) => {
       Ticker: normalizedTicker,
       exchange: exchange || null,
       isin: isin || null,
-      email: email || null,
+      email: email || authUser.email,
       methodology: methodology || 'invesense',
       useCase: useCase || null,
       status: 'PENDING',
+      submitted_by: authUser.userId,
       created_at: new Date(),
       updated_at: new Date(),
     };

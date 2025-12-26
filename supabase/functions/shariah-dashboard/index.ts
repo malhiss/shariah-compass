@@ -1,9 +1,29 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Helper to verify authenticated user
+async function verifyAuth(req: Request): Promise<{ userId: string; email: string | null } | null> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) return null;
+
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+
+  const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: authHeader } },
+  });
+
+  const { data: { user }, error } = await supabaseClient.auth.getUser();
+  if (error || !user) return null;
+
+  return { userId: user.id, email: user.email || null };
+}
 
 // Sample data based on the provided CSV
 const sampleClientFacingRecords = [
@@ -601,8 +621,17 @@ serve(async (req: Request) => {
   }
 
   try {
+    // Verify authentication
+    const user = await verifyAuth(req);
+    if (!user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - Authentication required" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { action, filters } = await req.json();
-    console.log("Action:", action, "Filters:", JSON.stringify(filters || {}));
+    console.log("User:", user.email, "Action:", action, "Filters:", JSON.stringify(filters || {}));
 
     const result = await handleAction(action, (filters || {}) as Record<string, unknown>);
 

@@ -68,7 +68,7 @@ export default function ScreeningRequest() {
   if (result?.success) {
     return (
       <div>
-        <section className="py-20 md:py-28 snap-start snap-always min-h-screen flex items-center">
+        <section className="py-20 md:py-28 min-h-screen flex items-center">
           <div className="container">
             <div className="max-w-lg mx-auto text-center animate-fade-in">
               <div className="w-24 h-24 rounded-2xl bg-compliant/10 mx-auto mb-8 flex items-center justify-center">
@@ -117,7 +117,7 @@ export default function ScreeningRequest() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative py-16 md:py-24 overflow-hidden snap-start snap-always">
+      <section className="relative py-16 md:py-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-10 left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl" />
@@ -144,7 +144,7 @@ export default function ScreeningRequest() {
       </section>
 
       {/* Form Section */}
-      <section className="py-12 md:py-16 snap-start">
+      <section className="py-12 md:py-16">
         <div className="container">
           <div className="max-w-2xl mx-auto">
             <Card className="premium-card">

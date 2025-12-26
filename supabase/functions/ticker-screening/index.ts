@@ -53,24 +53,23 @@ async function logActivity(
   }
 }
 
-// Helper function to get user from auth header
-async function getUserFromAuth(req: Request) {
-  try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) return null;
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    
-    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
+// Helper to verify authenticated user
+async function verifyAuth(req: Request): Promise<{ userId: string; email: string | null } | null> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) return null;
 
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    return user;
-  } catch {
-    return null;
-  }
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+
+  const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: authHeader } },
+  });
+
+  const { data: { user }, error } = await supabaseClient.auth.getUser();
+  if (error || !user) return null;
+
+  return { userId: user.id, email: user.email || null };
 }
 
 serve(async (req) => {
@@ -80,6 +79,15 @@ serve(async (req) => {
   }
 
   try {
+    // Verify authentication
+    const authUser = await verifyAuth(req);
+    if (!authUser) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { ticker } = await req.json();
     
     if (!ticker || typeof ticker !== 'string') {
@@ -90,10 +98,7 @@ serve(async (req) => {
     }
 
     const normalizedTicker = ticker.trim().toUpperCase();
-    console.log(`Screening ticker: ${normalizedTicker}`);
-
-    // Get the user for logging
-    const user = await getUserFromAuth(req);
+    console.log(`User: ${authUser.email}, Screening ticker: ${normalizedTicker}`);
 
     const mongoUri = Deno.env.get('MONGODB_URI');
     if (!mongoUri) {
@@ -171,23 +176,21 @@ serve(async (req) => {
     });
 
     // Log the screening activity
-    if (user) {
-      await logActivity(
-        user.id,
-        user.email || null,
-        "ticker_screening",
-        `Screened ticker: ${normalizedTicker}`,
-        {
-          ticker: normalizedTicker,
-          company: response.security.company,
-          invesense_classification: response.invesense.classification,
-          invesense_available: response.invesense.available,
-          autoBanned_status: response.autoBanned.status,
-          numeric_status: response.numeric.status,
-        },
-        req
-      );
-    }
+    await logActivity(
+      authUser.userId,
+      authUser.email,
+      "ticker_screening",
+      `Screened ticker: ${normalizedTicker}`,
+      {
+        ticker: normalizedTicker,
+        company: response.security.company,
+        invesense_classification: response.invesense.classification,
+        invesense_available: response.invesense.available,
+        autoBanned_status: response.autoBanned.status,
+        numeric_status: response.numeric.status,
+      },
+      req
+    );
 
     return new Response(
       JSON.stringify(response),

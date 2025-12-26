@@ -273,7 +273,7 @@ export default function StaffPortal() {
   const pendingCount = users.filter(u => !u.role).length;
 
   return (
-    <div className="min-h-screen snap-start snap-always">
+    <div className="min-h-screen">
       <div className="container max-w-7xl py-8 md:py-12">
         {/* Header */}
         <AnimatedSection className="mb-8">
