@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 import { ScreeningTable } from "@/components/dashboard/ScreeningTable";
-import { RecordDetailDrawer } from "@/components/dashboard/RecordDetailDrawer";
 import { getClientFacingRecords } from "@/lib/shariah-api";
 import { Scale, Coins, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import type { ClientFacingRecord, ScreeningFilters, ViewMode, PaginatedResponse } from "@/types/mongodb";
@@ -14,13 +13,9 @@ export default function ShariahDashboard() {
   const [filters, setFilters] = useState<ScreeningFilters>({
     page: 1,
     pageSize: 50,
-    // Optional: make sort explicit instead of relying on backend default
-    // sortBy: "Screening_Timestamp",
-    // sortOrder: "desc",
   });
   const [data, setData] = useState<PaginatedResponse<ClientFacingRecord> | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedRecord, setSelectedRecord] = useState<ClientFacingRecord | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -128,7 +123,6 @@ export default function ShariahDashboard() {
                 data={data?.data || []}
                 loading={loading}
                 viewMode={viewMode}
-                onRowClick={setSelectedRecord}
               />
             </CardContent>
           </Card>
@@ -163,9 +157,6 @@ export default function ShariahDashboard() {
           )}
         </div>
       </section>
-
-      {/* Detail Drawer */}
-      <RecordDetailDrawer record={selectedRecord} open={!!selectedRecord} onClose={() => setSelectedRecord(null)} />
     </div>
   );
 }
