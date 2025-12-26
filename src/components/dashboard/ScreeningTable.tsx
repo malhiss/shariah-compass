@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import {
   Table,
   TableHeader,
@@ -6,10 +7,12 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VerdictBadge, ZakatBadge, RiskBadge, BooleanBadge } from './VerdictBadge';
 import { formatPercent, formatDate } from '@/types/mongodb';
 import type { ClientFacingRecord, ViewMode } from '@/types/mongodb';
+import { Eye } from 'lucide-react';
 
 interface ScreeningTableProps {
   data: ClientFacingRecord[];
