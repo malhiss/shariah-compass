@@ -62,17 +62,17 @@ export function ScreeningTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((record) => (
+          {data.map((record: any) => (
               <TableRow
                 key={record.upsert_key}
                 className="cursor-pointer border-border hover:bg-primary/5"
                 onClick={() => navigate(`/record/${encodeURIComponent(record.upsert_key)}`)}
               >
                 <TableCell className="font-medium text-foreground">
-                  {record.Ticker}
+                  {record.ticker || record.Ticker}
                 </TableCell>
                 <TableCell className="text-muted-foreground max-w-[200px] truncate">
-                  {record.Company || 'N/A'}
+                  {record.company_name || record.Company || 'N/A'}
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {record.Sector || 'N/A'}
@@ -99,7 +99,7 @@ export function ScreeningTable({
                   <RiskBadge level={record.Compliance_Risk_Level} />
                 </TableCell>
                 <TableCell className="text-muted-foreground text-sm">
-                  {formatDate(record.Screening_Date)}
+                  {formatDate(record.report_date || record.Screening_Date)}
                 </TableCell>
               </TableRow>
             ))}
@@ -130,47 +130,47 @@ export function ScreeningTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((record) => (
+          {data.map((record: any) => (
             <TableRow
               key={record.upsert_key}
               className="cursor-pointer border-border hover:bg-primary/5"
               onClick={() => navigate(`/record/${encodeURIComponent(record.upsert_key)}`)}
             >
               <TableCell className="font-medium text-foreground">
-                {record.Ticker}
+                {record.ticker || record.Ticker}
               </TableCell>
               <TableCell className="text-muted-foreground max-w-[200px] truncate">
-                {record.Company || 'N/A'}
+                {record.company_name || record.Company || 'N/A'}
               </TableCell>
               <TableCell className="text-muted-foreground">
                 {record.Sector || 'N/A'}
               </TableCell>
               <TableCell className="text-muted-foreground">
-                {record.Industry || 'N/A'}
+                {record.industry || record.Industry || 'N/A'}
               </TableCell>
               <TableCell className="text-center">
-                <VerdictBadge verdict={record.Final_Verdict} />
+                <VerdictBadge verdict={record.final_classification || record.Final_Verdict} />
               </TableCell>
               <TableCell className="text-center">
-                <BooleanBadge value={record.Shariah_Compliant} />
+                <BooleanBadge value={record.final_classification === 'COMPLIANT' ? 'YES' : record.final_classification === 'NON_COMPLIANT' ? 'NO' : 'DOUBTFUL'} />
               </TableCell>
               <TableCell className="text-right font-mono text-sm">
-                {formatPercent(record.Non_Compliant_Revenue_Point_Estimate)}
+                {formatPercent(record.npin_ratio_pct ?? record.Non_Compliant_Revenue_Point_Estimate)}
               </TableCell>
               <TableCell className="text-right font-mono text-sm">
-                {formatPercent(record.Purification_Percentage)}
+                {formatPercent(record.purification_pct_recommended ?? record.Purification_Percentage)}
               </TableCell>
               <TableCell className="text-center">
                 <RiskBadge level={record.Compliance_Risk_Level} />
               </TableCell>
               <TableCell className="text-center">
-                <BooleanBadge value={record.Dual_Use_Product} />
+                <BooleanBadge value={record.business_status === 'CAUTION' ? 'YES' : 'NO'} />
               </TableCell>
               <TableCell className="text-center">
-                <BooleanBadge value={record.Board_Review_Needed} />
+                <BooleanBadge value={record.needs_board_review ? 'YES' : 'NO'} />
               </TableCell>
               <TableCell className="text-muted-foreground text-sm">
-                {formatDate(record.Screening_Date)}
+                {formatDate(record.report_date || record.Screening_Date)}
               </TableCell>
             </TableRow>
           ))}
