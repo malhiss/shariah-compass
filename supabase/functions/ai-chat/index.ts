@@ -1,22 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { MongoClient } from "https://deno.land/x/mongo@v0.32.0/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-// Helper function to encode special characters in MongoDB URI password
-function encodeMongoUri(uri: string): string {
-  const regex = /^(mongodb(?:\+srv)?:\/\/)([^:]+):([^@]+)@(.+)$/;
-  const match = uri.match(regex);
-  
-  if (!match) {
-    return uri;
-  }
-  
-  const [, protocol, username, password, rest] = match;
-  const encodedUsername = encodeURIComponent(username);
-  const encodedPassword = encodeURIComponent(password);
-  
-  return `${protocol}${encodedUsername}:${encodedPassword}@${rest}`;
-}
+import { findByTicker } from "../_shared/sample-data.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -50,7 +34,6 @@ serve(async (req) => {
   }
 
   try {
-    // Verify authentication
     const authUser = await verifyAuth(req);
     if (!authUser) {
       return new Response(
@@ -78,31 +61,10 @@ serve(async (req) => {
     const normalizedTicker = ticker.trim().toUpperCase();
     console.log(`User: ${authUser.email}, AI Chat for ticker: ${normalizedTicker}`);
 
-    // Fetch screening data for context
-    const mongoUri = Deno.env.get('MONGODB_URI');
-    if (!mongoUri) {
-      throw new Error('MongoDB URI not configured');
-    }
-
-    const client = new MongoClient();
-    await client.connect(encodeMongoUri(mongoUri));
-    const db = client.database('shariah_screening');
-
-    const [invesenseResult, autoBannedPass, autoBannedFail, numericPass, numericFail, masterSheet] = await Promise.all([
-      db.collection('client_facing_results').findOne({ Ticker: normalizedTicker }),
-      db.collection('Auto-banned-Pass').findOne({ Ticker: normalizedTicker }),
-      db.collection('Auto-banned-Fail').findOne({ Ticker: normalizedTicker }),
-      db.collection('numeric_pass').findOne({ Ticker: normalizedTicker }),
-      db.collection('numeric_fail').findOne({ Ticker: normalizedTicker }),
-      db.collection('Master-Sheet').findOne({ Ticker: normalizedTicker }),
-    ]);
-
-    await client.close();
-
-    // Build context for AI
-    const hasAnyData = invesenseResult || autoBannedPass || autoBannedFail || numericPass || numericFail || masterSheet;
+    // Find the record in sample data
+    const record = findByTicker(normalizedTicker);
     
-    if (!hasAnyData) {
+    if (!record) {
       return new Response(
         JSON.stringify({
           reply: {
@@ -114,57 +76,51 @@ serve(async (req) => {
       );
     }
 
+    // Determine numeric pass/fail
+    const numericPass = record.debt_status === "PASS" && 
+                        record.cash_inv_status === "PASS" && 
+                        record.npin_status === "PASS";
+
     // Build screening context
     const screeningContext = `
 You are an expert Shariah compliance advisor. Here is the screening data for ${normalizedTicker}:
 
-**Company:** ${invesenseResult?.Company || masterSheet?.Company || 'Unknown'}
-**Sector:** ${masterSheet?.Sector || 'Unknown'}
-**Industry:** ${masterSheet?.Industry || autoBannedPass?.Industry || autoBannedFail?.Industry || 'Unknown'}
+**Company:** ${record.company_name}
+**Industry:** ${record.industry}
+**Report Date:** ${record.report_date}
 
-## Invesense Methodology
-${invesenseResult ? `
-- Classification: ${invesenseResult.final_classification}
-- Debt Ratio: ${invesenseResult.Debt_Ratio?.toFixed(2)}% (threshold: 33%)
-- Cash+Investments Ratio: ${invesenseResult.CashInv_Ratio?.toFixed(2)}% (threshold: 33%)
-- NPIN Ratio: ${invesenseResult.NPIN_Ratio?.toFixed(2)}% (threshold: 5%)
-- Purification Required: ${invesenseResult.purification_required ? 'Yes' : 'No'}
-${invesenseResult.purification_pct_recommended ? `- Recommended Purification: ${invesenseResult.purification_pct_recommended?.toFixed(2)}%` : ''}
-${invesenseResult.shariah_summary ? `- Summary: ${invesenseResult.shariah_summary}` : ''}
-${invesenseResult.key_drivers?.length ? `- Key Drivers: ${invesenseResult.key_drivers.join(', ')}` : ''}
-` : 'No Invesense screening data available.'}
+## Overall Status
+- Final Classification: ${record.final_classification}
+- Purification Required: ${record.purification_required ? 'Yes' : 'No'}
+${record.purification_pct_recommended ? `- Recommended Purification: ${record.purification_pct_recommended.toFixed(2)}%` : ''}
+- Board Review Needed: ${record.needs_board_review ? 'Yes' : 'No'}
 
-## Auto-banned Methodology
-${autoBannedPass ? `
-- Status: PASS (not auto-banned)
-- Industry: ${autoBannedPass.Industry || 'N/A'}
-- Security Type: ${autoBannedPass.Security_Type || 'N/A'}
-` : autoBannedFail ? `
-- Status: FAIL (auto-banned)
-- Reason: ${autoBannedFail.auto_banned_reason || 'N/A'}
-- Industry: ${autoBannedFail.Industry || 'N/A'}
-- Security Type: ${autoBannedFail.Security_Type || 'N/A'}
-` : 'No Auto-banned screening data available.'}
+## Financial Ratios (Numeric Screening)
+- Debt Ratio: ${record.debt_ratio_pct.toFixed(2)}% (threshold: ${record.debt_threshold_pct}%) - ${record.debt_status}
+- Cash+Investments Ratio: ${record.cash_inv_ratio_pct.toFixed(2)}% (threshold: ${record.cash_inv_threshold_pct}%) - ${record.cash_inv_status}
+- NPIN Ratio: ${record.npin_ratio_pct.toFixed(2)}% (threshold: ${record.npin_threshold_pct}%) - ${record.npin_status}
+- Numeric Screening Result: ${numericPass ? 'PASS' : 'FAIL'}
 
-## Numeric Methodology
-${numericPass ? `
-- Status: PASS
-- Debt Ratio: ${numericPass.Debt_Ratio?.toFixed(2)}%
-- Cash+Investments Ratio: ${numericPass.CashInv_Ratio?.toFixed(2)}%
-- NPIN Ratio: ${numericPass.NPIN_Ratio?.toFixed(2)}%
-` : numericFail ? `
-- Status: FAIL
-- Fail Reason: ${numericFail.numeric_fail_reason || 'N/A'}
-- Debt Ratio: ${numericFail.Debt_Ratio?.toFixed(2)}%
-- Cash+Investments Ratio: ${numericFail.CashInv_Ratio?.toFixed(2)}%
-- NPIN Ratio: ${numericFail.NPIN_Ratio?.toFixed(2)}%
-` : 'No Numeric screening data available.'}
+## Auto-Banned Status
+- Auto-banned: ${record.auto_banned ? 'Yes' : 'No'}
+${record.auto_banned_reason_clean ? `- Reason: ${record.auto_banned_reason_clean}` : ''}
+${record.auto_banned_summary ? `- Summary: ${record.auto_banned_summary}` : ''}
 
-Guidelines:
+## Business Status
+- Business Status: ${record.business_status}
+${record.doubt_reason ? `- Doubt Reason: ${record.doubt_reason}` : ''}
+
+## Summary
+${record.shariah_summary}
+
+${record.notes_for_portfolio_manager ? `## Notes for Portfolio Manager\n${record.notes_for_portfolio_manager}` : ''}
+
+Guidelines for your responses:
 - Explain concepts clearly for non-experts
 - Reference specific ratios and thresholds when relevant
 - Explain what purification means and how to calculate it if asked
 - Be helpful but note you are not providing religious rulings - consult a scholar for that
+- Keep responses concise but informative
 `;
 
     // Call AI Gateway
