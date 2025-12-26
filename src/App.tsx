@@ -19,6 +19,7 @@ import StaffPortal from "./pages/StaffPortal";
 import SetupStaff from "./pages/SetupStaff";
 import ClientDashboard from "./pages/ClientDashboard";
 import ShariahDashboard from "./pages/ShariahDashboard";
+import RecordDetail from "./pages/RecordDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -88,6 +89,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requireRole="any">
                     <ShariahDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/record/:upsertKey" 
+                element={
+                  <ProtectedRoute requireRole="any">
+                    <RecordDetail />
                   </ProtectedRoute>
                 } 
               />
