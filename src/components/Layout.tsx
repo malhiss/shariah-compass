@@ -33,7 +33,7 @@ export function Layout() {
         </AnimatePresence>
       
         {/* Footer */}
-        <footer className="border-t border-border bg-card/50 snap-start">
+        <footer className="border-t border-border bg-card/50">
         <div className="container py-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             {/* Brand */}

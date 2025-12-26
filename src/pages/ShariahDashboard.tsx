@@ -60,7 +60,7 @@ export default function ShariahDashboard() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative py-16 md:py-20 overflow-hidden snap-start">
+      <section className="relative py-16 md:py-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
         <div className="container relative z-10">
           <div className="max-w-3xl">
@@ -76,7 +76,7 @@ export default function ShariahDashboard() {
       </section>
 
       {/* Main Content */}
-      <section className="py-8 snap-start">
+      <section className="py-8">
         <div className="container">
           {/* View Toggle */}
           <div className="mb-6">

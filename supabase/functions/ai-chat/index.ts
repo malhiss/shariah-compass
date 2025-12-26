@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { MongoClient } from "https://deno.land/x/mongo@v0.32.0/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // Helper function to encode special characters in MongoDB URI password
 function encodeMongoUri(uri: string): string {
@@ -25,12 +26,39 @@ const corsHeaders = {
 // Use Lovable AI Gateway 
 const AI_GATEWAY_URL = 'https://ai.gateway.lovable.dev/v1/chat/completions';
 
+// Helper to verify authenticated user
+async function verifyAuth(req: Request): Promise<{ userId: string; email: string | null } | null> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) return null;
+
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+
+  const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: authHeader } },
+  });
+
+  const { data: { user }, error } = await supabaseClient.auth.getUser();
+  if (error || !user) return null;
+
+  return { userId: user.id, email: user.email || null };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Verify authentication
+    const authUser = await verifyAuth(req);
+    if (!authUser) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { ticker, messages } = await req.json();
     
     if (!ticker || typeof ticker !== 'string') {
@@ -48,7 +76,7 @@ serve(async (req) => {
     }
 
     const normalizedTicker = ticker.trim().toUpperCase();
-    console.log(`AI Chat for ticker: ${normalizedTicker}`);
+    console.log(`User: ${authUser.email}, AI Chat for ticker: ${normalizedTicker}`);
 
     // Fetch screening data for context
     const mongoUri = Deno.env.get('MONGODB_URI');
