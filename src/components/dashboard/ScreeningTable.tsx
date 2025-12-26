@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Table,
   TableHeader,
@@ -7,26 +7,23 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VerdictBadge, ZakatBadge, RiskBadge, BooleanBadge } from './VerdictBadge';
 import { formatPercent, formatDate } from '@/types/mongodb';
 import type { ClientFacingRecord, ViewMode } from '@/types/mongodb';
-import { Eye } from 'lucide-react';
 
 interface ScreeningTableProps {
   data: ClientFacingRecord[];
   loading: boolean;
   viewMode: ViewMode;
-  onRowClick: (record: ClientFacingRecord) => void;
 }
 
 export function ScreeningTable({
   data,
   loading,
   viewMode,
-  onRowClick,
 }: ScreeningTableProps) {
+  const navigate = useNavigate();
   if (loading) {
     return (
       <div className="space-y-3">
@@ -62,7 +59,6 @@ export function ScreeningTable({
               <TableHead className="text-muted-foreground">Methodology</TableHead>
               <TableHead className="text-center text-muted-foreground">Risk</TableHead>
               <TableHead className="text-muted-foreground">Date</TableHead>
-              <TableHead className="text-center text-muted-foreground">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -70,7 +66,7 @@ export function ScreeningTable({
               <TableRow
                 key={record.upsert_key}
                 className="cursor-pointer border-border hover:bg-primary/5"
-                onClick={() => onRowClick(record)}
+                onClick={() => navigate(`/record/${encodeURIComponent(record.upsert_key)}`)}
               >
                 <TableCell className="font-medium text-foreground">
                   {record.Ticker}
@@ -105,16 +101,6 @@ export function ScreeningTable({
                 <TableCell className="text-muted-foreground text-sm">
                   {formatDate(record.Screening_Date)}
                 </TableCell>
-                <TableCell className="text-center">
-                  <Link
-                    to={`/record/${encodeURIComponent(record.upsert_key)}`}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-primary/10">
-                      <Eye className="w-4 h-4 text-primary" />
-                    </Button>
-                  </Link>
-                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -141,7 +127,6 @@ export function ScreeningTable({
             <TableHead className="text-center text-muted-foreground">Dual-Use</TableHead>
             <TableHead className="text-center text-muted-foreground">Board</TableHead>
             <TableHead className="text-muted-foreground">Date</TableHead>
-            <TableHead className="text-center text-muted-foreground">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -149,7 +134,7 @@ export function ScreeningTable({
             <TableRow
               key={record.upsert_key}
               className="cursor-pointer border-border hover:bg-primary/5"
-              onClick={() => onRowClick(record)}
+              onClick={() => navigate(`/record/${encodeURIComponent(record.upsert_key)}`)}
             >
               <TableCell className="font-medium text-foreground">
                 {record.Ticker}
@@ -186,16 +171,6 @@ export function ScreeningTable({
               </TableCell>
               <TableCell className="text-muted-foreground text-sm">
                 {formatDate(record.Screening_Date)}
-              </TableCell>
-              <TableCell className="text-center">
-                <Link
-                  to={`/record/${encodeURIComponent(record.upsert_key)}`}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-primary/10">
-                    <Eye className="w-4 h-4 text-primary" />
-                  </Button>
-                </Link>
               </TableCell>
             </TableRow>
           ))}
