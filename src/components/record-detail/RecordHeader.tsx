@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatDate } from '@/types/mongodb';
-import { getMemoUrl } from '@/types/screening-record';
+import { getMemoUrl, getRecordTicker, getRecordCompanyName, getRecordReportDate } from '@/types/screening-record';
 import type { ScreeningRecord } from '@/types/screening-record';
 import { ArrowLeft, ExternalLink, Calendar, Building2 } from 'lucide-react';
 
@@ -12,6 +12,10 @@ interface RecordHeaderProps {
 
 export function RecordHeader({ record }: RecordHeaderProps) {
   const memoUrl = getMemoUrl(record);
+  const ticker = getRecordTicker(record);
+  const companyName = getRecordCompanyName(record);
+  const reportDate = getRecordReportDate(record);
+  const methodologyVersion = record.methodology_version || 'v3';
 
   return (
     <div className="space-y-4">
@@ -33,19 +37,19 @@ export function RecordHeader({ record }: RecordHeaderProps) {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl md:text-3xl font-serif font-semibold">
-                {record.Company || record.Ticker}
+                {companyName !== 'N/A' ? companyName : ticker}
               </h1>
               <Badge variant="outline" className="bg-primary/10 border-primary/30 text-primary font-mono">
-                {record.Ticker}
+                {ticker}
               </Badge>
             </div>
             <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5" />
-                {formatDate(record.Report_Date)}
+                {formatDate(reportDate)}
               </span>
               <Badge variant="secondary" className="bg-muted/30 text-xs">
-                Methodology v3
+                Methodology {methodologyVersion}
               </Badge>
             </div>
           </div>

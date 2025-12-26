@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { normalizeQAIssues, type ScreeningRecord } from '@/types/screening-record';
+import { normalizeQAIssues, getRecordTicker, getRecordCompanyName, getRecordReportDate, type ScreeningRecord } from '@/types/screening-record';
 import { coerceToBoolean } from '@/types/mongodb';
 import { ClipboardCheck, Copy, Download, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
@@ -14,8 +14,10 @@ interface QATabProps {
 export function QATab({ record }: QATabProps) {
   const { toast } = useToast();
 
-  const needsReview = coerceToBoolean(record.QA_Needs_Review);
+  const needsReview = coerceToBoolean(record.qa_needs_review ?? record.QA_Needs_Review);
   const qaIssues = normalizeQAIssues(record);
+  const qaStatus = record.qa_status ?? record.QA_Status;
+  const issueCount = record.qa_issue_count ?? record.QA_Issue_Count ?? qaIssues.length;
 
   const summaryDisplay = record.qa_summary_display;
   const categorySummary = record.qa_category_summary;
@@ -23,12 +25,17 @@ export function QATab({ record }: QATabProps) {
   const issuesCollapsed = record.qa_issues_collapsed;
 
   const hasPayload = !!record.payload_json;
+  const ticker = getRecordTicker(record);
+  const companyName = getRecordCompanyName(record);
+  const reportDate = getRecordReportDate(record);
 
   // Build summary text for copy
   const buildSummaryText = () => {
     const parts: string[] = [];
-    parts.push(`QA Summary for ${record.Ticker} - ${record.Company}`);
-    parts.push(`Report Date: ${record.Report_Date}`);
+    parts.push(`QA Summary for ${ticker} - ${companyName}`);
+    parts.push(`Report Date: ${reportDate || 'N/A'}`);
+    parts.push(`QA Status: ${qaStatus || 'N/A'}`);
+    parts.push(`Issue Count: ${issueCount}`);
     parts.push('');
 
     if (needsReview !== null) {
@@ -83,7 +90,7 @@ export function QATab({ record }: QATabProps) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${record.Ticker}_payload.json`;
+      a.download = `${ticker}_payload.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

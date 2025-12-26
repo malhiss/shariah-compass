@@ -18,21 +18,33 @@ const THRESHOLDS = {
 
 export function NumericScreenTab({ record }: NumericScreenTabProps) {
   // Get ratios - prefer new field names, fallback to old
-  const debtRatio = coerceToNumber(record.Debt_Ratio ?? record.Debt_Ratio_Percent);
-  const cashInvRatio = coerceToNumber(record.CashInv_Ratio ?? record.Cash_Investment_Ratio_Percent);
-  const npinRatio = coerceToNumber(record.NPIN_Ratio ?? record.Non_Permissible_Income_Percent);
+  const debtRatio = record.debt_ratio_pct ?? coerceToNumber(record.Debt_Ratio ?? record.Debt_Ratio_Percent);
+  const cashInvRatio = record.cash_inv_ratio_pct ?? coerceToNumber(record.CashInv_Ratio ?? record.Cash_Investment_Ratio_Percent);
+  const npinRatio = record.npin_ratio_pct ?? coerceToNumber(record.NPIN_Ratio ?? record.Non_Permissible_Income_Percent);
 
-  // Check within limits
-  const debtWithin = debtRatio !== null ? debtRatio <= THRESHOLDS.debt : null;
-  const cashInvWithin = cashInvRatio !== null ? cashInvRatio <= THRESHOLDS.cashInv : null;
-  const npinWithin = npinRatio !== null ? npinRatio <= THRESHOLDS.npin : null;
+  // Get thresholds from data or use defaults
+  const debtThreshold = record.debt_threshold_pct ?? THRESHOLDS.debt;
+  const cashInvThreshold = record.cash_inv_threshold_pct ?? THRESHOLDS.cashInv;
+  const npinThreshold = record.npin_threshold_pct ?? THRESHOLDS.npin;
 
-  // Get formulas
-  const debtFormula = record.Debt_Ratio_Formula;
-  const cashInvFormula = record.CashInv_Ratio_Formula;
-  const npinFormula = record.NPIN_Ratio_Formula;
-  const npinNumeratorFormula = record.NPIN_Numerator_Formula;
-  const npinAdjustments = record.NPIN_Adjustments_Notes;
+  // Check statuses - prefer API status, fallback to calculation
+  const getStatus = (apiStatus: string | null | undefined, ratio: number | null, threshold: number): boolean | null => {
+    if (apiStatus === 'PASS') return true;
+    if (apiStatus === 'FAIL') return false;
+    if (ratio === null) return null;
+    return ratio <= threshold;
+  };
+
+  const debtWithin = getStatus(record.debt_status, debtRatio, debtThreshold);
+  const cashInvWithin = getStatus(record.cash_inv_status, cashInvRatio, cashInvThreshold);
+  const npinWithin = getStatus(record.npin_status, npinRatio, npinThreshold);
+
+  // Get formulas - prefer new field names
+  const debtFormula = record.debt_ratio_formula || record.Debt_Ratio_Formula;
+  const cashInvFormula = record.cash_inv_ratio_formula || record.CashInv_Ratio_Formula;
+  const npinFormula = record.npin_ratio_formula || record.NPIN_Ratio_Formula;
+  const npinNumeratorFormula = record.npin_numerator_formula || record.NPIN_Numerator_Formula;
+  const npinAdjustments = record.npin_adjustments_notes || record.NPIN_Adjustments_Notes;
 
   const hasFormulas = debtFormula || cashInvFormula || npinFormula || npinNumeratorFormula || npinAdjustments;
 
@@ -62,7 +74,7 @@ export function NumericScreenTab({ record }: NumericScreenTabProps) {
                 <TableCell className="text-right font-mono">
                   {formatPercent(debtRatio)}
                 </TableCell>
-                <TableCell className="text-right text-muted-foreground">≤ {THRESHOLDS.debt}%</TableCell>
+                <TableCell className="text-right text-muted-foreground">≤ {debtThreshold}%</TableCell>
                 <TableCell className="text-center">
                   {debtWithin === null ? (
                     <Badge variant="secondary" className="bg-muted/30">N/A</Badge>
@@ -82,7 +94,7 @@ export function NumericScreenTab({ record }: NumericScreenTabProps) {
                 <TableCell className="text-right font-mono">
                   {formatPercent(cashInvRatio)}
                 </TableCell>
-                <TableCell className="text-right text-muted-foreground">≤ {THRESHOLDS.cashInv}%</TableCell>
+                <TableCell className="text-right text-muted-foreground">≤ {cashInvThreshold}%</TableCell>
                 <TableCell className="text-center">
                   {cashInvWithin === null ? (
                     <Badge variant="secondary" className="bg-muted/30">N/A</Badge>
@@ -102,7 +114,7 @@ export function NumericScreenTab({ record }: NumericScreenTabProps) {
                 <TableCell className="text-right font-mono">
                   {formatPercent(npinRatio)}
                 </TableCell>
-                <TableCell className="text-right text-muted-foreground">≤ {THRESHOLDS.npin}%</TableCell>
+                <TableCell className="text-right text-muted-foreground">≤ {npinThreshold}%</TableCell>
                 <TableCell className="text-center">
                   {npinWithin === null ? (
                     <Badge variant="secondary" className="bg-muted/30">N/A</Badge>
