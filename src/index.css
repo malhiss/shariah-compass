@@ -38,7 +38,7 @@
     --success-foreground: 0 0% 100%;
     --warning: 42 90% 55%;
     --warning-foreground: 42 90% 15%;
-    --destructive: 0 70% 55%;
+    --destructive: 0 75% 65%;
     --destructive-foreground: 0 0% 100%;
     --caution: 42 90% 55%;
     --caution-foreground: 42 90% 15%;
@@ -48,7 +48,7 @@
     --compliant-foreground: 0 0% 100%;
     --compliant-purification: 42 90% 55%;
     --compliant-purification-foreground: 42 90% 15%;
-    --non-compliant: 0 70% 55%;
+    --non-compliant: 0 80% 68%;
     --non-compliant-foreground: 0 0% 100%;
     --doubtful: 210 20% 55%;
     --doubtful-foreground: 0 0% 100%;
