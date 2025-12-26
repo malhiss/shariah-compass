@@ -9,54 +9,57 @@
     /* Invesense dark slate blue theme */
     --background: 210 18% 28%;
     --foreground: 0 0% 98%;
-    --card: 210 18% 32%;
-    --card-foreground: 0 0% 98%;
-    --popover: 210 18% 25%;
-    --popover-foreground: 0 0% 98%;
+    
+    /* Cards now use light backgrounds for readability */
+    --card: 0 0% 99%;
+    --card-foreground: 210 18% 20%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 18% 20%;
     
     /* Primary: Invesense cyan/turquoise accent */
-    --primary: 180 45% 65%;
-    --primary-foreground: 210 18% 20%;
+    --primary: 180 45% 45%;
+    --primary-foreground: 0 0% 100%;
     
-    /* Secondary: Lighter slate */
+    /* Secondary: Lighter slate for dark backgrounds */
     --secondary: 210 15% 38%;
     --secondary-foreground: 0 0% 95%;
     
-    --muted: 210 15% 35%;
-    --muted-foreground: 210 10% 70%;
+    --muted: 210 10% 92%;
+    --muted-foreground: 210 15% 45%;
     
     /* Accent: Cyan */
-    --accent: 180 50% 60%;
-    --accent-foreground: 210 18% 20%;
+    --accent: 180 50% 45%;
+    --accent-foreground: 0 0% 100%;
     
-    /* Status colors */
-    --success: 160 55% 42%;
+    /* Status colors - slightly deeper for contrast on white */
+    --success: 160 60% 38%;
     --success-foreground: 0 0% 100%;
-    --warning: 38 85% 55%;
-    --warning-foreground: 210 18% 20%;
-    --destructive: 0 65% 50%;
+    --warning: 38 85% 50%;
+    --warning-foreground: 0 0% 100%;
+    --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
-    --caution: 38 85% 55%;
-    --caution-foreground: 210 18% 20%;
+    --caution: 38 85% 50%;
+    --caution-foreground: 0 0% 100%;
     
-    /* Compliance status colors */
-    --compliant: 160 55% 42%;
+    /* Compliance status colors - deeper for white backgrounds */
+    --compliant: 160 60% 38%;
     --compliant-foreground: 0 0% 100%;
-    --compliant-purification: 38 85% 55%;
-    --compliant-purification-foreground: 210 18% 20%;
-    --non-compliant: 0 65% 50%;
+    --compliant-purification: 38 85% 50%;
+    --compliant-purification-foreground: 0 0% 100%;
+    --non-compliant: 0 70% 50%;
     --non-compliant-foreground: 0 0% 100%;
-    --doubtful: 210 15% 50%;
+    --doubtful: 210 20% 50%;
     --doubtful-foreground: 0 0% 100%;
-    --no-data: 210 10% 45%;
-    --no-data-foreground: 210 10% 75%;
+    --no-data: 210 10% 60%;
+    --no-data-foreground: 0 0% 100%;
     
-    --border: 210 15% 38%;
-    --input: 210 15% 32%;
-    --ring: 180 45% 65%;
+    --border: 210 15% 88%;
+    --input: 210 15% 95%;
+    --ring: 180 45% 45%;
     --radius: 0.5rem;
     
-    /* Sidebar */
+    /* Sidebar stays dark for contrast */
     --sidebar-background: 210 18% 22%;
     --sidebar-foreground: 0 0% 90%;
     --sidebar-primary: 180 45% 65%;
@@ -68,17 +71,19 @@
     
     /* Invesense gradients */
     --gradient-hero: linear-gradient(135deg, hsl(210 18% 28%) 0%, hsl(210 20% 32%) 50%, hsl(210 18% 26%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(210 18% 34%) 0%, hsl(210 18% 30%) 100%);
-    --gradient-primary: linear-gradient(135deg, hsl(180 45% 65%) 0%, hsl(180 50% 55%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(210 10% 98%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(180 45% 50%) 0%, hsl(180 50% 40%) 100%);
     
-    /* Shadows */
-    --shadow-elegant: 0 10px 40px -15px hsl(210 18% 10% / 0.6);
-    --shadow-glow: 0 0 40px hsl(180 45% 65% / 0.15);
-    --shadow-card: 0 4px 20px -4px hsl(210 18% 10% / 0.4);
+    /* Shadows - softer for light cards */
+    --shadow-elegant: 0 10px 40px -15px hsl(210 18% 20% / 0.15);
+    --shadow-glow: 0 0 40px hsl(180 45% 50% / 0.15);
+    --shadow-card: 0 4px 20px -4px hsl(210 18% 20% / 0.08);
     
-    /* White section for content */
+    /* Section backgrounds */
     --section-light: 0 0% 98%;
     --section-light-foreground: 210 18% 25%;
+    --section-dark: 210 18% 28%;
+    --section-dark-foreground: 0 0% 98%;
   }
 }
 
@@ -105,13 +110,13 @@
   }
   
   .btn-invesense {
-    @apply font-medium transition-all duration-300;
+    @apply font-medium transition-all duration-300 text-white;
     background: var(--gradient-primary);
-    box-shadow: 0 4px 15px hsl(180 45% 65% / 0.25);
+    box-shadow: 0 4px 15px hsl(180 45% 45% / 0.25);
   }
   
   .btn-invesense:hover { 
-    box-shadow: 0 6px 25px hsl(180 45% 65% / 0.4);
+    box-shadow: 0 6px 25px hsl(180 45% 45% / 0.4);
     transform: translateY(-1px);
   }
   
@@ -119,15 +124,33 @@
     @apply border border-primary/40 bg-transparent text-primary hover:bg-primary/10 transition-all duration-300; 
   }
   
-  /* Premium card styling */
+  /* Premium card styling - white background for readability */
   .premium-card {
-    @apply bg-card border border-border rounded-lg transition-all duration-300;
+    @apply bg-card text-card-foreground border border-border rounded-lg transition-all duration-300;
     box-shadow: var(--shadow-card);
   }
   
   .premium-card:hover {
     @apply border-primary/40;
     box-shadow: var(--shadow-elegant);
+  }
+  
+  /* Dark card variant for hero sections */
+  .dark-card {
+    @apply rounded-lg border transition-all duration-300;
+    background: hsl(210 18% 32%);
+    border-color: hsl(210 15% 40%);
+    color: hsl(0 0% 98%);
+  }
+  
+  .dark-card:hover {
+    border-color: hsl(180 45% 50% / 0.4);
+  }
+  
+  /* Section with dark background (for hero areas) */
+  .section-dark {
+    background: hsl(var(--section-dark));
+    color: hsl(var(--section-dark-foreground));
   }
   
   /* White section for Invesense style */
@@ -151,9 +174,16 @@
     @apply inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium;
   }
   
-  /* Glass effect */
+  /* Glass effect - for dark backgrounds */
   .glass {
-    @apply bg-card/80 backdrop-blur-lg border border-border/50;
+    @apply backdrop-blur-lg border;
+    background: hsl(210 18% 28% / 0.8);
+    border-color: hsl(210 15% 40% / 0.5);
+  }
+  
+  /* Glass effect for light backgrounds */
+  .glass-light {
+    @apply bg-white/80 backdrop-blur-lg border border-border/50;
   }
   
   /* Divider line */
@@ -163,12 +193,25 @@
   
   /* Invesense leadership card */
   .leadership-card {
-    @apply overflow-hidden rounded-lg shadow-lg transition-all duration-300;
+    @apply overflow-hidden rounded-lg shadow-lg transition-all duration-300 bg-card;
   }
   
   .leadership-card:hover {
     @apply shadow-xl;
     transform: translateY(-4px);
+  }
+  
+  /* Table styling for light cards */
+  .premium-card table {
+    @apply text-card-foreground;
+  }
+  
+  .premium-card th {
+    @apply text-muted-foreground;
+  }
+  
+  .premium-card td {
+    @apply text-card-foreground;
   }
 }
 
