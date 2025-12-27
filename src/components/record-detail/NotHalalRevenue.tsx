@@ -13,15 +13,15 @@ interface NotHalalRevenueProps {
   record: ScreeningRecord;
 }
 
-// Colors for pie chart - using warm/destructive tones
+// Colors for pie chart - using consistent destructive red and warm tones
 const CHART_COLORS = [
-  'hsl(0, 72%, 51%)',      // Red
+  'hsl(0, 72%, 51%)',      // Destructive red (primary)
   'hsl(25, 95%, 53%)',     // Orange
   'hsl(45, 93%, 47%)',     // Amber
-  'hsl(280, 65%, 60%)',    // Purple
-  'hsl(200, 75%, 50%)',    // Blue
-  'hsl(160, 60%, 45%)',    // Teal
-  'hsl(330, 65%, 55%)',    // Pink
+  'hsl(280, 65%, 55%)',    // Purple
+  'hsl(200, 70%, 50%)',    // Blue
+  'hsl(160, 55%, 45%)',    // Teal
+  'hsl(330, 65%, 50%)',    // Pink
   'hsl(180, 50%, 45%)',    // Cyan
 ];
 
@@ -403,7 +403,7 @@ export function NotHalalRevenue({ record }: NotHalalRevenueProps) {
           {totalDisplay && (
             <Badge 
               variant="destructive" 
-              className="text-sm font-mono px-3 py-1.5"
+              className="text-sm font-mono px-3 py-1.5 border-0 shadow-none"
             >
               {totalDisplay}
             </Badge>

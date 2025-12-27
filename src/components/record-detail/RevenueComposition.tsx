@@ -11,15 +11,15 @@ interface RevenueCompositionProps {
   record: ScreeningRecord;
 }
 
-// Colors - Halal is green, haram segments use warm/red tones
+// Colors - Halal is green, haram segments use consistent destructive red and warm tones
 const HALAL_COLOR = 'hsl(160, 55%, 42%)';
 const HARAM_COLORS = [
-  'hsl(0, 72%, 51%)',      // Red
+  'hsl(0, 72%, 51%)',      // Destructive red (primary)
   'hsl(25, 95%, 53%)',     // Orange  
   'hsl(45, 93%, 47%)',     // Amber
-  'hsl(280, 65%, 60%)',    // Purple
-  'hsl(330, 65%, 55%)',    // Pink
-  'hsl(200, 75%, 50%)',    // Blue
+  'hsl(280, 65%, 55%)',    // Purple
+  'hsl(330, 65%, 50%)',    // Pink
+  'hsl(200, 70%, 50%)',    // Blue
 ];
 
 // Get segment percentage
