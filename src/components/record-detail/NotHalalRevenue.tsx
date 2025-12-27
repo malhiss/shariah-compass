@@ -247,8 +247,8 @@ export function NotHalalRevenue({ record }: NotHalalRevenueProps) {
   const hasNoHaramRevenue = (record.haram_pct_point === 0 || record.haram_pct_point === null) && segments.length === 0;
 
   return (
-    <Card className="border-destructive/30">
-      <CardHeader className="pb-3">
+    <Card className="border-destructive/30 max-h-[400px] flex flex-col">
+      <CardHeader className="pb-3 flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
             <AlertTriangle className="h-5 w-5 text-destructive" />
@@ -262,7 +262,7 @@ export function NotHalalRevenue({ record }: NotHalalRevenueProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 overflow-y-auto flex-1">
         {hasNoHaramRevenue ? (
           <div className="text-center py-6 text-muted-foreground">
             <p className="text-sm">No clearly non-permissible revenue identified.</p>
