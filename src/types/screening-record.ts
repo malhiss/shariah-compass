@@ -1,16 +1,40 @@
 // Extended Screening Record Types matching the Methodology 3 Website Schema v1
 // This defines the complete data contract for client and staff views
 
+// Composition item within a haram segment
+export interface CompositionItem {
+  item_name?: string;
+  haram_pct_of_total_revenue_lower?: number | null;
+  haram_pct_of_total_revenue_upper?: number | null;
+  haram_pct_of_total_revenue_point_estimate?: number | null;
+  why_haram?: string;
+  reference_ids?: string[];
+}
+
+// Reference for segment or composition
+export interface ReferenceItem {
+  id?: string;
+  source_name?: string;
+  source_type?: string;
+  what_it_supports?: string;
+  url?: string;
+  as_of?: string;
+}
+
 // Haram segment breakdown
 export interface HaramSegment {
   name: string;
   point?: number | null;
   lower?: number | null;
   upper?: number | null;
-  confidence?: string | null;
+  confidence?: string | number | null;
   reasoning?: string | null;
   limitations?: string | null;
-  // Legacy fields
+  // Composition breakdown
+  composition?: CompositionItem[];
+  // References
+  references?: ReferenceItem[];
+  // Legacy/extended fields
   description?: string;
   haram_pct_of_total_revenue_lower?: number | null;
   haram_pct_of_total_revenue_point_estimate?: number | null;
@@ -62,6 +86,10 @@ export interface ScreeningRecord {
   needs_board_review?: boolean | null;
   shariah_summary?: string | null;
 
+  // Client summaries (plain English)
+  client_summary?: string | null;
+  client_shariah_summary?: string | null;
+
   // Verdict (legacy format)
   Final_Verdict?: 'COMPLIANT' | 'COMPLIANT_WITH_PURIFICATION' | 'NON_COMPLIANT' | 'DOUBTFUL_REVIEW' | string | null;
   Shariah_Compliant?: 'YES' | 'NO' | 'DOUBTFUL' | null;
@@ -87,6 +115,7 @@ export interface ScreeningRecord {
   business_status?: 'PASS' | 'FAIL' | 'CAUTION' | 'REVIEW' | string | null;
   llm_has_fail_flag?: boolean | null;
   llm_has_caution_flag?: boolean | null;
+  llm_primary_rationale?: string | null;
 
   // Financial Ratios - New format (snake_case)
   debt_ratio_pct?: number | null;
@@ -103,6 +132,15 @@ export interface ScreeningRecord {
   npin_ratio_formula?: string | null;
   npin_numerator_formula?: string | null;
   npin_adjustments_notes?: string | null;
+
+  // Dollar amounts
+  denominator_max_usd_mn?: number | null;
+  marketcap_usd_mn?: number | null;
+  totalassets_usd_mn?: number | null;
+  debt_conventional_usd_mn?: number | null;
+  cash_st_conv_usd_mn?: number | null;
+  lt_invest_conv_usd_mn?: number | null;
+  revenue_total_usd_mn?: number | null;
 
   // Financial Ratios - Legacy format (PascalCase)
   Debt_Ratio?: number | null;
@@ -144,6 +182,12 @@ export interface ScreeningRecord {
   evidence_snippet?: string[];
   evidence_source?: string[];
 
+  // Other JSON fields
+  key_drivers_json?: string | null;
+  red_flag_industries_json?: string | null;
+  shariah_references_json?: string | null;
+  non_compliant_revenue_pct_est_json?: string | null;
+
   // QA (Staff-only) - New format
   qa_needs_review?: boolean | null;
   qa_status?: string | null;
@@ -153,6 +197,7 @@ export interface ScreeningRecord {
   qa_reasons_summary?: string | null;
   qa_issues_json?: string | null;
   qa_issues_collapsed?: string | null;
+  qa_timestamp?: string | null;
 
   // QA - Legacy format
   QA_Needs_Review?: boolean | null;
@@ -171,7 +216,6 @@ export interface ScreeningRecord {
   // Notes
   doubt_reason?: string | null;
   notes_for_portfolio_manager?: string | null;
-  key_drivers_json?: string | null;
   Doubt_Reason?: string | null;
   Portfolio_Manager_Notes?: string | null;
 
@@ -373,4 +417,55 @@ export function getHalalPct(record: ScreeningRecord): number | null {
 // Get haram percentage
 export function getHaramPct(record: ScreeningRecord): number | null {
   return record.haram_pct_point ?? record.Non_Compliant_Revenue_Point_Estimate ?? null;
+}
+
+// Generate client-friendly summary if not present
+export function getClientSummary(record: ScreeningRecord): string {
+  if (record.client_summary) {
+    return record.client_summary;
+  }
+  
+  // Derive from available fields
+  const parts: string[] = [];
+  const classification = getClassificationLabel(record.final_classification);
+  parts.push(`This security is classified as ${classification}.`);
+  
+  if (record.haram_pct_point !== null && record.haram_pct_point !== undefined) {
+    parts.push(`Non-compliant revenue is estimated at ${record.haram_pct_point.toFixed(1)}%.`);
+  }
+  
+  if (record.haram_top_segments_label) {
+    parts.push(`Key concerns: ${record.haram_top_segments_label}.`);
+  }
+  
+  if (record.purification_required && record.purification_pct_recommended) {
+    parts.push(`Purification of ${record.purification_pct_recommended.toFixed(2)}% is recommended.`);
+  }
+  
+  return parts.join(' ');
+}
+
+// Generate client-friendly Shariah summary if not present
+export function getClientShariahSummary(record: ScreeningRecord): string {
+  if (record.client_shariah_summary) {
+    return record.client_shariah_summary;
+  }
+  
+  // Derive from QA or other fields
+  if (record.qa_summary_display) {
+    return record.qa_summary_display;
+  }
+  
+  const classification = record.final_classification;
+  if (classification === 'COMPLIANT') {
+    return 'This security meets Shariah compliance requirements based on our methodology.';
+  } else if (classification === 'COMPLIANT_WITH_PURIFICATION') {
+    return 'This security is Shariah compliant with purification. A portion of income should be donated to charity.';
+  } else if (classification === 'NON_COMPLIANT') {
+    return 'This security does not meet Shariah compliance requirements due to impermissible business activities or financial ratios.';
+  } else if (classification === 'DOUBTFUL_REVIEW') {
+    return 'This security requires further review by a Shariah board due to uncertain compliance status.';
+  }
+  
+  return 'Shariah compliance status pending review.';
 }

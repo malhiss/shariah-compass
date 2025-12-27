@@ -1,33 +1,7 @@
 // Frontend CSV data loader for Shariah Screening data
-// This loads and parses the CSV file from the public folder
+// This loads and parses the CSV file from the public folder using header-based mapping
 
 import type { ScreeningRecord } from '@/types/screening-record';
-
-// CSV column headers in order (73 columns)
-const CSV_HEADERS = [
-  'upsert_key', 'ticker', 'company_name', 'report_date', 'methodology_version',
-  'security_type', 'industry', 'final_classification', 'purification_required',
-  'purification_pct_recommended', 'needs_board_review', 'doubt_reason',
-  'notes_for_portfolio_manager', 'shariah_summary', 'debt_ratio_pct',
-  'cash_inv_ratio_pct', 'npin_ratio_pct', 'debt_status', 'cash_inv_status',
-  'npin_status', 'debt_threshold_pct', 'cash_inv_threshold_pct', 'npin_threshold_pct',
-  'debt_ratio_formula', 'cash_inv_ratio_formula', 'npin_ratio_formula',
-  'npin_numerator_formula', 'npin_adjustments_notes', 'denominator_max_usd_mn',
-  'marketcap_usd_mn', 'totalassets_usd_mn', 'debt_conventional_usd_mn',
-  'cash_st_conv_usd_mn', 'lt_invest_conv_usd_mn', 'revenue_total_usd_mn',
-  'business_status', 'llm_has_fail_flag', 'llm_has_caution_flag',
-  'llm_primary_rationale', 'evidence_items_json', 'haram_pct_point',
-  'haram_pct_lower', 'haram_pct_upper', 'haram_total_pct_display',
-  'haram_top_segments_label', 'haram_top_segments_names', 'haram_composition_json',
-  'halal_pct_point', 'haram_segments_json', 'haram_composition_json_2',
-  'haram_reference_ids_used', 'haram_global_reasoning', 'haram_limitations',
-  'haram_confidence', 'key_drivers_json', 'red_flag_industries_json',
-  'shariah_references_json', 'non_compliant_revenue_pct_est_json',
-  'qa_needs_review', 'qa_status', 'qa_issue_count', 'qa_summary_display',
-  'qa_category_summary', 'qa_reasons_summary', 'qa_issues_json', 'qa_timestamp',
-  'shariah_memo_markdown', 'memo_doc_url', 'memo_doc_id', 'auto_banned',
-  'auto_banned_status', 'auto_banned_reason_clean', 'auto_banned_summary'
-];
 
 // Helper functions
 function parseBoolean(value: string | undefined): boolean {
@@ -77,12 +51,45 @@ function parseCSVRow(row: string): string[] {
   return result;
 }
 
-// Parse CSV data into records
+// Build header index map, handling duplicates like .1, .2, _2 suffixes
+function buildHeaderMap(headers: string[]): Map<string, number> {
+  const headerMap = new Map<string, number>();
+  
+  for (let i = 0; i < headers.length; i++) {
+    const rawHeader = headers[i].trim();
+    headerMap.set(rawHeader, i);
+  }
+  
+  return headerMap;
+}
+
+// Get value from header map with fallback options for duplicates
+function getValue(
+  values: string[], 
+  headerMap: Map<string, number>, 
+  ...headerNames: string[]
+): string | undefined {
+  for (const name of headerNames) {
+    const idx = headerMap.get(name);
+    if (idx !== undefined && values[idx] !== undefined) {
+      return values[idx];
+    }
+  }
+  return undefined;
+}
+
+// Parse CSV data into records using header-based mapping
 function parseCSV(csvData: string): ScreeningRecord[] {
   const lines = csvData.split('\n').filter(line => line.trim());
   if (lines.length < 2) return [];
   
-  // Skip header row
+  // Parse header row to build column index map
+  const headerRow = parseCSVRow(lines[0]);
+  const headerMap = buildHeaderMap(headerRow);
+  
+  // Debug: log available headers
+  console.log('CSV Headers found:', Array.from(headerMap.keys()).slice(0, 20), '...');
+  
   const dataRows = lines.slice(1);
   const records: ScreeningRecord[] = [];
   
@@ -90,61 +97,111 @@ function parseCSV(csvData: string): ScreeningRecord[] {
     const values = parseCSVRow(row);
     if (values.length < 10) continue; // Skip incomplete rows
     
+    // Helper to get value by header name(s)
+    const get = (...names: string[]) => getValue(values, headerMap, ...names);
+    
+    // For haram_composition_json, prefer _2, then .1, then base
+    const haramCompositionJson = get('haram_composition_json_2', 'haram_composition_json.1', 'haram_composition_json');
+    
     const record: ScreeningRecord = {
-      upsert_key: values[0] || '',
-      ticker: values[1] || '',
-      company_name: values[2] || '',
-      report_date: values[3] || '',
-      methodology_version: values[4] || '',
-      security_type: values[5] || '',
-      industry: values[6] || '',
-      final_classification: values[7] as ScreeningRecord['final_classification'],
-      purification_required: parseBoolean(values[8]),
-      purification_pct_recommended: parseNumber(values[9]),
-      needs_board_review: parseBoolean(values[10]),
-      doubt_reason: parseString(values[11]),
-      notes_for_portfolio_manager: parseString(values[12]),
-      shariah_summary: values[13] || '',
-      debt_ratio_pct: parseNumber(values[14]),
-      cash_inv_ratio_pct: parseNumber(values[15]),
-      npin_ratio_pct: parseNumber(values[16]),
-      debt_status: parseString(values[17]) as ScreeningRecord['debt_status'],
-      cash_inv_status: parseString(values[18]) as ScreeningRecord['cash_inv_status'],
-      npin_status: parseString(values[19]) as ScreeningRecord['npin_status'],
-      debt_threshold_pct: parseNumber(values[20]),
-      cash_inv_threshold_pct: parseNumber(values[21]),
-      npin_threshold_pct: parseNumber(values[22]),
-      debt_ratio_formula: parseString(values[23]),
-      cash_inv_ratio_formula: parseString(values[24]),
-      npin_ratio_formula: parseString(values[25]),
-      npin_numerator_formula: parseString(values[26]),
-      npin_adjustments_notes: parseString(values[27]),
-      business_status: values[35] as ScreeningRecord['business_status'] || 'UNKNOWN',
-      llm_has_fail_flag: parseBoolean(values[36]),
-      llm_has_caution_flag: parseBoolean(values[37]),
-      evidence_items_json: parseString(values[39]),
-      haram_pct_point: parseNumber(values[40]),
-      halal_pct_point: parseNumber(values[47]),
-      haram_total_pct_display: parseString(values[43]),
-      haram_top_segments_label: parseString(values[44]),
-      haram_segments_json: parseString(values[48]),
-      haram_limitations: parseString(values[52]),
-      haram_confidence: parseString(values[53]),
-      key_drivers_json: parseString(values[54]),
-      qa_needs_review: parseBoolean(values[58]),
-      qa_status: parseString(values[59]),
-      qa_issue_count: parseNumber(values[60]) ? Math.floor(parseNumber(values[60])!) : null,
-      qa_summary_display: parseString(values[61]),
-      qa_category_summary: parseString(values[62]),
-      qa_reasons_summary: parseString(values[63]),
-      qa_issues_json: parseString(values[64]),
-      shariah_memo_markdown: parseString(values[66]),
-      memo_doc_url: parseString(values[67]),
-      memo_doc_id: parseString(values[68]),
-      auto_banned: parseBoolean(values[69]),
-      auto_banned_status: parseString(values[70]),
-      auto_banned_reason_clean: parseString(values[71]),
-      auto_banned_summary: parseString(values[72]),
+      // Identity
+      upsert_key: get('upsert_key') || '',
+      ticker: get('ticker') || '',
+      company_name: get('company_name') || '',
+      report_date: get('report_date') || '',
+      methodology_version: get('methodology_version') || '',
+      security_type: get('security_type') || '',
+      industry: get('industry') || '',
+      sector: get('sector') || '',
+      
+      // Verdict
+      final_classification: parseString(get('final_classification')) as ScreeningRecord['final_classification'],
+      purification_required: parseBoolean(get('purification_required')),
+      purification_pct_recommended: parseNumber(get('purification_pct_recommended')),
+      needs_board_review: parseBoolean(get('needs_board_review')),
+      doubt_reason: parseString(get('doubt_reason')),
+      notes_for_portfolio_manager: parseString(get('notes_for_portfolio_manager')),
+      shariah_summary: get('shariah_summary') || '',
+      
+      // Client summaries
+      client_summary: parseString(get('client_summary')),
+      client_shariah_summary: parseString(get('client_shariah_summary')),
+      
+      // Financial Ratios
+      debt_ratio_pct: parseNumber(get('debt_ratio_pct')),
+      cash_inv_ratio_pct: parseNumber(get('cash_inv_ratio_pct')),
+      npin_ratio_pct: parseNumber(get('npin_ratio_pct')),
+      debt_status: parseString(get('debt_status')) as ScreeningRecord['debt_status'],
+      cash_inv_status: parseString(get('cash_inv_status')) as ScreeningRecord['cash_inv_status'],
+      npin_status: parseString(get('npin_status')) as ScreeningRecord['npin_status'],
+      debt_threshold_pct: parseNumber(get('debt_threshold_pct')),
+      cash_inv_threshold_pct: parseNumber(get('cash_inv_threshold_pct')),
+      npin_threshold_pct: parseNumber(get('npin_threshold_pct')),
+      debt_ratio_formula: parseString(get('debt_ratio_formula')),
+      cash_inv_ratio_formula: parseString(get('cash_inv_ratio_formula')),
+      npin_ratio_formula: parseString(get('npin_ratio_formula')),
+      npin_numerator_formula: parseString(get('npin_numerator_formula')),
+      npin_adjustments_notes: parseString(get('npin_adjustments_notes')),
+      
+      // Dollar amounts
+      denominator_max_usd_mn: parseNumber(get('denominator_max_usd_mn')),
+      marketcap_usd_mn: parseNumber(get('marketcap_usd_mn')),
+      totalassets_usd_mn: parseNumber(get('totalassets_usd_mn')),
+      debt_conventional_usd_mn: parseNumber(get('debt_conventional_usd_mn')),
+      cash_st_conv_usd_mn: parseNumber(get('cash_st_conv_usd_mn')),
+      lt_invest_conv_usd_mn: parseNumber(get('lt_invest_conv_usd_mn')),
+      revenue_total_usd_mn: parseNumber(get('revenue_total_usd_mn')),
+      
+      // Business status
+      business_status: get('business_status') as ScreeningRecord['business_status'] || 'UNKNOWN',
+      llm_has_fail_flag: parseBoolean(get('llm_has_fail_flag')),
+      llm_has_caution_flag: parseBoolean(get('llm_has_caution_flag')),
+      llm_primary_rationale: parseString(get('llm_primary_rationale')),
+      
+      // Evidence
+      evidence_items_json: parseString(get('evidence_items_json')),
+      
+      // Haram revenue composition
+      haram_pct_point: parseNumber(get('haram_pct_point')),
+      haram_pct_lower: parseNumber(get('haram_pct_lower')),
+      haram_pct_upper: parseNumber(get('haram_pct_upper')),
+      haram_total_pct_display: parseString(get('haram_total_pct_display')),
+      haram_top_segments_label: parseString(get('haram_top_segments_label')),
+      haram_top_segments_names: parseString(get('haram_top_segments_names')),
+      halal_pct_point: parseNumber(get('halal_pct_point')),
+      haram_segments_json: parseString(get('haram_segments_json')),
+      haram_composition_json: haramCompositionJson ? parseString(haramCompositionJson) : null,
+      haram_reference_ids_used: parseString(get('haram_reference_ids_used')),
+      haram_global_reasoning: parseString(get('haram_global_reasoning')),
+      haram_limitations: parseString(get('haram_limitations')),
+      haram_confidence: parseString(get('haram_confidence')),
+      
+      // Key drivers
+      key_drivers_json: parseString(get('key_drivers_json')),
+      red_flag_industries_json: parseString(get('red_flag_industries_json')),
+      shariah_references_json: parseString(get('shariah_references_json')),
+      non_compliant_revenue_pct_est_json: parseString(get('non_compliant_revenue_pct_est_json')),
+      
+      // QA fields
+      qa_needs_review: parseBoolean(get('qa_needs_review')),
+      qa_status: parseString(get('qa_status')),
+      qa_issue_count: parseNumber(get('qa_issue_count')) ? Math.floor(parseNumber(get('qa_issue_count'))!) : null,
+      qa_summary_display: parseString(get('qa_summary_display')),
+      qa_category_summary: parseString(get('qa_category_summary')),
+      qa_reasons_summary: parseString(get('qa_reasons_summary')),
+      qa_issues_json: parseString(get('qa_issues_json')),
+      qa_timestamp: parseString(get('qa_timestamp')),
+      
+      // Memo
+      shariah_memo_markdown: parseString(get('shariah_memo_markdown')),
+      memo_doc_url: parseString(get('memo_doc_url')),
+      memo_doc_id: parseString(get('memo_doc_id')),
+      
+      // Auto-banned
+      auto_banned: parseBoolean(get('auto_banned')),
+      auto_banned_status: parseString(get('auto_banned_status')),
+      auto_banned_reason_clean: parseString(get('auto_banned_reason_clean')),
+      auto_banned_summary: parseString(get('auto_banned_summary')),
     };
     
     if (record.ticker && record.upsert_key) {
