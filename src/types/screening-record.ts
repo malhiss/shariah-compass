@@ -120,6 +120,8 @@ export interface ScreeningRecord {
 
   // Revenue Composition
   haram_pct_point?: number | null;
+  haram_pct_lower?: number | null;
+  haram_pct_upper?: number | null;
   halal_pct_point?: number | null;
   haram_total_pct_display?: string | null;
   haram_confidence?: string | null;
@@ -127,6 +129,10 @@ export interface ScreeningRecord {
   haram_segments_json?: string | null;
   haram_segments?: HaramSegment[];
   haram_revenue_pct_for_screening?: number | null;
+  haram_reference_ids_used?: string | null;
+  haram_global_reasoning?: string | null;
+  haram_top_segments_names?: string | null;
+  haram_composition_json?: string | null;
   haram_top_segments_label?: string | null;
 
   // Evidence

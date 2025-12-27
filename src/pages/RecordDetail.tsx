@@ -9,6 +9,7 @@ import { RecordHeader } from '@/components/record-detail/RecordHeader';
 import { VerdictBar } from '@/components/record-detail/VerdictBar';
 import { ScreeningTiles } from '@/components/record-detail/ScreeningTiles';
 import { RevenueComposition } from '@/components/record-detail/RevenueComposition';
+import { NotHalalRevenue } from '@/components/record-detail/NotHalalRevenue';
 import { BreakdownPanels } from '@/components/record-detail/BreakdownPanels';
 import { NumericScreenTab } from '@/components/record-detail/NumericScreenTab';
 import { EvidenceTab } from '@/components/record-detail/EvidenceTab';
@@ -109,7 +110,10 @@ export default function RecordDetail() {
       <ScreeningTiles record={record} />
 
       {/* D) Revenue Composition section */}
-      <RevenueComposition record={record} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RevenueComposition record={record} />
+        <NotHalalRevenue record={record} />
+      </div>
 
       {/* E) Breakdown panels */}
       <BreakdownPanels record={record} />

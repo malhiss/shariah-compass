@@ -6,7 +6,8 @@ import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 import { ScreeningTable } from "@/components/dashboard/ScreeningTable";
 import { getClientFacingRecords } from "@/lib/shariah-api";
 import { Scale, Coins, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import type { ClientFacingRecord, ScreeningFilters, ViewMode, PaginatedResponse } from "@/types/mongodb";
+import type { ScreeningFilters, ViewMode, PaginatedResponse } from "@/types/mongodb";
+import type { ScreeningRecord } from "@/types/screening-record";
 
 export default function ShariahDashboard() {
   const [viewMode, setViewMode] = useState<ViewMode>("shariah");
@@ -14,7 +15,7 @@ export default function ShariahDashboard() {
     page: 1,
     pageSize: 50,
   });
-  const [data, setData] = useState<PaginatedResponse<ClientFacingRecord> | null>(null);
+  const [data, setData] = useState<PaginatedResponse<ScreeningRecord> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
