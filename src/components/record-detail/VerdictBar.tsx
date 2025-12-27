@@ -109,12 +109,7 @@ export function VerdictBar({ record }: VerdictBarProps) {
             )}
           </div>
 
-          {/* Shariah summary teaser */}
-          {record.shariah_summary && (
-            <div className="hidden lg:block max-w-md text-sm text-muted-foreground line-clamp-2">
-              {record.shariah_summary}
-            </div>
-          )}
+          {/* Shariah summary teaser - hidden to prevent overflow issues */}
         </div>
       </CardContent>
     </Card>
