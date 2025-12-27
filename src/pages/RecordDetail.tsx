@@ -109,8 +109,8 @@ export default function RecordDetail() {
       {/* C) Screening tiles row */}
       <ScreeningTiles record={record} />
 
-      {/* D) Revenue Composition section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* D) Revenue Composition section - stacked vertically */}
+      <div className="space-y-6">
         <RevenueComposition record={record} />
         <NotHalalRevenue record={record} />
       </div>
