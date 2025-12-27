@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { PieChart as PieChartIcon, Info, AlertCircle, TrendingDown } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { coerceToNumber } from '@/types/mongodb';
@@ -11,12 +10,14 @@ interface RevenueCompositionProps {
   record: ScreeningRecord;
 }
 
-// Colors for segments
-const SEGMENT_COLORS = [
+// Colors - Halal is green, haram segments use warm/red tones
+const HALAL_COLOR = 'hsl(160, 55%, 42%)';
+const HARAM_COLORS = [
   'hsl(0, 72%, 51%)',      // Red
   'hsl(25, 95%, 53%)',     // Orange  
   'hsl(45, 93%, 47%)',     // Amber
   'hsl(280, 65%, 60%)',    // Purple
+  'hsl(330, 65%, 55%)',    // Pink
   'hsl(200, 75%, 50%)',    // Blue
 ];
 
@@ -32,18 +33,46 @@ function getSegmentPct(segment: HaramSegment): number {
 }
 
 // Custom tooltip
-function CustomTooltip({ active, payload }: { active?: boolean; payload?: { name: string; value: number; payload: { color: string } }[] }) {
+function CustomTooltip({ active, payload }: { active?: boolean; payload?: { name: string; value: number; payload: { color: string; isHalal?: boolean } }[] }) {
   if (active && payload && payload.length) {
+    const isHalal = payload[0].payload.isHalal;
     return (
-      <div className="bg-popover border border-border rounded-lg px-3 py-2 shadow-lg">
+      <div className="bg-popover border border-border rounded-lg px-3 py-2 shadow-lg max-w-xs">
         <p className="text-sm font-medium">{payload[0].name}</p>
-        <p className="text-sm font-mono" style={{ color: payload[0].payload.color }}>
+        <p 
+          className="text-sm font-mono font-semibold" 
+          style={{ color: isHalal ? HALAL_COLOR : 'hsl(0, 72%, 51%)' }}
+        >
           {payload[0].value.toFixed(2)}%
         </p>
       </div>
     );
   }
   return null;
+}
+
+// Custom legend that groups haram segments
+function CustomLegend({ payload }: { payload?: { value: string; color: string; payload: { isHalal?: boolean; value: number } }[] }) {
+  if (!payload) return null;
+  
+  const halalItem = payload.find(p => p.payload.isHalal);
+  const haramItems = payload.filter(p => !p.payload.isHalal);
+  const totalHaram = haramItems.reduce((sum, item) => sum + (item.payload.value || 0), 0);
+  
+  return (
+    <div className="flex flex-wrap justify-center gap-4 mt-2 text-sm">
+      {halalItem && (
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: halalItem.color }} />
+          <span className="text-foreground">Halal ({halalItem.payload.value.toFixed(1)}%)</span>
+        </div>
+      )}
+      <div className="flex items-center gap-2">
+        <div className="w-3 h-3 rounded-sm bg-gradient-to-r from-red-500 to-orange-500" />
+        <span className="text-foreground">Not Halal ({totalHaram.toFixed(1)}%)</span>
+      </div>
+    </div>
+  );
 }
 
 // Segment bar component for inline display
@@ -100,10 +129,54 @@ export function RevenueComposition({ record }: RevenueCompositionProps) {
   const notHalalPct = haramPct !== null ? Math.min(haramPct, 100) : 0;
   const halalPct = Math.max(0, 100 - notHalalPct);
 
-  const chartData = [
-    { name: 'Halal', value: halalPct, color: 'hsl(160, 55%, 42%)' },
-    { name: 'Not Halal', value: notHalalPct, color: 'hsl(38, 85%, 55%)' },
-  ];
+  // Build chart data with segment breakdown
+  const chartData = useMemo(() => {
+    const data: { name: string; value: number; color: string; isHalal?: boolean }[] = [];
+    
+    // Add halal slice
+    data.push({ 
+      name: 'Halal Revenue', 
+      value: halalPct, 
+      color: HALAL_COLOR,
+      isHalal: true
+    });
+    
+    // Add haram segment slices if we have breakdown
+    if (topSegments.length > 0) {
+      let totalSegmentPct = 0;
+      topSegments.forEach((segment, idx) => {
+        const pct = getSegmentPct(segment);
+        totalSegmentPct += pct;
+        data.push({
+          name: segment.name || `Segment ${idx + 1}`,
+          value: pct,
+          color: HARAM_COLORS[idx % HARAM_COLORS.length],
+          isHalal: false
+        });
+      });
+      
+      // Add "Other non-halal" if there's a gap
+      const remainingHaram = notHalalPct - totalSegmentPct;
+      if (remainingHaram > 0.5) {
+        data.push({
+          name: 'Other non-halal',
+          value: remainingHaram,
+          color: 'hsl(220, 15%, 45%)',
+          isHalal: false
+        });
+      }
+    } else if (notHalalPct > 0) {
+      // No segment breakdown, just show total haram
+      data.push({
+        name: 'Not Halal Revenue',
+        value: notHalalPct,
+        color: 'hsl(38, 85%, 55%)',
+        isHalal: false
+      });
+    }
+    
+    return data.filter(d => d.value > 0);
+  }, [halalPct, notHalalPct, topSegments]);
 
   // Don't show chart if no data
   const hasData = haramPct !== null || haramDisplay;
@@ -139,32 +212,27 @@ export function RevenueComposition({ record }: RevenueCompositionProps) {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left: Donut chart */}
-          <div className="h-64 lg:col-span-1">
+          {/* Left: Donut chart with segment breakdown */}
+          <div className="h-72 lg:col-span-1">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={chartData}
                   cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={85}
-                  paddingAngle={2}
+                  cy="45%"
+                  innerRadius={50}
+                  outerRadius={80}
+                  paddingAngle={1}
                   dataKey="value"
-                  strokeWidth={0}
+                  strokeWidth={1}
+                  stroke="hsl(var(--background))"
                 >
                   {chartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
-                <Legend
-                  verticalAlign="bottom"
-                  height={36}
-                  formatter={(value) => (
-                    <span className="text-sm text-foreground">{value}</span>
-                  )}
-                />
+                <Legend content={<CustomLegend />} verticalAlign="bottom" />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -192,20 +260,20 @@ export function RevenueComposition({ record }: RevenueCompositionProps) {
               <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 text-xs">
                 <Info className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                 <p className="text-muted-foreground">
-                  Estimates include limitations; see details below.
+                  Hover over chart segments for details.
                 </p>
               </div>
             )}
           </div>
 
-          {/* Right: Top segments breakdown */}
+          {/* Right: Top segments breakdown list */}
           <div className="lg:col-span-1">
             {topSegments.length > 0 ? (
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <TrendingDown className="w-4 h-4 text-muted-foreground" />
                   <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Top Non-Halal Segments
+                    Non-Halal Breakdown
                   </h4>
                 </div>
                 <div className="space-y-3">
@@ -213,7 +281,7 @@ export function RevenueComposition({ record }: RevenueCompositionProps) {
                     <SegmentBar 
                       key={idx} 
                       segment={segment} 
-                      color={SEGMENT_COLORS[idx % SEGMENT_COLORS.length]}
+                      color={HARAM_COLORS[idx % HARAM_COLORS.length]}
                       maxPct={maxSegmentPct}
                     />
                   ))}
