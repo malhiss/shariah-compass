@@ -10,10 +10,11 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { VerdictBadge, ZakatBadge, RiskBadge, BooleanBadge } from './VerdictBadge';
 import { formatPercent, formatDate } from '@/types/mongodb';
-import type { ClientFacingRecord, ViewMode } from '@/types/mongodb';
+import type { ViewMode } from '@/types/mongodb';
+import type { ScreeningRecord } from '@/types/screening-record';
 
 interface ScreeningTableProps {
-  data: ClientFacingRecord[];
+  data: ScreeningRecord[];
   loading: boolean;
   viewMode: ViewMode;
 }
