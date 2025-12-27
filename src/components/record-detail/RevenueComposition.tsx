@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart as PieChartIcon, Info, AlertCircle, TrendingDown } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { coerceToNumber } from '@/types/mongodb';
 import { getHaramPct, normalizeHaramSegments, type HaramSegment } from '@/types/screening-record';
 import type { ScreeningRecord } from '@/types/screening-record';
+import { cn } from '@/lib/utils';
 
 interface RevenueCompositionProps {
   record: ScreeningRecord;
@@ -75,18 +76,32 @@ function CustomLegend({ payload }: { payload?: { value: string; color: string; p
   );
 }
 
-// Segment bar component for inline display
-function SegmentBar({ segment, color, maxPct }: { segment: HaramSegment; color: string; maxPct: number }) {
+// Segment bar component for inline display with animation
+function SegmentBar({ segment, color, maxPct, delay }: { segment: HaramSegment; color: string; maxPct: number; delay: number }) {
+  const [animated, setAnimated] = useState(false);
   const pct = getSegmentPct(segment);
   const widthPercent = maxPct > 0 ? (pct / maxPct) * 100 : 0;
   
+  useEffect(() => {
+    const timer = setTimeout(() => setAnimated(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+  
   return (
-    <div className="group">
+    <div 
+      className={cn(
+        "group transition-all duration-500 ease-out",
+        animated ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+      )}
+    >
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2 min-w-0 flex-1">
           <div 
-            className="w-2.5 h-2.5 rounded-sm flex-shrink-0" 
-            style={{ backgroundColor: color }}
+            className="w-2.5 h-2.5 rounded-sm flex-shrink-0 transition-transform duration-300"
+            style={{ 
+              backgroundColor: color,
+              transform: animated ? 'scale(1)' : 'scale(0)'
+            }}
           />
           <span className="text-sm text-muted-foreground truncate group-hover:text-foreground transition-colors">
             {segment.name}
@@ -98,10 +113,11 @@ function SegmentBar({ segment, color, maxPct }: { segment: HaramSegment; color: 
       </div>
       <div className="h-1.5 bg-muted/30 rounded-full overflow-hidden">
         <div 
-          className="h-full rounded-full transition-all duration-500 ease-out"
+          className="h-full rounded-full transition-all duration-700 ease-out"
           style={{ 
-            width: `${widthPercent}%`,
-            backgroundColor: color 
+            width: animated ? `${widthPercent}%` : '0%',
+            backgroundColor: color,
+            transitionDelay: `${delay + 200}ms`
           }}
         />
       </div>
@@ -226,6 +242,10 @@ export function RevenueComposition({ record }: RevenueCompositionProps) {
                   dataKey="value"
                   strokeWidth={1}
                   stroke="hsl(var(--background))"
+                  isAnimationActive={true}
+                  animationBegin={0}
+                  animationDuration={800}
+                  animationEasing="ease-out"
                 >
                   {chartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
@@ -240,7 +260,7 @@ export function RevenueComposition({ record }: RevenueCompositionProps) {
           {/* Middle: Key percentages */}
           <div className="space-y-4 lg:col-span-1">
             {/* Not Halal percentage */}
-            <div className="p-4 rounded-lg bg-warning/10 border border-warning/20">
+            <div className="p-4 rounded-lg bg-warning/10 border border-warning/20 animate-fade-in" style={{ animationDelay: '200ms', animationFillMode: 'both' }}>
               <p className="text-xs text-muted-foreground mb-1">Not Halal Revenue</p>
               <p className="text-2xl font-semibold text-warning">
                 {haramDisplay || `${notHalalPct.toFixed(2)}%`}
@@ -248,7 +268,7 @@ export function RevenueComposition({ record }: RevenueCompositionProps) {
             </div>
 
             {/* Halal percentage */}
-            <div className="p-4 rounded-lg bg-compliant/10 border border-compliant/20">
+            <div className="p-4 rounded-lg bg-compliant/10 border border-compliant/20 animate-fade-in" style={{ animationDelay: '350ms', animationFillMode: 'both' }}>
               <p className="text-xs text-muted-foreground mb-1">Halal Revenue</p>
               <p className="text-2xl font-semibold text-compliant">
                 {halalPct.toFixed(2)}%
@@ -257,7 +277,7 @@ export function RevenueComposition({ record }: RevenueCompositionProps) {
 
             {/* Confidence note */}
             {segments.length > 0 && (
-              <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 text-xs">
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 text-xs animate-fade-in" style={{ animationDelay: '500ms', animationFillMode: 'both' }}>
                 <Info className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                 <p className="text-muted-foreground">
                   Hover over chart segments for details.
@@ -283,6 +303,7 @@ export function RevenueComposition({ record }: RevenueCompositionProps) {
                       segment={segment} 
                       color={HARAM_COLORS[idx % HARAM_COLORS.length]}
                       maxPct={maxSegmentPct}
+                      delay={100 + idx * 100}
                     />
                   ))}
                 </div>
