@@ -87,8 +87,8 @@ serve(async (req) => {
     // Get all unique tickers
     const tickers = holdings.map((h: Holding) => h.ticker.trim().toUpperCase());
     
-    // Find all records from sample data
-    const recordsMap = findByTickers(tickers);
+    // Find all records from sample data (async now)
+    const recordsMap = await findByTickers(tickers);
 
     // Calculate total portfolio value and build results
     let totalValue = 0;

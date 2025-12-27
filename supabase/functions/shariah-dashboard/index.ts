@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { sampleData, getAllRecords, getDistinctValues, findByTicker, type ScreeningRecord } from "../_shared/sample-data.ts";
+import { getAllRecords, getDistinctValues, findByUpsertKey, loadData, type ScreeningRecord } from "../_shared/sample-data.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -59,47 +59,54 @@ serve(async (req: Request) => {
 async function handleAction(action: string, filters: Record<string, unknown>) {
   switch (action) {
     case "getClientFacingRecords": {
-      let data = getAllRecords({
+      // Get records with filtering and pagination
+      const autoBannedFilter = filters.autoBanned === "YES" ? true : 
+                               filters.autoBanned === "NO" ? false : undefined;
+      
+      const { records, total } = await getAllRecords({
         search: filters.search as string,
         finalClassification: filters.finalVerdict as string,
         industry: filters.industry as string,
+        autoBanned: autoBannedFilter,
+        page: (filters.page as number) || 1,
+        pageSize: (filters.pageSize as number) || 50,
       });
-
-      if (filters.autoBanned === "YES") {
-        data = data.filter(r => r.auto_banned === true);
-      } else if (filters.autoBanned === "NO") {
-        data = data.filter(r => r.auto_banned !== true);
-      }
 
       const page = (filters.page as number) || 1;
       const pageSize = (filters.pageSize as number) || 50;
-      const total = data.length;
-      const start = (page - 1) * pageSize;
-      const paginatedData = data.slice(start, start + pageSize);
 
-      return { data: paginatedData, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+      return { 
+        data: records, 
+        total, 
+        page, 
+        pageSize, 
+        totalPages: Math.ceil(total / pageSize) 
+      };
     }
 
     case "getRecordByKey": {
-      const record = sampleData.find(r => r.upsert_key === filters.upsertKey);
+      const record = await findByUpsertKey(filters.upsertKey as string);
       return record || null;
     }
 
     case "getAutoBannedRecords": {
-      let data = sampleData.filter(r => r.auto_banned);
-      if (filters.search) {
-        const searchLower = (filters.search as string).toLowerCase();
-        data = data.filter(r => r.ticker.toLowerCase().includes(searchLower) || r.company_name.toLowerCase().includes(searchLower));
-      }
+      const { records, total } = await getAllRecords({
+        search: filters.search as string,
+        autoBanned: true,
+        page: (filters.page as number) || 1,
+        pageSize: (filters.pageSize as number) || 50,
+      });
+      
       const page = (filters.page as number) || 1;
       const pageSize = (filters.pageSize as number) || 50;
-      return { data: data.slice((page - 1) * pageSize, page * pageSize), total: data.length, page, pageSize };
+      
+      return { data: records, total, page, pageSize };
     }
 
     case "getDistinctValues": {
       const field = filters.field as keyof ScreeningRecord;
       if (!field) throw new Error("Field is required");
-      return getDistinctValues(field);
+      return await getDistinctValues(field);
     }
 
     default:
