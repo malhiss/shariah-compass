@@ -2,6 +2,7 @@
 // This module provides consistent data across all edge functions
 
 export interface ScreeningRecord {
+  // Identity fields
   upsert_key: string;
   ticker: string;
   company_name: string;
@@ -9,6 +10,8 @@ export interface ScreeningRecord {
   methodology_version: string;
   security_type: string;
   industry: string;
+  
+  // Verdict & Classification
   final_classification: string;
   purification_required: boolean;
   purification_pct_recommended: number | null;
@@ -16,996 +19,309 @@ export interface ScreeningRecord {
   doubt_reason: string | null;
   notes_for_portfolio_manager: string | null;
   shariah_summary: string;
-  debt_ratio_pct: number;
-  cash_inv_ratio_pct: number;
-  npin_ratio_pct: number;
-  debt_status: string;
-  cash_inv_status: string;
-  npin_status: string;
-  debt_threshold_pct: number;
-  cash_inv_threshold_pct: number;
-  npin_threshold_pct: number;
+  
+  // Financial Ratios
+  debt_ratio_pct: number | null;
+  cash_inv_ratio_pct: number | null;
+  npin_ratio_pct: number | null;
+  debt_status: string | null;
+  cash_inv_status: string | null;
+  npin_status: string | null;
+  debt_threshold_pct: number | null;
+  cash_inv_threshold_pct: number | null;
+  npin_threshold_pct: number | null;
+  
+  // Formulas
+  debt_ratio_formula: string | null;
+  cash_inv_ratio_formula: string | null;
+  npin_ratio_formula: string | null;
+  npin_numerator_formula: string | null;
+  npin_adjustments_notes: string | null;
+  
+  // Denominator values
+  denominator_max_usd_mn: number | null;
+  marketcap_usd_mn: number | null;
+  totalassets_usd_mn: number | null;
+  debt_conventional_usd_mn: number | null;
+  cash_st_conv_usd_mn: number | null;
+  lt_invest_conv_usd_mn: number | null;
+  revenue_total_usd_mn: number | null;
+  
+  // Business Activity
   business_status: string;
+  llm_has_fail_flag: boolean;
+  llm_has_caution_flag: boolean;
+  llm_primary_rationale: string | null;
+  
+  // Evidence
+  evidence_items_json: string | null;
+  
+  // Revenue Composition
+  haram_pct_point: number | null;
+  haram_pct_lower: number | null;
+  haram_pct_upper: number | null;
+  haram_total_pct_display: string | null;
+  haram_top_segments_label: string | null;
+  haram_top_segments_names: string | null;
+  haram_composition_json: string | null;
+  halal_pct_point: number | null;
+  haram_segments_json: string | null;
+  haram_reference_ids_used: string | null;
+  haram_global_reasoning: string | null;
+  haram_limitations: string | null;
+  haram_confidence: string | null;
+  
+  // Key drivers and references
+  key_drivers_json: string | null;
+  red_flag_industries_json: string | null;
+  shariah_references_json: string | null;
+  non_compliant_revenue_pct_est_json: string | null;
+  
+  // QA fields
+  qa_needs_review: boolean;
+  qa_status: string | null;
+  qa_issue_count: number | null;
+  qa_summary_display: string | null;
+  qa_category_summary: string | null;
+  qa_reasons_summary: string | null;
+  qa_issues_json: string | null;
+  qa_timestamp: string | null;
+  
+  // Memo
+  shariah_memo_markdown: string | null;
+  memo_doc_url: string | null;
+  memo_doc_id: string | null;
+  
+  // Auto-ban
   auto_banned: boolean;
   auto_banned_status: string | null;
   auto_banned_reason_clean: string | null;
   auto_banned_summary: string | null;
-  haram_pct_point: number | null;
-  haram_segments_json: string | null;
-  key_drivers_json: string | null;
-  evidence_items_json: string | null;
-  qa_status: string | null;
-  qa_issues_json: string | null;
-  shariah_memo_markdown: string | null;
-  memo_doc_url: string | null;
 }
 
-// Sample data extracted from the CSV - comprehensive set of records
-export const sampleData: ScreeningRecord[] = [
-  {
-    upsert_key: "MA_2025-10-30",
-    ticker: "MA",
-    company_name: "Mastercard Incorporated",
-    report_date: "2025-10-30",
-    methodology_version: "v3",
-    security_type: "CL A",
-    industry: "Financial - Credit Services",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: null,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. Reported NPIN ratio: 0.00% of revenue.",
-    debt_ratio_pct: 3.6,
-    cash_inv_ratio_pct: 2.05,
-    npin_ratio_pct: 0,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "FAIL",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "COST_2025-12-11",
-    ticker: "COST",
-    company_name: "Costco Wholesale Corporation",
-    report_date: "2025-12-11",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Discount Stores",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: null,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. Reported NPIN ratio: 0.21% of revenue.",
-    debt_ratio_pct: 2.09,
-    cash_inv_ratio_pct: 3.9,
-    npin_ratio_pct: 0.21,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "PASS",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "KO_2025-10-21",
-    ticker: "KO",
-    company_name: "The Coca-Cola Company",
-    report_date: "2025-10-21",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Beverages - Non-Alcoholic",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: null,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. Reported NPIN ratio: 2.10% of revenue.",
-    debt_ratio_pct: 15.38,
-    cash_inv_ratio_pct: 11.38,
-    npin_ratio_pct: 2.1,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "FAIL",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "NVDA_2025-11-20",
-    ticker: "NVDA",
-    company_name: "NVIDIA Corporation",
-    report_date: "2025-11-20",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Semiconductors",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: null,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. NPIN ratio: 1.37% of revenue.",
-    debt_ratio_pct: 0.23,
-    cash_inv_ratio_pct: 1.06,
-    npin_ratio_pct: 1.37,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "CAUTION",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "AAPL_2025-10-31",
-    ticker: "AAPL",
-    company_name: "Apple Inc.",
-    report_date: "2025-10-31",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Consumer Electronics",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: 0.8,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. NPIN ratio: 0.8% of revenue.",
-    debt_ratio_pct: 8.5,
-    cash_inv_ratio_pct: 12.3,
-    npin_ratio_pct: 0.8,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "PASS",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "MSFT_2025-10-30",
-    ticker: "MSFT",
-    company_name: "Microsoft Corporation",
-    report_date: "2025-10-30",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Software - Infrastructure",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: 1.2,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. NPIN ratio: 1.2% of revenue.",
-    debt_ratio_pct: 5.8,
-    cash_inv_ratio_pct: 18.5,
-    npin_ratio_pct: 1.2,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "CAUTION",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "GOOGL_2025-10-29",
-    ticker: "GOOGL",
-    company_name: "Alphabet Inc.",
-    report_date: "2025-10-29",
-    methodology_version: "v3",
-    security_type: "CL A",
-    industry: "Internet Content & Information",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: 1.5,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. NPIN ratio: 1.5% of revenue.",
-    debt_ratio_pct: 2.1,
-    cash_inv_ratio_pct: 25.8,
-    npin_ratio_pct: 1.5,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "CAUTION",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "AMZN_2025-10-31",
-    ticker: "AMZN",
-    company_name: "Amazon.com, Inc.",
-    report_date: "2025-10-31",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Internet Retail",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: 2.1,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. NPIN ratio: 2.1% of revenue.",
-    debt_ratio_pct: 12.5,
-    cash_inv_ratio_pct: 15.2,
-    npin_ratio_pct: 2.1,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "CAUTION",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "TSLA_2025-10-23",
-    ticker: "TSLA",
-    company_name: "Tesla, Inc.",
-    report_date: "2025-10-23",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Auto Manufacturers",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: 0.3,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. NPIN ratio: 0.3% of revenue.",
-    debt_ratio_pct: 2.8,
-    cash_inv_ratio_pct: 28.5,
-    npin_ratio_pct: 0.3,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "PASS",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "V_2025-10-28",
-    ticker: "V",
-    company_name: "Visa Inc.",
-    report_date: "2025-10-28",
-    methodology_version: "v3",
-    security_type: "CL A",
-    industry: "Financial - Credit Services",
-    final_classification: "COMPLIANT_WITH_PURIFICATION",
-    purification_required: true,
-    purification_pct_recommended: 1.0,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: "Minor purification required due to interest income from treasury operations.",
-    shariah_summary: "Overall Shariah verdict: COMPLIANT_WITH_PURIFICATION. NPIN ratio: 1.0% of revenue.",
-    debt_ratio_pct: 3.95,
-    cash_inv_ratio_pct: 3.61,
-    npin_ratio_pct: 1.0,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "CAUTION",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: 1.0,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "JPM_2025-10-11",
-    ticker: "JPM",
-    company_name: "JPMorgan Chase & Co.",
-    report_date: "2025-10-11",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Banks - Diversified",
-    final_classification: "NON_COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: null,
-    needs_board_review: false,
-    doubt_reason: "Core business is conventional banking with interest-based operations.",
-    notes_for_portfolio_manager: "Not suitable for Shariah-compliant portfolios due to conventional banking operations.",
-    shariah_summary: "Non-compliant due to core business in conventional banking. Auto-banned industry.",
-    debt_ratio_pct: 85.2,
-    cash_inv_ratio_pct: 45.3,
-    npin_ratio_pct: 78.5,
-    debt_status: "FAIL",
-    cash_inv_status: "FAIL",
-    npin_status: "FAIL",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "FAIL",
-    auto_banned: true,
-    auto_banned_status: "FAIL",
-    auto_banned_reason_clean: "Conventional Banking",
-    auto_banned_summary: "FAIL — Auto-banned: Conventional Banking industry",
-    haram_pct_point: 78.5,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "BUD_2025-10-31",
-    ticker: "BUD",
-    company_name: "Anheuser-Busch InBev SA/NV",
-    report_date: "2025-10-31",
-    methodology_version: "v3",
-    security_type: "ADR",
-    industry: "Beverages - Brewers",
-    final_classification: "NON_COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: null,
-    needs_board_review: false,
-    doubt_reason: "Primary business is alcohol production and distribution.",
-    notes_for_portfolio_manager: "Not suitable for Shariah-compliant portfolios due to alcohol production.",
-    shariah_summary: "Non-compliant due to core business in alcohol production. Auto-banned industry.",
-    debt_ratio_pct: 42.5,
-    cash_inv_ratio_pct: 5.8,
-    npin_ratio_pct: 95.2,
-    debt_status: "FAIL",
-    cash_inv_status: "PASS",
-    npin_status: "FAIL",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "FAIL",
-    auto_banned: true,
-    auto_banned_status: "FAIL",
-    auto_banned_reason_clean: "Alcohol Production",
-    auto_banned_summary: "FAIL — Auto-banned: Alcohol Production industry",
-    haram_pct_point: 95.2,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "MGM_2025-10-30",
-    ticker: "MGM",
-    company_name: "MGM Resorts International",
-    report_date: "2025-10-30",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Resorts & Casinos",
-    final_classification: "NON_COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: null,
-    needs_board_review: false,
-    doubt_reason: "Primary business is gambling/casino operations.",
-    notes_for_portfolio_manager: "Not suitable for Shariah-compliant portfolios due to gambling operations.",
-    shariah_summary: "Non-compliant due to core business in gambling/casino operations. Auto-banned industry.",
-    debt_ratio_pct: 55.3,
-    cash_inv_ratio_pct: 8.1,
-    npin_ratio_pct: 88.5,
-    debt_status: "FAIL",
-    cash_inv_status: "PASS",
-    npin_status: "FAIL",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "FAIL",
-    auto_banned: true,
-    auto_banned_status: "FAIL",
-    auto_banned_reason_clean: "Gambling/Casino Operations",
-    auto_banned_summary: "FAIL — Auto-banned: Gambling/Casino Operations",
-    haram_pct_point: 88.5,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "RTX_2025-10-22",
-    ticker: "RTX",
-    company_name: "RTX Corporation",
-    report_date: "2025-10-22",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Aerospace & Defense",
-    final_classification: "NON_COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: null,
-    needs_board_review: true,
-    doubt_reason: "Significant defense/weapons manufacturing revenue.",
-    notes_for_portfolio_manager: "Not suitable for Shariah-compliant portfolios due to weapons manufacturing.",
-    shariah_summary: "Non-compliant due to significant defense and weapons manufacturing revenue. Auto-banned.",
-    debt_ratio_pct: 18.5,
-    cash_inv_ratio_pct: 3.2,
-    npin_ratio_pct: 65.0,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "FAIL",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "FAIL",
-    auto_banned: true,
-    auto_banned_status: "FAIL",
-    auto_banned_reason_clean: "Aerospace & Defense",
-    auto_banned_summary: "FAIL — Auto-banned: Weapons Manufacturing",
-    haram_pct_point: 65.0,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "PLTR_2025-11-04",
-    ticker: "PLTR",
-    company_name: "Palantir Technologies Inc.",
-    report_date: "2025-11-04",
-    methodology_version: "v3",
-    security_type: "CL A",
-    industry: "Software - Infrastructure",
-    final_classification: "NON_COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: null,
-    needs_board_review: true,
-    doubt_reason: "Significant government defense contracts and dual-use technology concerns.",
-    notes_for_portfolio_manager: "Review needed due to defense contract exposure. Consider alternative software investments.",
-    shariah_summary: "Non-compliant due to significant defense revenue and NPIN exceeding threshold.",
-    debt_ratio_pct: 0.06,
-    cash_inv_ratio_pct: 1.23,
-    npin_ratio_pct: 6.87,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "FAIL",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "FAIL",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: 36.5,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "REVIEW",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "TMUS_2025-10-23",
-    ticker: "TMUS",
-    company_name: "T-Mobile US, Inc.",
-    report_date: "2025-10-23",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Telecommunications Services",
-    final_classification: "NON_COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: null,
-    needs_board_review: true,
-    doubt_reason: "Debt ratio exceeds threshold.",
-    notes_for_portfolio_manager: "Failed due to high debt ratio (51.26% > 33% threshold).",
-    shariah_summary: "Non-compliant due to excessive debt ratio exceeding 33% threshold.",
-    debt_ratio_pct: 51.26,
-    cash_inv_ratio_pct: 3.45,
-    npin_ratio_pct: 0.55,
-    debt_status: "FAIL",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "CAUTION",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: 0.55,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "META_2025-10-30",
-    ticker: "META",
-    company_name: "Meta Platforms, Inc.",
-    report_date: "2025-10-30",
-    methodology_version: "v3",
-    security_type: "CL A",
-    industry: "Internet Content & Information",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: 1.8,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. NPIN ratio: 1.8% of revenue.",
-    debt_ratio_pct: 3.5,
-    cash_inv_ratio_pct: 32.1,
-    npin_ratio_pct: 1.8,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "CAUTION",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "JNJ_2025-10-15",
-    ticker: "JNJ",
-    company_name: "Johnson & Johnson",
-    report_date: "2025-10-15",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Drug Manufacturers - General",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: 0.5,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. NPIN ratio: 0.5% of revenue.",
-    debt_ratio_pct: 7.8,
-    cash_inv_ratio_pct: 11.2,
-    npin_ratio_pct: 0.5,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "PASS",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "PG_2025-10-18",
-    ticker: "PG",
-    company_name: "The Procter & Gamble Company",
-    report_date: "2025-10-18",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Household & Personal Products",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: 0.4,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. NPIN ratio: 0.4% of revenue.",
-    debt_ratio_pct: 18.5,
-    cash_inv_ratio_pct: 5.2,
-    npin_ratio_pct: 0.4,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "PASS",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "WMT_2025-11-19",
-    ticker: "WMT",
-    company_name: "Walmart Inc.",
-    report_date: "2025-11-19",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Discount Stores",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: 2.5,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. NPIN ratio: 2.5% of revenue.",
-    debt_ratio_pct: 12.8,
-    cash_inv_ratio_pct: 3.5,
-    npin_ratio_pct: 2.5,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "CAUTION",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "DIS_2025-11-14",
-    ticker: "DIS",
-    company_name: "The Walt Disney Company",
-    report_date: "2025-11-14",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Entertainment",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: 2.8,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. NPIN ratio: 2.8% of revenue.",
-    debt_ratio_pct: 22.5,
-    cash_inv_ratio_pct: 6.8,
-    npin_ratio_pct: 2.8,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "CAUTION",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "NFLX_2025-10-17",
-    ticker: "NFLX",
-    company_name: "Netflix, Inc.",
-    report_date: "2025-10-17",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Entertainment",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: 1.2,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. NPIN ratio: 1.2% of revenue.",
-    debt_ratio_pct: 8.5,
-    cash_inv_ratio_pct: 18.2,
-    npin_ratio_pct: 1.2,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "CAUTION",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "AMD_2025-10-29",
-    ticker: "AMD",
-    company_name: "Advanced Micro Devices, Inc.",
-    report_date: "2025-10-29",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Semiconductors",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: 0.6,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. NPIN ratio: 0.6% of revenue.",
-    debt_ratio_pct: 2.8,
-    cash_inv_ratio_pct: 25.5,
-    npin_ratio_pct: 0.6,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "PASS",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "CRM_2025-12-03",
-    ticker: "CRM",
-    company_name: "Salesforce, Inc.",
-    report_date: "2025-12-03",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Software - Application",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: 1.0,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. NPIN ratio: 1.0% of revenue.",
-    debt_ratio_pct: 4.5,
-    cash_inv_ratio_pct: 12.8,
-    npin_ratio_pct: 1.0,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "PASS",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
-  {
-    upsert_key: "ABBV_2025-10-31",
-    ticker: "ABBV",
-    company_name: "AbbVie Inc.",
-    report_date: "2025-10-31",
-    methodology_version: "v3",
-    security_type: "COM",
-    industry: "Drug Manufacturers - General",
-    final_classification: "COMPLIANT",
-    purification_required: false,
-    purification_pct_recommended: 3.47,
-    needs_board_review: false,
-    doubt_reason: null,
-    notes_for_portfolio_manager: null,
-    shariah_summary: "Overall Shariah verdict: COMPLIANT. Screening status: PASS. NPIN ratio: 3.47% of revenue.",
-    debt_ratio_pct: 17.35,
-    cash_inv_ratio_pct: 1.49,
-    npin_ratio_pct: 3.47,
-    debt_status: "PASS",
-    cash_inv_status: "PASS",
-    npin_status: "PASS",
-    debt_threshold_pct: 33,
-    cash_inv_threshold_pct: 33,
-    npin_threshold_pct: 5,
-    business_status: "PASS",
-    auto_banned: false,
-    auto_banned_status: "PASS",
-    auto_banned_reason_clean: null,
-    auto_banned_summary: "PASS — No auto-ban conditions triggered",
-    haram_pct_point: null,
-    haram_segments_json: null,
-    key_drivers_json: null,
-    evidence_items_json: null,
-    qa_status: "OK",
-    qa_issues_json: null,
-    shariah_memo_markdown: null,
-    memo_doc_url: null,
-  },
+// CSV column headers in order
+const CSV_HEADERS = [
+  'upsert_key', 'ticker', 'company_name', 'report_date', 'methodology_version',
+  'security_type', 'industry', 'final_classification', 'purification_required',
+  'purification_pct_recommended', 'needs_board_review', 'doubt_reason',
+  'notes_for_portfolio_manager', 'shariah_summary', 'debt_ratio_pct',
+  'cash_inv_ratio_pct', 'npin_ratio_pct', 'debt_status', 'cash_inv_status',
+  'npin_status', 'debt_threshold_pct', 'cash_inv_threshold_pct', 'npin_threshold_pct',
+  'debt_ratio_formula', 'cash_inv_ratio_formula', 'npin_ratio_formula',
+  'npin_numerator_formula', 'npin_adjustments_notes', 'denominator_max_usd_mn',
+  'marketcap_usd_mn', 'totalassets_usd_mn', 'debt_conventional_usd_mn',
+  'cash_st_conv_usd_mn', 'lt_invest_conv_usd_mn', 'revenue_total_usd_mn',
+  'business_status', 'llm_has_fail_flag', 'llm_has_caution_flag',
+  'llm_primary_rationale', 'evidence_items_json', 'haram_pct_point',
+  'haram_pct_lower', 'haram_pct_upper', 'haram_total_pct_display',
+  'haram_top_segments_label', 'haram_top_segments_names', 'haram_composition_json',
+  'halal_pct_point', 'haram_segments_json', 'haram_composition_json_2',
+  'haram_reference_ids_used', 'haram_global_reasoning', 'haram_limitations',
+  'haram_confidence', 'key_drivers_json', 'red_flag_industries_json',
+  'shariah_references_json', 'non_compliant_revenue_pct_est_json',
+  'qa_needs_review', 'qa_status', 'qa_issue_count', 'qa_summary_display',
+  'qa_category_summary', 'qa_reasons_summary', 'qa_issues_json', 'qa_timestamp',
+  'shariah_memo_markdown', 'memo_doc_url', 'memo_doc_id', 'auto_banned',
+  'auto_banned_status', 'auto_banned_reason_clean', 'auto_banned_summary'
 ];
 
+// Helper functions
+function parseBoolean(value: string | undefined): boolean {
+  if (!value) return false;
+  const lower = value.toLowerCase().trim();
+  return lower === 'true' || lower === '1' || lower === 'yes';
+}
+
+function parseNumber(value: string | undefined): number | null {
+  if (!value || value.trim() === '') return null;
+  const num = parseFloat(value);
+  return isNaN(num) ? null : num;
+}
+
+function parseString(value: string | undefined): string | null {
+  if (!value || value.trim() === '' || value.trim() === '[]' || value.trim() === '{}') {
+    return null;
+  }
+  return value.trim();
+}
+
+// Parse a CSV row handling quoted fields
+function parseCSVRow(row: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  
+  for (let i = 0; i < row.length; i++) {
+    const char = row[i];
+    
+    if (char === '"') {
+      if (inQuotes && row[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      result.push(current);
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  result.push(current);
+  
+  return result;
+}
+
+// Parse CSV data into records
+function parseCSV(csvData: string): ScreeningRecord[] {
+  const lines = csvData.split('\n').filter(line => line.trim());
+  if (lines.length < 2) return [];
+  
+  // Skip header row
+  const dataRows = lines.slice(1);
+  const records: ScreeningRecord[] = [];
+  
+  for (const row of dataRows) {
+    const values = parseCSVRow(row);
+    if (values.length < 10) continue; // Skip incomplete rows
+    
+    const record: ScreeningRecord = {
+      upsert_key: values[0] || '',
+      ticker: values[1] || '',
+      company_name: values[2] || '',
+      report_date: values[3] || '',
+      methodology_version: values[4] || '',
+      security_type: values[5] || '',
+      industry: values[6] || '',
+      final_classification: values[7] || '',
+      purification_required: parseBoolean(values[8]),
+      purification_pct_recommended: parseNumber(values[9]),
+      needs_board_review: parseBoolean(values[10]),
+      doubt_reason: parseString(values[11]),
+      notes_for_portfolio_manager: parseString(values[12]),
+      shariah_summary: values[13] || '',
+      debt_ratio_pct: parseNumber(values[14]),
+      cash_inv_ratio_pct: parseNumber(values[15]),
+      npin_ratio_pct: parseNumber(values[16]),
+      debt_status: parseString(values[17]),
+      cash_inv_status: parseString(values[18]),
+      npin_status: parseString(values[19]),
+      debt_threshold_pct: parseNumber(values[20]),
+      cash_inv_threshold_pct: parseNumber(values[21]),
+      npin_threshold_pct: parseNumber(values[22]),
+      debt_ratio_formula: parseString(values[23]),
+      cash_inv_ratio_formula: parseString(values[24]),
+      npin_ratio_formula: parseString(values[25]),
+      npin_numerator_formula: parseString(values[26]),
+      npin_adjustments_notes: parseString(values[27]),
+      denominator_max_usd_mn: parseNumber(values[28]),
+      marketcap_usd_mn: parseNumber(values[29]),
+      totalassets_usd_mn: parseNumber(values[30]),
+      debt_conventional_usd_mn: parseNumber(values[31]),
+      cash_st_conv_usd_mn: parseNumber(values[32]),
+      lt_invest_conv_usd_mn: parseNumber(values[33]),
+      revenue_total_usd_mn: parseNumber(values[34]),
+      business_status: values[35] || 'UNKNOWN',
+      llm_has_fail_flag: parseBoolean(values[36]),
+      llm_has_caution_flag: parseBoolean(values[37]),
+      llm_primary_rationale: parseString(values[38]),
+      evidence_items_json: parseString(values[39]),
+      haram_pct_point: parseNumber(values[40]),
+      haram_pct_lower: parseNumber(values[41]),
+      haram_pct_upper: parseNumber(values[42]),
+      haram_total_pct_display: parseString(values[43]),
+      haram_top_segments_label: parseString(values[44]),
+      haram_top_segments_names: parseString(values[45]),
+      haram_composition_json: parseString(values[46]),
+      halal_pct_point: parseNumber(values[47]),
+      haram_segments_json: parseString(values[48]),
+      haram_reference_ids_used: parseString(values[50]),
+      haram_global_reasoning: parseString(values[51]),
+      haram_limitations: parseString(values[52]),
+      haram_confidence: parseString(values[53]),
+      key_drivers_json: parseString(values[54]),
+      red_flag_industries_json: parseString(values[55]),
+      shariah_references_json: parseString(values[56]),
+      non_compliant_revenue_pct_est_json: parseString(values[57]),
+      qa_needs_review: parseBoolean(values[58]),
+      qa_status: parseString(values[59]),
+      qa_issue_count: parseNumber(values[60]) ? Math.floor(parseNumber(values[60])!) : null,
+      qa_summary_display: parseString(values[61]),
+      qa_category_summary: parseString(values[62]),
+      qa_reasons_summary: parseString(values[63]),
+      qa_issues_json: parseString(values[64]),
+      qa_timestamp: parseString(values[65]),
+      shariah_memo_markdown: parseString(values[66]),
+      memo_doc_url: parseString(values[67]),
+      memo_doc_id: parseString(values[68]),
+      auto_banned: parseBoolean(values[69]),
+      auto_banned_status: parseString(values[70]),
+      auto_banned_reason_clean: parseString(values[71]),
+      auto_banned_summary: parseString(values[72]),
+    };
+    
+    if (record.ticker && record.upsert_key) {
+      records.push(record);
+    }
+  }
+  
+  return records;
+}
+
+// Store for loaded data
+let cachedData: ScreeningRecord[] | null = null;
+
+// Load data from CSV URL
+export async function loadData(): Promise<ScreeningRecord[]> {
+  if (cachedData) return cachedData;
+  
+  try {
+    // Try to fetch from the public URL (works in both dev and prod)
+    const projectId = Deno.env.get('SUPABASE_PROJECT_REF') || 'tiybjipvwexmjdslgudf';
+    const baseUrl = `https://${projectId}.lovableproject.com`;
+    
+    const response = await fetch(`${baseUrl}/data/shariah-screening.csv`);
+    if (!response.ok) {
+      console.error(`Failed to fetch CSV: ${response.status}`);
+      return [];
+    }
+    
+    const csvData = await response.text();
+    cachedData = parseCSV(csvData);
+    console.log(`Loaded ${cachedData.length} screening records from CSV`);
+    return cachedData;
+  } catch (error) {
+    console.error('Error loading CSV data:', error);
+    return [];
+  }
+}
+
+// Sync accessor (for backward compatibility) - returns empty if not loaded
+export function getSampleData(): ScreeningRecord[] {
+  return cachedData || [];
+}
+
 // Helper to find record by ticker
-export function findByTicker(ticker: string): ScreeningRecord | undefined {
+export async function findByTicker(ticker: string): Promise<ScreeningRecord | undefined> {
+  const data = await loadData();
   const normalizedTicker = ticker.trim().toUpperCase();
-  return sampleData.find(r => r.ticker.toUpperCase() === normalizedTicker);
+  return data.find(r => r.ticker.toUpperCase() === normalizedTicker);
+}
+
+// Helper to find record by upsert_key
+export async function findByUpsertKey(upsertKey: string): Promise<ScreeningRecord | undefined> {
+  const data = await loadData();
+  return data.find(r => r.upsert_key === upsertKey);
 }
 
 // Helper to find records by multiple tickers
-export function findByTickers(tickers: string[]): Map<string, ScreeningRecord> {
+export async function findByTickers(tickers: string[]): Promise<Map<string, ScreeningRecord>> {
+  const data = await loadData();
   const normalizedTickers = tickers.map(t => t.trim().toUpperCase());
   const result = new Map<string, ScreeningRecord>();
   
-  for (const record of sampleData) {
+  for (const record of data) {
     const upperTicker = record.ticker.toUpperCase();
     if (normalizedTickers.includes(upperTicker)) {
       result.set(upperTicker, record);
@@ -1016,13 +332,16 @@ export function findByTickers(tickers: string[]): Map<string, ScreeningRecord> {
 }
 
 // Helper to get all records with optional filtering
-export function getAllRecords(filters?: {
+export async function getAllRecords(filters?: {
   search?: string;
   finalClassification?: string;
   autoBanned?: boolean;
   industry?: string;
-}): ScreeningRecord[] {
-  let result = [...sampleData];
+  page?: number;
+  pageSize?: number;
+}): Promise<{ records: ScreeningRecord[]; total: number }> {
+  const data = await loadData();
+  let result = [...data];
   
   if (filters?.search) {
     const searchLower = filters.search.toLowerCase();
@@ -1044,17 +363,31 @@ export function getAllRecords(filters?: {
     result = result.filter(r => r.industry === filters.industry);
   }
   
-  return result;
+  const total = result.length;
+  
+  // Apply pagination
+  if (filters?.page !== undefined && filters?.pageSize) {
+    const start = (filters.page - 1) * filters.pageSize;
+    result = result.slice(start, start + filters.pageSize);
+  }
+  
+  return { records: result, total };
 }
 
 // Helper to get distinct values for a field
-export function getDistinctValues(field: keyof ScreeningRecord): string[] {
+export async function getDistinctValues(field: keyof ScreeningRecord): Promise<string[]> {
+  const data = await loadData();
   const values = new Set<string>();
-  for (const record of sampleData) {
+  
+  for (const record of data) {
     const value = record[field];
     if (value !== null && value !== undefined && value !== '') {
       values.add(String(value));
     }
   }
+  
   return Array.from(values).sort();
 }
+
+// Export for legacy compatibility
+export const sampleData: ScreeningRecord[] = [];

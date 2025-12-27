@@ -183,7 +183,8 @@ serve(async (req) => {
     const normalizedTicker = ticker.trim().toUpperCase();
     console.log(`ticker-screening invoked. user=${authUser.email} ticker=${normalizedTicker}`);
 
-    const record = findByTicker(normalizedTicker);
+    // Async call now
+    const record = await findByTicker(normalizedTicker);
     const response = buildResponse(normalizedTicker, record);
 
     // Log activity

@@ -61,8 +61,8 @@ serve(async (req) => {
     const normalizedTicker = ticker.trim().toUpperCase();
     console.log(`User: ${authUser.email}, AI Chat for ticker: ${normalizedTicker}`);
 
-    // Find the record in sample data
-    const record = findByTicker(normalizedTicker);
+    // Find the record in sample data (async now)
+    const record = await findByTicker(normalizedTicker);
     
     if (!record) {
       return new Response(
@@ -81,6 +81,12 @@ serve(async (req) => {
                         record.cash_inv_status === "PASS" && 
                         record.npin_status === "PASS";
 
+    // Safe number formatting helper
+    const formatNum = (val: number | null | undefined, decimals = 2): string => {
+      if (val === null || val === undefined) return 'N/A';
+      return val.toFixed(decimals);
+    };
+
     // Build screening context
     const screeningContext = `
 You are an expert Shariah compliance advisor. Here is the screening data for ${normalizedTicker}:
@@ -92,13 +98,13 @@ You are an expert Shariah compliance advisor. Here is the screening data for ${n
 ## Overall Status
 - Final Classification: ${record.final_classification}
 - Purification Required: ${record.purification_required ? 'Yes' : 'No'}
-${record.purification_pct_recommended ? `- Recommended Purification: ${record.purification_pct_recommended.toFixed(2)}%` : ''}
+${record.purification_pct_recommended ? `- Recommended Purification: ${formatNum(record.purification_pct_recommended)}%` : ''}
 - Board Review Needed: ${record.needs_board_review ? 'Yes' : 'No'}
 
 ## Financial Ratios (Numeric Screening)
-- Debt Ratio: ${record.debt_ratio_pct.toFixed(2)}% (threshold: ${record.debt_threshold_pct}%) - ${record.debt_status}
-- Cash+Investments Ratio: ${record.cash_inv_ratio_pct.toFixed(2)}% (threshold: ${record.cash_inv_threshold_pct}%) - ${record.cash_inv_status}
-- NPIN Ratio: ${record.npin_ratio_pct.toFixed(2)}% (threshold: ${record.npin_threshold_pct}%) - ${record.npin_status}
+- Debt Ratio: ${formatNum(record.debt_ratio_pct)}% (threshold: ${record.debt_threshold_pct || 33}%) - ${record.debt_status || 'N/A'}
+- Cash+Investments Ratio: ${formatNum(record.cash_inv_ratio_pct)}% (threshold: ${record.cash_inv_threshold_pct || 33}%) - ${record.cash_inv_status || 'N/A'}
+- NPIN Ratio: ${formatNum(record.npin_ratio_pct)}% (threshold: ${record.npin_threshold_pct || 5}%) - ${record.npin_status || 'N/A'}
 - Numeric Screening Result: ${numericPass ? 'PASS' : 'FAIL'}
 
 ## Auto-Banned Status
@@ -108,6 +114,9 @@ ${record.auto_banned_summary ? `- Summary: ${record.auto_banned_summary}` : ''}
 
 ## Business Status
 - Business Status: ${record.business_status}
+${record.llm_has_fail_flag ? '- LLM Fail Flag: Yes' : ''}
+${record.llm_has_caution_flag ? '- LLM Caution Flag: Yes' : ''}
+${record.llm_primary_rationale ? `- LLM Rationale: ${record.llm_primary_rationale}` : ''}
 ${record.doubt_reason ? `- Doubt Reason: ${record.doubt_reason}` : ''}
 
 ## Summary
