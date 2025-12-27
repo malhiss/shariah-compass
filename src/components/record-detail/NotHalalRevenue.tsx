@@ -102,6 +102,10 @@ function CompositionChart({ items }: { items: CompositionItem[] }) {
             paddingAngle={2}
             dataKey="value"
             nameKey="name"
+            isAnimationActive={true}
+            animationBegin={100}
+            animationDuration={700}
+            animationEasing="ease-out"
           >
             {chartData.map((_, index) => (
               <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
