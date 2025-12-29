@@ -240,8 +240,7 @@ export function RevenueComposition({ record }: RevenueCompositionProps) {
                   outerRadius={80}
                   paddingAngle={1}
                   dataKey="value"
-                  strokeWidth={1}
-                  stroke="hsl(var(--background))"
+                  strokeWidth={0}
                   isAnimationActive={true}
                   animationBegin={0}
                   animationDuration={800}
