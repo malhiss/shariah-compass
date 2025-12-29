@@ -89,6 +89,12 @@ export interface ScreeningRecord {
   // Client summaries (plain English)
   client_summary?: string | null;
   client_shariah_summary?: string | null;
+  client_verdict_label?: string | null;
+  client_purification_guidance?: string | null;
+  client_key_points?: string | null;
+  client_haram_breakdown?: string | null;
+  client_data_quality_note?: string | null;
+  client_disclaimer_short?: string | null;
 
   // Verdict (legacy format)
   Final_Verdict?: 'COMPLIANT' | 'COMPLIANT_WITH_PURIFICATION' | 'NON_COMPLIANT' | 'DOUBTFUL_REVIEW' | string | null;
