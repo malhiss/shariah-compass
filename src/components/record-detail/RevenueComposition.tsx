@@ -11,15 +11,15 @@ interface RevenueCompositionProps {
   record: ScreeningRecord;
 }
 
-// Colors - Halal is green, haram segments use consistent destructive red and warm tones
+// Colors - Halal is green, haram segments use muted red and warm tones
 const HALAL_COLOR = 'hsl(160, 55%, 42%)';
 const HARAM_COLORS = [
-  'hsl(0, 72%, 51%)',      // Destructive red (primary)
-  'hsl(25, 95%, 53%)',     // Orange  
-  'hsl(45, 93%, 47%)',     // Amber
-  'hsl(280, 65%, 55%)',    // Purple
-  'hsl(330, 65%, 50%)',    // Pink
-  'hsl(200, 70%, 50%)',    // Blue
+  'hsl(0, 35%, 55%)',      // Muted red (primary)
+  'hsl(25, 60%, 50%)',     // Muted orange  
+  'hsl(45, 65%, 50%)',     // Muted amber
+  'hsl(280, 40%, 50%)',    // Muted purple
+  'hsl(330, 40%, 50%)',    // Muted pink
+  'hsl(200, 50%, 50%)',    // Muted blue
 ];
 
 // Get segment percentage
@@ -42,7 +42,7 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: { name
         <p className="text-sm font-medium">{payload[0].name}</p>
         <p 
           className="text-sm font-mono font-semibold" 
-          style={{ color: isHalal ? HALAL_COLOR : 'hsl(0, 72%, 51%)' }}
+          style={{ color: isHalal ? HALAL_COLOR : 'hsl(0, 35%, 55%)' }}
         >
           {payload[0].value.toFixed(2)}%
         </p>
