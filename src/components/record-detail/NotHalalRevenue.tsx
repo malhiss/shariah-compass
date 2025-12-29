@@ -102,6 +102,7 @@ function CompositionChart({ items }: { items: CompositionItem[] }) {
             paddingAngle={2}
             dataKey="value"
             nameKey="name"
+            strokeWidth={0}
             isAnimationActive={true}
             animationBegin={100}
             animationDuration={700}
