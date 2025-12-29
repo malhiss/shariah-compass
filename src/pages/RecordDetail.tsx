@@ -12,10 +12,9 @@ import { RevenueComposition } from '@/components/record-detail/RevenueCompositio
 import { NotHalalRevenue } from '@/components/record-detail/NotHalalRevenue';
 import { BreakdownPanels } from '@/components/record-detail/BreakdownPanels';
 import { NumericScreenTab } from '@/components/record-detail/NumericScreenTab';
-import { QATab } from '@/components/record-detail/QATab';
 import { MemoSection } from '@/components/record-detail/MemoSection';
 import { ClientSummaryTab } from '@/components/record-detail/ClientSummaryTab';
-import { ArrowLeft, RefreshCw, AlertTriangle, FileText, Calculator, ClipboardCheck, MessageSquare } from 'lucide-react';
+import { ArrowLeft, RefreshCw, AlertTriangle, FileText, Calculator, MessageSquare } from 'lucide-react';
 
 export default function RecordDetail() {
   const { upsertKey } = useParams<{ upsertKey: string }>();
@@ -142,15 +141,6 @@ export default function RecordDetail() {
             <FileText className="w-4 h-4 mr-2" />
             Memo
           </TabsTrigger>
-          {isStaff && (
-            <TabsTrigger
-              value="qa"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              <ClipboardCheck className="w-4 h-4 mr-2" />
-              QA
-            </TabsTrigger>
-          )}
         </TabsList>
 
         <TabsContent value="summary" className="mt-6">
@@ -164,12 +154,6 @@ export default function RecordDetail() {
         <TabsContent value="memo" className="mt-6">
           <MemoSection record={record} />
         </TabsContent>
-
-        {isStaff && (
-          <TabsContent value="qa" className="mt-6">
-            <QATab record={record} />
-          </TabsContent>
-        )}
       </Tabs>
     </div>
   );
