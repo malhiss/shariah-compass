@@ -23,32 +23,62 @@ function parseString(value: string | undefined): string | null {
   return value.trim();
 }
 
-// Parse a CSV row handling quoted fields
-function parseCSVRow(row: string): string[] {
-  const result: string[] = [];
-  let current = '';
+// Parse CSV content handling quoted fields with embedded newlines
+function parseCSVContent(csvData: string): string[][] {
+  const rows: string[][] = [];
+  let currentRow: string[] = [];
+  let currentField = '';
   let inQuotes = false;
   
-  for (let i = 0; i < row.length; i++) {
-    const char = row[i];
+  for (let i = 0; i < csvData.length; i++) {
+    const char = csvData[i];
+    const nextChar = csvData[i + 1];
     
     if (char === '"') {
-      if (inQuotes && row[i + 1] === '"') {
-        current += '"';
+      if (!inQuotes) {
+        inQuotes = true;
+      } else if (nextChar === '"') {
+        // Escaped quote
+        currentField += '"';
         i++;
       } else {
-        inQuotes = !inQuotes;
+        // End of quoted field
+        inQuotes = false;
       }
     } else if (char === ',' && !inQuotes) {
-      result.push(current);
-      current = '';
+      currentRow.push(currentField);
+      currentField = '';
+    } else if ((char === '\n' || (char === '\r' && nextChar === '\n')) && !inQuotes) {
+      // End of row
+      if (char === '\r') i++; // Skip \n in \r\n
+      currentRow.push(currentField);
+      if (currentRow.some(f => f.trim())) {
+        rows.push(currentRow);
+      }
+      currentRow = [];
+      currentField = '';
+    } else if (char === '\r' && !inQuotes) {
+      // Solo \r as line ending
+      currentRow.push(currentField);
+      if (currentRow.some(f => f.trim())) {
+        rows.push(currentRow);
+      }
+      currentRow = [];
+      currentField = '';
     } else {
-      current += char;
+      currentField += char;
     }
   }
-  result.push(current);
   
-  return result;
+  // Handle last field/row
+  if (currentField || currentRow.length > 0) {
+    currentRow.push(currentField);
+    if (currentRow.some(f => f.trim())) {
+      rows.push(currentRow);
+    }
+  }
+  
+  return rows;
 }
 
 // Build header index map, handling duplicates like .1, .2, _2 suffixes
@@ -80,21 +110,20 @@ function getValue(
 
 // Parse CSV data into records using header-based mapping
 function parseCSV(csvData: string): ScreeningRecord[] {
-  const lines = csvData.split('\n').filter(line => line.trim());
-  if (lines.length < 2) return [];
+  const rows = parseCSVContent(csvData);
+  if (rows.length < 2) return [];
   
-  // Parse header row to build column index map
-  const headerRow = parseCSVRow(lines[0]);
+  // First row is headers
+  const headerRow = rows[0];
   const headerMap = buildHeaderMap(headerRow);
   
   // Debug: log available headers
   console.log('CSV Headers found:', Array.from(headerMap.keys()).slice(0, 20), '...');
   
-  const dataRows = lines.slice(1);
+  const dataRows = rows.slice(1);
   const records: ScreeningRecord[] = [];
   
-  for (const row of dataRows) {
-    const values = parseCSVRow(row);
+  for (const values of dataRows) {
     if (values.length < 10) continue; // Skip incomplete rows
     
     // Helper to get value by header name(s)
@@ -126,6 +155,12 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       // Client summaries
       client_summary: parseString(get('client_summary')),
       client_shariah_summary: parseString(get('client_shariah_summary')),
+      client_verdict_label: parseString(get('client_verdict_label')),
+      client_purification_guidance: parseString(get('client_purification_guidance')),
+      client_key_points: parseString(get('client_key_points')),
+      client_haram_breakdown: parseString(get('client_haram_breakdown')),
+      client_data_quality_note: parseString(get('client_data_quality_note')),
+      client_disclaimer_short: parseString(get('client_disclaimer_short')),
       
       // Financial Ratios
       debt_ratio_pct: parseNumber(get('debt_ratio_pct')),

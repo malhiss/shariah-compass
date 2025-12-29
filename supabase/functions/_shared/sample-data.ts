@@ -145,120 +145,176 @@ function parseString(value: string | undefined): string | null {
   return value.trim();
 }
 
-// Parse a CSV row handling quoted fields
-function parseCSVRow(row: string): string[] {
-  const result: string[] = [];
-  let current = '';
+// Parse CSV content handling quoted fields with embedded newlines
+function parseCSVContent(csvData: string): string[][] {
+  const rows: string[][] = [];
+  let currentRow: string[] = [];
+  let currentField = '';
   let inQuotes = false;
   
-  for (let i = 0; i < row.length; i++) {
-    const char = row[i];
+  for (let i = 0; i < csvData.length; i++) {
+    const char = csvData[i];
+    const nextChar = csvData[i + 1];
     
     if (char === '"') {
-      if (inQuotes && row[i + 1] === '"') {
-        current += '"';
+      if (!inQuotes) {
+        inQuotes = true;
+      } else if (nextChar === '"') {
+        // Escaped quote
+        currentField += '"';
         i++;
       } else {
-        inQuotes = !inQuotes;
+        // End of quoted field
+        inQuotes = false;
       }
     } else if (char === ',' && !inQuotes) {
-      result.push(current);
-      current = '';
+      currentRow.push(currentField);
+      currentField = '';
+    } else if ((char === '\n' || (char === '\r' && nextChar === '\n')) && !inQuotes) {
+      // End of row
+      if (char === '\r') i++; // Skip \n in \r\n
+      currentRow.push(currentField);
+      if (currentRow.some(f => f.trim())) {
+        rows.push(currentRow);
+      }
+      currentRow = [];
+      currentField = '';
+    } else if (char === '\r' && !inQuotes) {
+      // Solo \r as line ending
+      currentRow.push(currentField);
+      if (currentRow.some(f => f.trim())) {
+        rows.push(currentRow);
+      }
+      currentRow = [];
+      currentField = '';
     } else {
-      current += char;
+      currentField += char;
     }
   }
-  result.push(current);
   
-  return result;
+  // Handle last field/row
+  if (currentField || currentRow.length > 0) {
+    currentRow.push(currentField);
+    if (currentRow.some(f => f.trim())) {
+      rows.push(currentRow);
+    }
+  }
+  
+  return rows;
 }
 
-// Parse CSV data into records
+// Build header index map
+function buildHeaderMap(headers: string[]): Map<string, number> {
+  const headerMap = new Map<string, number>();
+  for (let i = 0; i < headers.length; i++) {
+    headerMap.set(headers[i].trim(), i);
+  }
+  return headerMap;
+}
+
+// Get value from header map
+function getValue(values: string[], headerMap: Map<string, number>, ...headerNames: string[]): string | undefined {
+  for (const name of headerNames) {
+    const idx = headerMap.get(name);
+    if (idx !== undefined && values[idx] !== undefined) {
+      return values[idx];
+    }
+  }
+  return undefined;
+}
+
+// Parse CSV data into records using header-based mapping
 function parseCSV(csvData: string): ScreeningRecord[] {
-  const lines = csvData.split('\n').filter(line => line.trim());
-  if (lines.length < 2) return [];
+  const rows = parseCSVContent(csvData);
+  if (rows.length < 2) return [];
   
-  // Skip header row
-  const dataRows = lines.slice(1);
+  // First row is headers
+  const headerRow = rows[0];
+  const headerMap = buildHeaderMap(headerRow);
+  
+  console.log('CSV Headers found:', Array.from(headerMap.keys()).slice(0, 20), '...');
+  
+  const dataRows = rows.slice(1);
   const records: ScreeningRecord[] = [];
   
-  for (const row of dataRows) {
-    const values = parseCSVRow(row);
-    if (values.length < 10) continue; // Skip incomplete rows
+  for (const values of dataRows) {
+    if (values.length < 10) continue;
+    
+    const get = (...names: string[]) => getValue(values, headerMap, ...names);
     
     const record: ScreeningRecord = {
-      upsert_key: values[0] || '',
-      ticker: values[1] || '',
-      company_name: values[2] || '',
-      report_date: values[3] || '',
-      methodology_version: values[4] || '',
-      security_type: values[5] || '',
-      industry: values[6] || '',
-      final_classification: values[7] || '',
-      purification_required: parseBoolean(values[8]),
-      purification_pct_recommended: parseNumber(values[9]),
-      needs_board_review: parseBoolean(values[10]),
-      doubt_reason: parseString(values[11]),
-      notes_for_portfolio_manager: parseString(values[12]),
-      shariah_summary: values[13] || '',
-      debt_ratio_pct: parseNumber(values[14]),
-      cash_inv_ratio_pct: parseNumber(values[15]),
-      npin_ratio_pct: parseNumber(values[16]),
-      debt_status: parseString(values[17]),
-      cash_inv_status: parseString(values[18]),
-      npin_status: parseString(values[19]),
-      debt_threshold_pct: parseNumber(values[20]),
-      cash_inv_threshold_pct: parseNumber(values[21]),
-      npin_threshold_pct: parseNumber(values[22]),
-      debt_ratio_formula: parseString(values[23]),
-      cash_inv_ratio_formula: parseString(values[24]),
-      npin_ratio_formula: parseString(values[25]),
-      npin_numerator_formula: parseString(values[26]),
-      npin_adjustments_notes: parseString(values[27]),
-      denominator_max_usd_mn: parseNumber(values[28]),
-      marketcap_usd_mn: parseNumber(values[29]),
-      totalassets_usd_mn: parseNumber(values[30]),
-      debt_conventional_usd_mn: parseNumber(values[31]),
-      cash_st_conv_usd_mn: parseNumber(values[32]),
-      lt_invest_conv_usd_mn: parseNumber(values[33]),
-      revenue_total_usd_mn: parseNumber(values[34]),
-      business_status: values[35] || 'UNKNOWN',
-      llm_has_fail_flag: parseBoolean(values[36]),
-      llm_has_caution_flag: parseBoolean(values[37]),
-      llm_primary_rationale: parseString(values[38]),
-      evidence_items_json: parseString(values[39]),
-      haram_pct_point: parseNumber(values[40]),
-      haram_pct_lower: parseNumber(values[41]),
-      haram_pct_upper: parseNumber(values[42]),
-      haram_total_pct_display: parseString(values[43]),
-      haram_top_segments_label: parseString(values[44]),
-      haram_top_segments_names: parseString(values[45]),
-      haram_composition_json: parseString(values[46]),
-      halal_pct_point: parseNumber(values[47]),
-      haram_segments_json: parseString(values[48]),
-      haram_reference_ids_used: parseString(values[50]),
-      haram_global_reasoning: parseString(values[51]),
-      haram_limitations: parseString(values[52]),
-      haram_confidence: parseString(values[53]),
-      key_drivers_json: parseString(values[54]),
-      red_flag_industries_json: parseString(values[55]),
-      shariah_references_json: parseString(values[56]),
-      non_compliant_revenue_pct_est_json: parseString(values[57]),
-      qa_needs_review: parseBoolean(values[58]),
-      qa_status: parseString(values[59]),
-      qa_issue_count: parseNumber(values[60]) ? Math.floor(parseNumber(values[60])!) : null,
-      qa_summary_display: parseString(values[61]),
-      qa_category_summary: parseString(values[62]),
-      qa_reasons_summary: parseString(values[63]),
-      qa_issues_json: parseString(values[64]),
-      qa_timestamp: parseString(values[65]),
-      shariah_memo_markdown: parseString(values[66]),
-      memo_doc_url: parseString(values[67]),
-      memo_doc_id: parseString(values[68]),
-      auto_banned: parseBoolean(values[69]),
-      auto_banned_status: parseString(values[70]),
-      auto_banned_reason_clean: parseString(values[71]),
-      auto_banned_summary: parseString(values[72]),
+      upsert_key: get('upsert_key') || '',
+      ticker: get('ticker') || '',
+      company_name: get('company_name') || '',
+      report_date: get('report_date') || '',
+      methodology_version: get('methodology_version') || '',
+      security_type: get('security_type') || '',
+      industry: get('industry') || '',
+      final_classification: get('final_classification') || '',
+      purification_required: parseBoolean(get('purification_required')),
+      purification_pct_recommended: parseNumber(get('purification_pct_recommended')),
+      needs_board_review: parseBoolean(get('needs_board_review')),
+      doubt_reason: parseString(get('doubt_reason')),
+      notes_for_portfolio_manager: parseString(get('notes_for_portfolio_manager')),
+      shariah_summary: get('shariah_summary') || '',
+      debt_ratio_pct: parseNumber(get('debt_ratio_pct')),
+      cash_inv_ratio_pct: parseNumber(get('cash_inv_ratio_pct')),
+      npin_ratio_pct: parseNumber(get('npin_ratio_pct')),
+      debt_status: parseString(get('debt_status')),
+      cash_inv_status: parseString(get('cash_inv_status')),
+      npin_status: parseString(get('npin_status')),
+      debt_threshold_pct: parseNumber(get('debt_threshold_pct')),
+      cash_inv_threshold_pct: parseNumber(get('cash_inv_threshold_pct')),
+      npin_threshold_pct: parseNumber(get('npin_threshold_pct')),
+      debt_ratio_formula: parseString(get('debt_ratio_formula')),
+      cash_inv_ratio_formula: parseString(get('cash_inv_ratio_formula')),
+      npin_ratio_formula: parseString(get('npin_ratio_formula')),
+      npin_numerator_formula: parseString(get('npin_numerator_formula')),
+      npin_adjustments_notes: parseString(get('npin_adjustments_notes')),
+      denominator_max_usd_mn: parseNumber(get('denominator_max_usd_mn')),
+      marketcap_usd_mn: parseNumber(get('marketcap_usd_mn')),
+      totalassets_usd_mn: parseNumber(get('totalassets_usd_mn')),
+      debt_conventional_usd_mn: parseNumber(get('debt_conventional_usd_mn')),
+      cash_st_conv_usd_mn: parseNumber(get('cash_st_conv_usd_mn')),
+      lt_invest_conv_usd_mn: parseNumber(get('lt_invest_conv_usd_mn')),
+      revenue_total_usd_mn: parseNumber(get('revenue_total_usd_mn')),
+      business_status: get('business_status') || 'UNKNOWN',
+      llm_has_fail_flag: parseBoolean(get('llm_has_fail_flag')),
+      llm_has_caution_flag: parseBoolean(get('llm_has_caution_flag')),
+      llm_primary_rationale: parseString(get('llm_primary_rationale')),
+      evidence_items_json: parseString(get('evidence_items_json')),
+      haram_pct_point: parseNumber(get('haram_pct_point')),
+      haram_pct_lower: parseNumber(get('haram_pct_lower')),
+      haram_pct_upper: parseNumber(get('haram_pct_upper')),
+      haram_total_pct_display: parseString(get('haram_total_pct_display')),
+      haram_top_segments_label: parseString(get('haram_top_segments_label')),
+      haram_top_segments_names: parseString(get('haram_top_segments_names')),
+      haram_composition_json: parseString(get('haram_composition_json')),
+      halal_pct_point: parseNumber(get('halal_pct_point')),
+      haram_segments_json: parseString(get('haram_segments_json')),
+      haram_reference_ids_used: parseString(get('haram_reference_ids_used')),
+      haram_global_reasoning: parseString(get('haram_global_reasoning')),
+      haram_limitations: parseString(get('haram_limitations')),
+      haram_confidence: parseString(get('haram_confidence')),
+      key_drivers_json: parseString(get('key_drivers_json')),
+      red_flag_industries_json: parseString(get('red_flag_industries_json')),
+      shariah_references_json: parseString(get('shariah_references_json')),
+      non_compliant_revenue_pct_est_json: parseString(get('non_compliant_revenue_pct_est_json')),
+      qa_needs_review: parseBoolean(get('qa_needs_review')),
+      qa_status: parseString(get('qa_status')),
+      qa_issue_count: parseNumber(get('qa_issue_count')) ? Math.floor(parseNumber(get('qa_issue_count'))!) : null,
+      qa_summary_display: parseString(get('qa_summary_display')),
+      qa_category_summary: parseString(get('qa_category_summary')),
+      qa_reasons_summary: parseString(get('qa_reasons_summary')),
+      qa_issues_json: parseString(get('qa_issues_json')),
+      qa_timestamp: parseString(get('qa_timestamp')),
+      shariah_memo_markdown: parseString(get('shariah_memo_markdown')),
+      memo_doc_url: parseString(get('memo_doc_url')),
+      memo_doc_id: parseString(get('memo_doc_id')),
+      auto_banned: parseBoolean(get('auto_banned')),
+      auto_banned_status: parseString(get('auto_banned_status')),
+      auto_banned_reason_clean: parseString(get('auto_banned_reason_clean')),
+      auto_banned_summary: parseString(get('auto_banned_summary')),
     };
     
     if (record.ticker && record.upsert_key) {
