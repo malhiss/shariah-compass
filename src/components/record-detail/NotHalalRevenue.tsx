@@ -13,16 +13,16 @@ interface NotHalalRevenueProps {
   record: ScreeningRecord;
 }
 
-// Colors for pie chart - using consistent destructive red and warm tones
+// Colors for pie chart - using muted red and warm tones
 const CHART_COLORS = [
-  'hsl(0, 72%, 51%)',      // Destructive red (primary)
-  'hsl(25, 95%, 53%)',     // Orange
-  'hsl(45, 93%, 47%)',     // Amber
-  'hsl(280, 65%, 55%)',    // Purple
-  'hsl(200, 70%, 50%)',    // Blue
-  'hsl(160, 55%, 45%)',    // Teal
-  'hsl(330, 65%, 50%)',    // Pink
-  'hsl(180, 50%, 45%)',    // Cyan
+  'hsl(0, 35%, 55%)',      // Muted red (primary)
+  'hsl(25, 60%, 50%)',     // Muted orange
+  'hsl(45, 65%, 50%)',     // Muted amber
+  'hsl(280, 40%, 50%)',    // Muted purple
+  'hsl(200, 50%, 50%)',    // Muted blue
+  'hsl(160, 45%, 45%)',    // Muted teal
+  'hsl(330, 40%, 50%)',    // Muted pink
+  'hsl(180, 40%, 45%)',    // Muted cyan
 ];
 
 // Format percentage with 2 decimals
