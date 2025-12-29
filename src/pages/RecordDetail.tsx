@@ -12,10 +12,10 @@ import { RevenueComposition } from '@/components/record-detail/RevenueCompositio
 import { NotHalalRevenue } from '@/components/record-detail/NotHalalRevenue';
 import { BreakdownPanels } from '@/components/record-detail/BreakdownPanels';
 import { NumericScreenTab } from '@/components/record-detail/NumericScreenTab';
-import { EvidenceTab } from '@/components/record-detail/EvidenceTab';
 import { QATab } from '@/components/record-detail/QATab';
 import { MemoSection } from '@/components/record-detail/MemoSection';
-import { ArrowLeft, RefreshCw, AlertTriangle, FileSearch, Calculator, FileText, ClipboardCheck } from 'lucide-react';
+import { ClientSummaryTab } from '@/components/record-detail/ClientSummaryTab';
+import { ArrowLeft, RefreshCw, AlertTriangle, FileText, Calculator, ClipboardCheck, MessageSquare } from 'lucide-react';
 
 export default function RecordDetail() {
   const { upsertKey } = useParams<{ upsertKey: string }>();
@@ -119,14 +119,14 @@ export default function RecordDetail() {
       <BreakdownPanels record={record} />
 
       {/* Tabs for detailed views */}
-      <Tabs defaultValue="evidence" className="mt-8">
+      <Tabs defaultValue="summary" className="mt-8">
         <TabsList className="bg-muted/30 flex-wrap h-auto gap-1 p-1">
           <TabsTrigger
-            value="evidence"
+            value="summary"
             className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
-            <FileSearch className="w-4 h-4 mr-2" />
-            Evidence
+            <MessageSquare className="w-4 h-4 mr-2" />
+            Summary
           </TabsTrigger>
           <TabsTrigger
             value="numeric"
@@ -153,8 +153,8 @@ export default function RecordDetail() {
           )}
         </TabsList>
 
-        <TabsContent value="evidence" className="mt-6">
-          <EvidenceTab record={record} />
+        <TabsContent value="summary" className="mt-6">
+          <ClientSummaryTab record={record} />
         </TabsContent>
 
         <TabsContent value="numeric" className="mt-6">
