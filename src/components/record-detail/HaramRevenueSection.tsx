@@ -11,17 +11,17 @@ interface HaramRevenueSectionProps {
   record: ScreeningRecord;
 }
 
-// Color palette for segments
+// Color palette for segments - using shades of red for haram
 const SEGMENT_COLORS = [
-  'hsl(0, 72%, 51%)',      // Red
-  'hsl(25, 95%, 53%)',     // Orange
-  'hsl(45, 93%, 47%)',     // Amber
-  'hsl(280, 67%, 45%)',    // Purple
-  'hsl(330, 81%, 60%)',    // Pink
-  'hsl(15, 75%, 50%)',     // Deep Orange
+  'hsl(var(--non-compliant))',           // Primary red
+  'hsl(var(--non-compliant) / 0.85)',    // Slightly lighter
+  'hsl(var(--non-compliant) / 0.70)',    // Lighter
+  'hsl(var(--non-compliant) / 0.55)',    // Even lighter
+  'hsl(var(--non-compliant) / 0.40)',    // Light
+  'hsl(var(--non-compliant) / 0.30)',    // Very light
 ];
 
-const HALAL_COLOR = 'hsl(142, 71%, 45%)'; // Green for Halal
+const HALAL_COLOR = 'hsl(var(--compliant))'; // Green for Halal
 
 export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
   // Check if we have valid haram data
