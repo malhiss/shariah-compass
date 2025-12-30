@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { safeParseJSON } from '@/types/screening-record';
 import type { ScreeningRecord } from '@/types/screening-record';
 import { MessageSquare, CheckCircle2 } from 'lucide-react';
+import { CompanyProfileSection } from './CompanyProfileSection';
 
 interface ClientSummaryTabProps {
   record: ScreeningRecord;
@@ -24,7 +25,11 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
   // Disclaimer
   const disclaimer = record.client_disclaimer_short;
 
-  const hasContent = keyPoints.length > 0;
+  // Check if we have any company profile data
+  const hasProfileData = record.exchange || record.country || record.reporting_period || 
+    record.company_description || (record.business_segments_summary && record.business_segments_summary.length > 0);
+
+  const hasContent = keyPoints.length > 0 || hasProfileData;
 
   if (!hasContent) {
     return (
@@ -42,6 +47,9 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
 
   return (
     <div className="space-y-6">
+      {/* Company Profile Section - displayed first */}
+      <CompanyProfileSection record={record} />
+
       {/* Findings (Bullets) */}
       {keyPoints.length > 0 && (
         <Card className="premium-card">

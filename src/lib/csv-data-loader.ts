@@ -44,6 +44,35 @@ function parseJsonObjectSafe(value: string | undefined): Record<string, unknown>
   }
 }
 
+// Parse business_segments_summary which can be JSON array or pipe-delimited string
+function parseBusinessSegments(value: string | undefined): string[] | null {
+  if (!value || value.trim() === '') return null;
+  
+  const trimmed = value.trim();
+  
+  // Try JSON array first
+  if (trimmed.startsWith('[')) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map(s => String(s).trim()).filter(s => s.length > 0);
+      }
+      return null;
+    } catch {
+      // Fall through to pipe-delimited parsing
+    }
+  }
+  
+  // Try pipe-delimited
+  if (trimmed.includes('|')) {
+    const segments = trimmed.split('|').map(s => s.trim()).filter(s => s.length > 0);
+    return segments.length > 0 ? segments : null;
+  }
+  
+  // Single segment
+  return [trimmed];
+}
+
 // Parse CSV content handling quoted fields with embedded newlines
 function parseCSVContent(csvData: string): string[][] {
   const rows: string[][] = [];
@@ -163,6 +192,13 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       security_type: get('security_type') || '',
       industry: get('industry') || '',
       sector: get('sector') || '',
+      
+      // Company Profile fields (optional)
+      exchange: parseString(get('exchange')),
+      country: parseString(get('country')),
+      reporting_period: parseString(get('reporting_period')),
+      company_description: parseString(get('company_description')),
+      business_segments_summary: parseBusinessSegments(get('business_segments_summary')),
       
       // Verdict
       final_classification: parseString(get('final_classification')) as ScreeningRecord['final_classification'],
