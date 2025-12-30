@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { RecordHeader } from '@/components/record-detail/RecordHeader';
 import { VerdictBar } from '@/components/record-detail/VerdictBar';
 import { ScreeningTiles } from '@/components/record-detail/ScreeningTiles';
+import { KeyInsightsSection } from '@/components/record-detail/KeyInsightsSection';
 import { HaramRevenueSection } from '@/components/record-detail/HaramRevenueSection';
 import { EvidenceSection } from '@/components/record-detail/EvidenceSection';
 import { ReferencesSection } from '@/components/record-detail/ReferencesSection';
@@ -98,7 +99,10 @@ export default function RecordDetail() {
       {/* 3) Quantitative Screening (Ratios Cards) */}
       <ScreeningTiles record={record} />
 
-      {/* 4) Haram Revenue Overview (Donut + Segment Accordion) - Hidden if no data */}
+      {/* 4) Key Insights - Summary, What it means, Purification */}
+      <KeyInsightsSection record={record} />
+
+      {/* 5) Revenue Composition (Donut + Segment Accordion) - Hidden if no data */}
       <HaramRevenueSection record={record} />
 
       {/* 5) Evidence / Business Flags - Hidden if no data */}

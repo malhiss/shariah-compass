@@ -22,21 +22,12 @@ interface DataQualityReason {
 }
 
 export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
-  // Client headline/summary fields
-  const oneLineSummary = record.client_headline_one_line_summary || record.client_summary;
-  
   // Key points - parse JSON
   const keyPointsRaw = safeParseJSON<KeyPointItem[] | string[]>(record.client_key_points_json, []);
   const keyPoints: string[] = keyPointsRaw
     .map(item => typeof item === 'string' ? item : (item.point || item.text || ''))
     .filter(p => p.length > 0)
     .slice(0, 6);
-
-  // What this means for investors
-  const whatItMeans = record.client_what_it_means_for_investors;
-
-  // Purification guidance
-  const purificationGuidance = record.client_purification_guidance;
 
   // Board review
   const needsBoardReview = record.client_board_review_needs_review;
@@ -52,8 +43,7 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
   // Disclaimer
   const disclaimer = record.client_disclaimer_short;
 
-  const hasContent = oneLineSummary || keyPoints.length > 0 || whatItMeans || 
-                     purificationGuidance || needsBoardReview || dataQualitySummary;
+  const hasContent = keyPoints.length > 0 || needsBoardReview || dataQualitySummary;
 
   if (!hasContent) {
     return (
@@ -71,25 +61,6 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* One-Line Summary (Hero Text) */}
-      {oneLineSummary && (
-        <Card className="premium-card">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <MessageSquare className="w-5 h-5 text-primary" />
-              </div>
-              <CardTitle className="text-lg">Summary</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-foreground leading-relaxed text-lg">
-              {oneLineSummary}
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Key Points (Bullets) */}
       {keyPoints.length > 0 && (
         <Card className="premium-card">
@@ -110,44 +81,6 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
                 </li>
               ))}
             </ul>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* What This Means for Investors */}
-      {whatItMeans && (
-        <Card className="premium-card">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Lightbulb className="w-5 h-5 text-primary" />
-              </div>
-              <CardTitle className="text-lg">What This Means for Investors</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-foreground leading-relaxed">
-              {whatItMeans}
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Purification Guidance */}
-      {purificationGuidance && (
-        <Card className="premium-card border-warning/30">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-warning/10">
-                <FileText className="w-5 h-5 text-warning" />
-              </div>
-              <CardTitle className="text-lg">Purification Guidance</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-foreground leading-relaxed">
-              {purificationGuidance}
-            </p>
           </CardContent>
         </Card>
       )}
