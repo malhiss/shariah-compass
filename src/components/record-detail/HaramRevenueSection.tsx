@@ -1,21 +1,27 @@
-// Haram Revenue Section with Donut Chart + Segment Accordion
+// Revenue Composition Section with Donut Chart + Segment Accordion
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { AlertTriangle, ChevronDown, ChevronRight, Info } from 'lucide-react';
+import { PieChart as PieChartIcon, ChevronDown, ChevronRight, Info } from 'lucide-react';
 import { safeParseJSON, type ScreeningRecord, type HaramSegment, type CompositionItem } from '@/types/screening-record';
 
 interface HaramRevenueSectionProps {
   record: ScreeningRecord;
 }
 
-// Colors for donut chart
-const CHART_COLORS = {
-  halal: 'hsl(var(--compliant))',
-  haram: 'hsl(var(--non-compliant))',
-};
+// Color palette for segments
+const SEGMENT_COLORS = [
+  'hsl(0, 72%, 51%)',      // Red
+  'hsl(25, 95%, 53%)',     // Orange
+  'hsl(45, 93%, 47%)',     // Amber
+  'hsl(280, 67%, 45%)',    // Purple
+  'hsl(330, 81%, 60%)',    // Pink
+  'hsl(15, 75%, 50%)',     // Deep Orange
+];
+
+const HALAL_COLOR = 'hsl(142, 71%, 45%)'; // Green for Halal
 
 export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
   // Check if we have valid haram data
@@ -31,14 +37,32 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
     ? record.halal_pct_point 
     : (100 - haramPct);
 
-  // Donut chart data
-  const chartData = [
-    { name: 'Halal', value: Number(halalPct.toFixed(2)), color: CHART_COLORS.halal },
-    { name: 'Haram', value: Number(haramPct.toFixed(2)), color: CHART_COLORS.haram },
-  ];
-
   // Parse haram segments from JSON
   const haramSegments = safeParseJSON<HaramSegment[]>(record.haram_segments_json, []);
+
+  // Build chart data with segments
+  const chartData: { name: string; value: number; color: string }[] = [
+    { name: 'Halal', value: Number(halalPct.toFixed(2)), color: HALAL_COLOR },
+  ];
+
+  // Add individual segments to the chart if available
+  if (haramSegments.length > 0) {
+    haramSegments.forEach((segment, idx) => {
+      const segmentName = segment.name || segment.description || `Segment ${idx + 1}`;
+      const segmentPct = segment.haram_pct_of_total_revenue_point_estimate ?? segment.point;
+      
+      if (segmentPct !== null && segmentPct !== undefined && typeof segmentPct === 'number') {
+        chartData.push({
+          name: segmentName,
+          value: Number(segmentPct.toFixed(2)),
+          color: SEGMENT_COLORS[idx % SEGMENT_COLORS.length],
+        });
+      }
+    });
+  } else {
+    // Fallback: show single "Haram" slice if no segment breakdown
+    chartData.push({ name: 'Haram', value: Number(haramPct.toFixed(2)), color: SEGMENT_COLORS[0] });
+  }
 
   // Optional summary line from client_haram_breakdown
   const haramSummary = record.client_haram_breakdown;
@@ -47,7 +71,7 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
     <Card className="premium-card">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
-          <AlertTriangle className="w-5 h-5 text-warning" />
+          <PieChartIcon className="w-5 h-5 text-primary" />
           Revenue Composition
         </CardTitle>
       </CardHeader>
