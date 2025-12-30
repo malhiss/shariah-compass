@@ -20,12 +20,12 @@ export function VerdictBar({ record }: VerdictBarProps) {
   const badges = safeParseJSON<BadgeItem[]>(record.client_badges_json, []);
 
   const getColorClass = () => {
-    const lowerLabel = verdictLabel.toLowerCase();
-    if (lowerLabel.includes('compliant') && !lowerLabel.includes('non')) {
+    const lowerLabel = verdictLabel.toLowerCase().replace(/_/g, ' ');
+    if (lowerLabel.includes('non') && lowerLabel.includes('compliant')) return 'non-compliant';
+    if (lowerLabel.includes('compliant')) {
       if (lowerLabel.includes('purification')) return 'warning';
       return 'compliant';
     }
-    if (lowerLabel.includes('non-compliant') || lowerLabel.includes('non compliant')) return 'non-compliant';
     if (lowerLabel.includes('doubtful') || lowerLabel.includes('review')) return 'doubtful';
     return 'no-data';
   };
