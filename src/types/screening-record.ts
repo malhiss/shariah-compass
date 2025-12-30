@@ -68,6 +68,13 @@ export interface ScreeningRecord {
   report_date?: string;
   methodology_version?: string;
   security_type?: string;
+  
+  // Company Profile fields (optional)
+  exchange?: string | null;
+  country?: string | null;
+  reporting_period?: string | null;
+  company_description?: string | null;
+  business_segments_summary?: string[] | null;
   industry?: string;
   sector?: string;
 
