@@ -64,8 +64,6 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
     chartData.push({ name: 'Haram', value: Number(haramPct.toFixed(2)), color: SEGMENT_COLORS[0] });
   }
 
-  // Optional summary line from client_haram_breakdown
-  const haramSummary = record.client_haram_breakdown;
 
   return (
     <Card className="premium-card">
@@ -76,14 +74,6 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Optional Summary Line */}
-        {haramSummary && (
-          <div className="p-3 rounded-lg bg-muted/20 border border-border">
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {haramSummary}
-            </p>
-          </div>
-        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Donut Chart */}
