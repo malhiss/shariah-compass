@@ -1,9 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { safeParseJSON } from '@/types/screening-record';
 import type { ScreeningRecord } from '@/types/screening-record';
-import { MessageSquare, FileText, AlertCircle, CheckCircle2, Info, AlertTriangle, Users, ExternalLink, Lightbulb, Shield } from 'lucide-react';
+import { MessageSquare, CheckCircle2 } from 'lucide-react';
 
 interface ClientSummaryTabProps {
   record: ScreeningRecord;
@@ -15,12 +13,6 @@ interface KeyPointItem {
   text?: string;
 }
 
-// Data quality reason from client_data_quality_top_reasons_json
-interface DataQualityReason {
-  reason?: string;
-  text?: string;
-}
-
 export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
   // Key points - parse JSON
   const keyPointsRaw = safeParseJSON<KeyPointItem[] | string[]>(record.client_key_points_json, []);
@@ -29,17 +21,10 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
     .filter(p => p.length > 0)
     .slice(0, 6);
 
-  // Data quality
-  const dataQualitySummary = record.client_data_quality_summary_display;
-  const dataQualityReasonsRaw = safeParseJSON<DataQualityReason[] | string[]>(record.client_data_quality_top_reasons_json, []);
-  const dataQualityReasons: string[] = dataQualityReasonsRaw
-    .map(item => typeof item === 'string' ? item : (item.reason || item.text || ''))
-    .filter(r => r.length > 0);
-
   // Disclaimer
   const disclaimer = record.client_disclaimer_short;
 
-  const hasContent = keyPoints.length > 0 || dataQualitySummary;
+  const hasContent = keyPoints.length > 0;
 
   if (!hasContent) {
     return (
@@ -77,37 +62,6 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
                 </li>
               ))}
             </ul>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Data Quality & Confidence */}
-      {(dataQualitySummary || dataQualityReasons.length > 0) && (
-        <Card className="premium-card border-muted">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-muted">
-                <Shield className="w-5 h-5 text-muted-foreground" />
-              </div>
-              <CardTitle className="text-lg text-muted-foreground">Data Quality & Confidence</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {dataQualitySummary && (
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {dataQualitySummary}
-              </p>
-            )}
-            {dataQualityReasons.length > 0 && (
-              <ul className="space-y-1">
-                {dataQualityReasons.map((reason, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
-                    <span className="text-muted-foreground mt-1">•</span>
-                    <span>{reason}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
           </CardContent>
         </Card>
       )}
