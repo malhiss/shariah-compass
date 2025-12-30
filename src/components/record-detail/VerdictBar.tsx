@@ -1,30 +1,24 @@
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { safeParseJSON } from '@/types/screening-record';
 import type { ScreeningRecord } from '@/types/screening-record';
-import { CheckCircle2, AlertTriangle, XCircle, HelpCircle, Scale, Percent, Users, Ban, AlertCircle, Shield } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, XCircle, HelpCircle, Percent, Users, AlertCircle, Shield } from 'lucide-react';
 
 interface VerdictBarProps {
   record: ScreeningRecord;
 }
 
-// Badge item parsed from client_badges_json
 interface BadgeItem {
   label?: string;
   type?: string;
 }
 
 export function VerdictBar({ record }: VerdictBarProps) {
-  // Use client_headline_* fields as canonical source
   const verdictLabel = record.client_headline_final_classification || record.client_verdict_label || 'Not Available';
   const screeningStatus = record.client_headline_screening_status;
   const riskLevel = record.client_risk_level;
-  
-  // Parse badges from JSON
   const badges = safeParseJSON<BadgeItem[]>(record.client_badges_json, []);
 
-  // Determine color based on verdict label
   const getColorClass = () => {
     const lowerLabel = verdictLabel.toLowerCase();
     if (lowerLabel.includes('compliant') && !lowerLabel.includes('non')) {
@@ -41,19 +35,18 @@ export function VerdictBar({ record }: VerdictBarProps) {
   const getIcon = () => {
     switch (colorClass) {
       case 'compliant':
-        return <CheckCircle2 className="w-6 h-6" />;
+        return <CheckCircle2 className="w-5 h-5" />;
       case 'warning':
-        return <AlertTriangle className="w-6 h-6" />;
+        return <AlertTriangle className="w-5 h-5" />;
       case 'non-compliant':
-        return <XCircle className="w-6 h-6" />;
+        return <XCircle className="w-5 h-5" />;
       case 'doubtful':
-        return <HelpCircle className="w-6 h-6" />;
+        return <HelpCircle className="w-5 h-5" />;
       default:
-        return <Scale className="w-6 h-6" />;
+        return <HelpCircle className="w-5 h-5" />;
     }
   };
 
-  // Check for specific badges
   const hasPurificationBadge = badges.some(b => 
     b.label?.toLowerCase().includes('purification') || b.type?.toLowerCase().includes('purification')
   );
@@ -67,77 +60,77 @@ export function VerdictBar({ record }: VerdictBarProps) {
   const boardReviewReason = record.client_board_review_doubt_reason;
 
   return (
-    <Card className="premium-card">
-      <CardContent className="py-4">
-        <div className="flex flex-col md:flex-row md:items-center gap-4">
-          {/* Verdict badge */}
-          <div
-            className={cn(
-              'flex items-center gap-3 px-5 py-3 rounded-xl font-semibold',
-              colorClass === 'compliant' && 'bg-compliant/15 text-compliant border border-compliant/30',
-              colorClass === 'warning' && 'bg-warning/15 text-warning border border-warning/30',
-              colorClass === 'non-compliant' && 'bg-non-compliant/15 text-non-compliant border border-non-compliant/30',
-              colorClass === 'doubtful' && 'bg-doubtful/15 text-doubtful border border-doubtful/30',
-              colorClass === 'no-data' && 'bg-muted/20 text-muted-foreground border border-border'
-            )}
-          >
-            {getIcon()}
-            <span className="text-lg">{verdictLabel}</span>
-          </div>
-
-          {/* Divider on desktop */}
-          <div className="hidden md:block h-10 w-px bg-border" />
-
-          {/* Action cards & badges */}
-          <div className="flex flex-wrap gap-3 flex-1">
-            {/* Screening Status Badge */}
-            {screeningStatus && (
-              <Badge variant="outline" className="bg-primary/10 border-primary/30 text-primary">
-                <Shield className="w-3 h-3 mr-1" />
-                {screeningStatus}
-              </Badge>
-            )}
-
-            {/* Risk Level Badge */}
-            {riskLevel && (
-              <Badge 
-                variant="outline" 
-                className={cn(
-                  riskLevel.toLowerCase() === 'low' && 'bg-compliant/10 border-compliant/30 text-compliant',
-                  riskLevel.toLowerCase() === 'medium' && 'bg-warning/10 border-warning/30 text-warning',
-                  riskLevel.toLowerCase() === 'high' && 'bg-non-compliant/10 border-non-compliant/30 text-non-compliant'
-                )}
-              >
-                Risk: {riskLevel}
-              </Badge>
-            )}
-
-            {/* Purification Badge */}
-            {hasPurificationBadge && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-warning/10 border border-warning/20">
-                <Percent className="w-4 h-4 text-warning" />
-                <p className="font-medium text-warning text-sm">Purification Required</p>
-              </div>
-            )}
-
-            {/* Board Review Badge */}
-            {hasBoardReviewBadge && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-doubtful/10 border border-doubtful/20" title={boardReviewReason || 'Board review required'}>
-                <Users className="w-4 h-4 text-doubtful" />
-                <p className="font-medium text-doubtful text-sm">Board Review Required</p>
-              </div>
-            )}
-
-            {/* QA Issues Badge */}
-            {hasQABadge && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/20 border border-border">
-                <AlertCircle className="w-4 h-4 text-muted-foreground" />
-                <p className="font-medium text-muted-foreground text-sm">QA Issues</p>
-              </div>
-            )}
-          </div>
+    <div className={cn(
+      'rounded-xl border p-4',
+      colorClass === 'compliant' && 'bg-compliant/5 border-compliant/20',
+      colorClass === 'warning' && 'bg-warning/5 border-warning/20',
+      colorClass === 'non-compliant' && 'bg-non-compliant/5 border-non-compliant/20',
+      colorClass === 'doubtful' && 'bg-doubtful/5 border-doubtful/20',
+      colorClass === 'no-data' && 'bg-muted/10 border-border'
+    )}>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        {/* Main verdict */}
+        <div className={cn(
+          'flex items-center gap-3 font-semibold',
+          colorClass === 'compliant' && 'text-compliant',
+          colorClass === 'warning' && 'text-warning',
+          colorClass === 'non-compliant' && 'text-non-compliant',
+          colorClass === 'doubtful' && 'text-doubtful',
+          colorClass === 'no-data' && 'text-muted-foreground'
+        )}>
+          {getIcon()}
+          <span className="text-lg">{verdictLabel}</span>
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Badges row */}
+        <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+          {screeningStatus && (
+            <Badge variant="outline" className="bg-background/50 gap-1.5">
+              <Shield className="w-3 h-3" />
+              {screeningStatus}
+            </Badge>
+          )}
+
+          {riskLevel && (
+            <Badge 
+              variant="outline" 
+              className={cn(
+                'bg-background/50',
+                riskLevel.toLowerCase() === 'low' && 'text-compliant border-compliant/30',
+                riskLevel.toLowerCase() === 'medium' && 'text-warning border-warning/30',
+                riskLevel.toLowerCase() === 'high' && 'text-non-compliant border-non-compliant/30'
+              )}
+            >
+              Risk: {riskLevel}
+            </Badge>
+          )}
+
+          {hasPurificationBadge && (
+            <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30 gap-1.5">
+              <Percent className="w-3 h-3" />
+              Purification Required
+            </Badge>
+          )}
+
+          {hasBoardReviewBadge && (
+            <Badge 
+              variant="outline" 
+              className="bg-doubtful/10 text-doubtful border-doubtful/30 gap-1.5"
+              title={boardReviewReason || 'Board review required'}
+            >
+              <Users className="w-3 h-3" />
+              Board Review
+            </Badge>
+          )}
+
+          {hasQABadge && (
+            <Badge variant="outline" className="bg-muted/20 text-muted-foreground gap-1.5">
+              <AlertCircle className="w-3 h-3" />
+              QA Issues
+            </Badge>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

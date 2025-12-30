@@ -22,8 +22,8 @@ export default function RecordDetail() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="container py-6 space-y-6">
-        <div className="space-y-4">
+      <div className="container py-8 max-w-6xl mx-auto">
+        <div className="space-y-6">
           <Skeleton className="h-6 w-32" />
           <div className="flex items-center gap-4">
             <Skeleton className="w-14 h-14 rounded-xl" />
@@ -32,14 +32,14 @@ export default function RecordDetail() {
               <Skeleton className="h-4 w-40" />
             </div>
           </div>
+          <Skeleton className="h-20 w-full rounded-xl" />
+          <div className="grid grid-cols-3 gap-4">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-24 rounded-xl" />
+            ))}
+          </div>
+          <Skeleton className="h-48 w-full rounded-xl" />
         </div>
-        <Skeleton className="h-20 w-full" />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="h-32" />
-          ))}
-        </div>
-        <Skeleton className="h-40 w-full" />
       </div>
     );
   }
@@ -47,8 +47,8 @@ export default function RecordDetail() {
   // Error state
   if (isError) {
     return (
-      <div className="container py-8">
-        <Card className="premium-card">
+      <div className="container py-8 max-w-6xl mx-auto">
+        <Card className="border-destructive/30 bg-destructive/5">
           <CardContent className="py-12 text-center">
             <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-4" />
             <h2 className="text-xl font-semibold mb-2">Failed to load record</h2>
@@ -68,8 +68,8 @@ export default function RecordDetail() {
   // Not found state
   if (!record) {
     return (
-      <div className="container py-8">
-        <Card className="premium-card">
+      <div className="container py-8 max-w-6xl mx-auto">
+        <Card className="border-border">
           <CardContent className="py-12 text-center">
             <AlertTriangle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <h2 className="text-xl font-semibold mb-2">Record Not Found</h2>
@@ -89,55 +89,74 @@ export default function RecordDetail() {
   }
 
   return (
-    <div className="container py-6 space-y-6">
-      {/* 1) Header - Identity Section */}
+    <div className="container py-8 max-w-6xl mx-auto">
+      {/* Header Section */}
       <RecordHeader record={record} />
 
-      {/* 2) Verdict Banner */}
-      <VerdictBar record={record} />
+      {/* Main Content */}
+      <div className="mt-8 space-y-8">
+        {/* Verdict + Ratios in one visual block */}
+        <section className="space-y-4">
+          <VerdictBar record={record} />
+          <ScreeningTiles record={record} />
+        </section>
 
-      {/* 3) Quantitative Screening (Ratios Cards) */}
-      <ScreeningTiles record={record} />
+        {/* Key Insights - Inline cards */}
+        <KeyInsightsSection record={record} />
 
-      {/* 4) Key Insights - Summary, What it means, Purification */}
-      <KeyInsightsSection record={record} />
+        {/* Detailed Analysis Tabs */}
+        <section>
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList className="w-full justify-start bg-muted/20 border border-border p-1 rounded-xl">
+              <TabsTrigger
+                value="overview"
+                className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-6"
+              >
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Overview
+              </TabsTrigger>
+              <TabsTrigger
+                value="revenue"
+                className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-6"
+              >
+                Revenue Analysis
+              </TabsTrigger>
+              <TabsTrigger
+                value="evidence"
+                className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-6"
+              >
+                Evidence
+              </TabsTrigger>
+              <TabsTrigger
+                value="memo"
+                className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-6"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Memo
+              </TabsTrigger>
+            </TabsList>
 
-      {/* 5) Revenue Composition (Donut + Segment Accordion) - Hidden if no data */}
-      <HaramRevenueSection record={record} />
+            <div className="mt-6">
+              <TabsContent value="overview" className="mt-0">
+                <ClientSummaryTab record={record} />
+              </TabsContent>
 
-      {/* 5) Evidence / Business Flags - Hidden if no data */}
-      <EvidenceSection record={record} />
+              <TabsContent value="revenue" className="mt-0 space-y-6">
+                <HaramRevenueSection record={record} />
+              </TabsContent>
 
-      {/* 6) References - Hidden if no data */}
-      <ReferencesSection record={record} />
+              <TabsContent value="evidence" className="mt-0 space-y-6">
+                <EvidenceSection record={record} />
+                <ReferencesSection record={record} />
+              </TabsContent>
 
-      {/* Tabs for detailed views */}
-      <Tabs defaultValue="summary" className="mt-8">
-        <TabsList className="bg-muted/30 flex-wrap h-auto gap-1 p-1">
-          <TabsTrigger
-            value="summary"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-          >
-            <MessageSquare className="w-4 h-4 mr-2" />
-            Details
-          </TabsTrigger>
-          <TabsTrigger
-            value="memo"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            Memo
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="summary" className="mt-6">
-          <ClientSummaryTab record={record} />
-        </TabsContent>
-
-        <TabsContent value="memo" className="mt-6">
-          <StructuredMemoSection record={record} />
-        </TabsContent>
-      </Tabs>
+              <TabsContent value="memo" className="mt-0">
+                <StructuredMemoSection record={record} />
+              </TabsContent>
+            </div>
+          </Tabs>
+        </section>
+      </div>
     </div>
   );
 }
