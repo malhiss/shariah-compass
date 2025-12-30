@@ -1,5 +1,3 @@
-// Key Insights Section - Summary, What it means, Purification guidance
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageSquare, Lightbulb, FileText } from 'lucide-react';
 import type { ScreeningRecord } from '@/types/screening-record';
 
@@ -18,64 +16,36 @@ export function KeyInsightsSection({ record }: KeyInsightsSectionProps) {
     return null;
   }
 
+  const insights = [
+    { content: summary, icon: MessageSquare, label: 'Summary', color: 'primary' },
+    { content: whatItMeans, icon: Lightbulb, label: 'For Investors', color: 'primary' },
+    { content: purificationGuidance, icon: FileText, label: 'Purification', color: 'warning' },
+  ].filter(i => i.content);
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {/* Summary */}
-      {summary && (
-        <Card className="premium-card">
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-primary/10">
-                <MessageSquare className="w-4 h-4 text-primary" />
-              </div>
-              <CardTitle className="text-sm font-medium text-muted-foreground">Summary</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-foreground leading-relaxed">
-              {summary}
+    <section className="space-y-3">
+      {insights.map((insight, idx) => (
+        <div
+          key={idx}
+          className="flex items-start gap-4 p-4 rounded-xl bg-muted/10 border border-border/50"
+        >
+          <div className={`p-2 rounded-lg shrink-0 ${
+            insight.color === 'warning' ? 'bg-warning/10' : 'bg-primary/10'
+          }`}>
+            <insight.icon className={`w-4 h-4 ${
+              insight.color === 'warning' ? 'text-warning' : 'text-primary'
+            }`} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
+              {insight.label}
             </p>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* What This Means for Investors */}
-      {whatItMeans && (
-        <Card className="premium-card">
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-primary/10">
-                <Lightbulb className="w-4 h-4 text-primary" />
-              </div>
-              <CardTitle className="text-sm font-medium text-muted-foreground">For Investors</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
             <p className="text-sm text-foreground leading-relaxed">
-              {whatItMeans}
+              {insight.content}
             </p>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Purification Guidance */}
-      {purificationGuidance && (
-        <Card className="premium-card border-warning/30">
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-warning/10">
-                <FileText className="w-4 h-4 text-warning" />
-              </div>
-              <CardTitle className="text-sm font-medium text-muted-foreground">Purification</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-foreground leading-relaxed">
-              {purificationGuidance}
-            </p>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+          </div>
+        </div>
+      ))}
+    </section>
   );
 }
