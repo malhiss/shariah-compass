@@ -67,7 +67,7 @@ export function VerdictBar({ record }: VerdictBarProps) {
   const boardReviewReason = record.client_board_review_doubt_reason;
 
   return (
-    <Card className="premium-card sticky top-4 z-10">
+    <Card className="premium-card">
       <CardContent className="py-4">
         <div className="flex flex-col md:flex-row md:items-center gap-4">
           {/* Verdict badge */}
