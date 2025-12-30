@@ -15,17 +15,6 @@ interface KeyPointItem {
   text?: string;
 }
 
-// Reference item from client_references_json
-interface ReferenceItem {
-  source_name?: string;
-  name?: string;
-  what_it_supports?: string;
-  supports?: string;
-  as_of_date?: string;
-  as_of?: string;
-  url?: string;
-}
-
 // Data quality reason from client_data_quality_top_reasons_json
 interface DataQualityReason {
   reason?: string;
@@ -60,15 +49,11 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
     .map(item => typeof item === 'string' ? item : (item.reason || item.text || ''))
     .filter(r => r.length > 0);
 
-  // References
-  const references = safeParseJSON<ReferenceItem[]>(record.client_references_json, []);
-
   // Disclaimer
   const disclaimer = record.client_disclaimer_short;
 
   const hasContent = oneLineSummary || keyPoints.length > 0 || whatItMeans || 
-                     purificationGuidance || needsBoardReview || 
-                     dataQualitySummary || references.length > 0;
+                     purificationGuidance || needsBoardReview || dataQualitySummary;
 
   if (!hasContent) {
     return (
@@ -217,56 +202,6 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
             )}
           </CardContent>
         </Card>
-      )}
-
-      {/* References (Expandable) */}
-      {references.length > 0 && (
-        <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="references" className="border border-border rounded-lg premium-card">
-            <AccordionTrigger className="px-6 hover:no-underline">
-              <span className="flex items-center gap-2">
-                <ExternalLink className="w-4 h-4 text-primary" />
-                References ({references.length})
-              </span>
-            </AccordionTrigger>
-            <AccordionContent className="px-6 pb-4">
-              <div className="space-y-3">
-                {references.map((ref, idx) => (
-                  <div key={idx} className="p-3 rounded-lg bg-muted/20 border border-border">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="font-medium text-sm">
-                          {ref.source_name || ref.name || 'Source'}
-                        </p>
-                        {(ref.what_it_supports || ref.supports) && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {ref.what_it_supports || ref.supports}
-                          </p>
-                        )}
-                        {(ref.as_of_date || ref.as_of) && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            As of: {ref.as_of_date || ref.as_of}
-                          </p>
-                        )}
-                      </div>
-                      {ref.url && (
-                        <a
-                          href={ref.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline text-xs flex items-center gap-1"
-                        >
-                          <ExternalLink className="w-3 h-3" />
-                          Link
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
       )}
 
       {/* Disclaimer (Footer) */}
