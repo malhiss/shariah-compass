@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -8,8 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, X, Filter } from 'lucide-react';
-import { getDistinctValues } from '@/lib/shariah-api';
+import { Search, X } from 'lucide-react';
 import type { ScreeningFilters, ViewMode } from '@/types/mongodb';
 
 interface DashboardFiltersProps {
@@ -23,20 +23,7 @@ export function DashboardFilters({
   onFiltersChange,
   viewMode,
 }: DashboardFiltersProps) {
-  const [sectors, setSectors] = useState<string[]>([]);
-  const [zakatMethodologies, setZakatMethodologies] = useState<string[]>([]);
   const [localSearch, setLocalSearch] = useState(filters.search || '');
-
-  useEffect(() => {
-    // Load filter options
-    getDistinctValues('Sector')
-      .then(setSectors)
-      .catch(console.error);
-    
-    getDistinctValues('Zakat_Methodology')
-      .then(setZakatMethodologies)
-      .catch(console.error);
-  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +31,7 @@ export function DashboardFilters({
   };
 
   const handleFilterChange = (key: keyof ScreeningFilters, value: string) => {
-    onFiltersChange({ ...filters, [key]: value, page: 1 });
+    onFiltersChange({ ...filters, [key]: value === 'all' ? undefined : value, page: 1 });
   };
 
   const clearFilters = () => {
@@ -57,14 +44,10 @@ export function DashboardFilters({
 
   const hasActiveFilters =
     filters.search ||
-    filters.sector ||
     filters.finalVerdict ||
     filters.riskLevel ||
-    filters.shariahCompliant ||
     filters.boardReviewNeeded ||
-    filters.autoBanned ||
-    filters.zakatStatus ||
-    filters.zakatMethodology;
+    filters.zakatStatus;
 
   return (
     <div className="space-y-4">
@@ -75,157 +58,105 @@ export function DashboardFilters({
           <Input
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
-            placeholder="Search by ticker or company..."
+            placeholder="Search by ticker or company name..."
             className="pl-10 bg-background border-border"
           />
         </div>
-        <Button type="submit" variant="outline" className="border-border">
+        <Button type="submit" className="btn-invesense">
           Search
         </Button>
         {hasActiveFilters && (
           <Button type="button" variant="ghost" onClick={clearFilters}>
             <X className="w-4 h-4 mr-1" />
-            Clear
+            Clear All
           </Button>
         )}
       </form>
 
       {/* Filters Row */}
-      <div className="flex flex-wrap gap-3 items-center">
-        <Filter className="w-4 h-4 text-muted-foreground" />
-
-        {/* Common filters */}
-        <Select
-          value={filters.sector || 'all'}
-          onValueChange={(v) => handleFilterChange('sector', v)}
-        >
-          <SelectTrigger className="w-[160px] bg-background border-border">
-            <SelectValue placeholder="Sector" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Sectors</SelectItem>
-            {sectors.map((s) => (
-              <SelectItem key={s} value={s}>
-                {s}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
+      <div className="flex flex-wrap gap-4 items-end">
         {viewMode === 'shariah' && (
           <>
-            <Select
-              value={filters.finalVerdict || 'all'}
-              onValueChange={(v) => handleFilterChange('finalVerdict', v)}
-            >
-              <SelectTrigger className="w-[200px] bg-background border-border">
-                <SelectValue placeholder="Final Verdict" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Verdicts</SelectItem>
-                <SelectItem value="COMPLIANT">Compliant</SelectItem>
-                <SelectItem value="COMPLIANT_WITH_PURIFICATION">
-                  With Purification
-                </SelectItem>
-                <SelectItem value="NON_COMPLIANT">Non-Compliant</SelectItem>
-                <SelectItem value="DOUBTFUL_REVIEW">Doubtful</SelectItem>
-              </SelectContent>
-            </Select>
+            {/* Verdict Filter */}
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Classification</Label>
+              <Select
+                value={filters.finalVerdict || 'all'}
+                onValueChange={(v) => handleFilterChange('finalVerdict', v)}
+              >
+                <SelectTrigger className="w-[180px] bg-background border-border">
+                  <SelectValue placeholder="All Classifications" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border-border">
+                  <SelectItem value="all">All Classifications</SelectItem>
+                  <SelectItem value="COMPLIANT">Compliant</SelectItem>
+                  <SelectItem value="COMPLIANT_WITH_PURIFICATION">With Purification</SelectItem>
+                  <SelectItem value="NON_COMPLIANT">Non-Compliant</SelectItem>
+                  <SelectItem value="DOUBTFUL_REVIEW">Doubtful / Review</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-            <Select
-              value={filters.riskLevel || 'all'}
-              onValueChange={(v) => handleFilterChange('riskLevel', v)}
-            >
-              <SelectTrigger className="w-[140px] bg-background border-border">
-                <SelectValue placeholder="Risk Level" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Levels</SelectItem>
-                <SelectItem value="Low">Low</SelectItem>
-                <SelectItem value="Medium">Medium</SelectItem>
-                <SelectItem value="High">High</SelectItem>
-              </SelectContent>
-            </Select>
+            {/* Risk Level Filter */}
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Risk Level</Label>
+              <Select
+                value={filters.riskLevel || 'all'}
+                onValueChange={(v) => handleFilterChange('riskLevel', v)}
+              >
+                <SelectTrigger className="w-[140px] bg-background border-border">
+                  <SelectValue placeholder="All Risks" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border-border">
+                  <SelectItem value="all">All Risks</SelectItem>
+                  <SelectItem value="Low">Low Risk</SelectItem>
+                  <SelectItem value="Medium">Medium Risk</SelectItem>
+                  <SelectItem value="High">High Risk</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-            <Select
-              value={filters.shariahCompliant || 'all'}
-              onValueChange={(v) => handleFilterChange('shariahCompliant', v)}
-            >
-              <SelectTrigger className="w-[160px] bg-background border-border">
-                <SelectValue placeholder="Shariah Compliant" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="YES">Yes</SelectItem>
-                <SelectItem value="NO">No</SelectItem>
-                <SelectItem value="DOUBTFUL">Doubtful</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={filters.boardReviewNeeded || 'all'}
-              onValueChange={(v) => handleFilterChange('boardReviewNeeded', v)}
-            >
-              <SelectTrigger className="w-[160px] bg-background border-border">
-                <SelectValue placeholder="Board Review" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="YES">Required</SelectItem>
-                <SelectItem value="NO">Not Required</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={filters.autoBanned || 'all'}
-              onValueChange={(v) => handleFilterChange('autoBanned', v)}
-            >
-              <SelectTrigger className="w-[140px] bg-background border-border">
-                <SelectValue placeholder="Auto-banned" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="YES">Banned</SelectItem>
-                <SelectItem value="NO">Not Banned</SelectItem>
-              </SelectContent>
-            </Select>
+            {/* Board Review Filter */}
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Board Review</Label>
+              <Select
+                value={filters.boardReviewNeeded || 'all'}
+                onValueChange={(v) => handleFilterChange('boardReviewNeeded', v)}
+              >
+                <SelectTrigger className="w-[160px] bg-background border-border">
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border-border">
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="YES">Review Required</SelectItem>
+                  <SelectItem value="NO">No Review Needed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </>
         )}
 
         {viewMode === 'zakat' && (
           <>
-            <Select
-              value={filters.zakatStatus || 'all'}
-              onValueChange={(v) => handleFilterChange('zakatStatus', v)}
-            >
-              <SelectTrigger className="w-[160px] bg-background border-border">
-                <SelectValue placeholder="Zakat Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="ZAKATABLE">Zakatable</SelectItem>
-                <SelectItem value="NON_ZAKATABLE">Non-Zakatable</SelectItem>
-                <SelectItem value="MIXED">Mixed</SelectItem>
-                <SelectItem value="UNKNOWN">Unknown</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={filters.zakatMethodology || 'all'}
-              onValueChange={(v) => handleFilterChange('zakatMethodology', v)}
-            >
-              <SelectTrigger className="w-[180px] bg-background border-border">
-                <SelectValue placeholder="Methodology" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Methodologies</SelectItem>
-                {zakatMethodologies.map((m) => (
-                  <SelectItem key={m} value={m}>
-                    {m}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {/* Zakat Status Filter */}
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Zakat Status</Label>
+              <Select
+                value={filters.zakatStatus || 'all'}
+                onValueChange={(v) => handleFilterChange('zakatStatus', v)}
+              >
+                <SelectTrigger className="w-[160px] bg-background border-border">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border-border">
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="ZAKATABLE">Zakatable</SelectItem>
+                  <SelectItem value="NON_ZAKATABLE">Non-Zakatable</SelectItem>
+                  <SelectItem value="MIXED">Mixed</SelectItem>
+                  <SelectItem value="UNKNOWN">Unknown</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </>
         )}
       </div>
