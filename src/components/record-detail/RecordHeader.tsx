@@ -59,7 +59,7 @@ export function RecordHeader({ record }: RecordHeaderProps) {
                   {securityType}
                 </Badge>
               )}
-              {industry && (
+              {industry && industry !== 'N/A' && (
                 <Badge variant="secondary" className="bg-muted/40 text-muted-foreground gap-1">
                   <Factory className="w-3 h-3" />
                   {industry}
