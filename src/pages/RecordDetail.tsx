@@ -13,7 +13,7 @@ import { HaramRevenueSection } from '@/components/record-detail/HaramRevenueSect
 import { ReferencesSection } from '@/components/record-detail/ReferencesSection';
 import { ClientSummaryTab } from '@/components/record-detail/ClientSummaryTab';
 import { StructuredMemoSection } from '@/components/record-detail/StructuredMemoSection';
-import { ArrowLeft, RefreshCw, AlertTriangle, FileText, MessageSquare } from 'lucide-react';
+import { ArrowLeft, RefreshCw, AlertTriangle, FileText, MessageSquare, PieChart, BookOpen } from 'lucide-react';
 
 export default function RecordDetail() {
   const { upsertKey } = useParams<{ upsertKey: string }>();
@@ -119,12 +119,14 @@ export default function RecordDetail() {
                 value="revenue"
                 className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-6"
               >
+                <PieChart className="w-4 h-4 mr-2" />
                 Revenue Analysis
               </TabsTrigger>
               <TabsTrigger
                 value="references"
                 className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-6"
               >
+                <BookOpen className="w-4 h-4 mr-2" />
                 References
               </TabsTrigger>
               <TabsTrigger
