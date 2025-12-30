@@ -7,10 +7,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { RecordHeader } from '@/components/record-detail/RecordHeader';
 import { VerdictBar } from '@/components/record-detail/VerdictBar';
 import { ScreeningTiles } from '@/components/record-detail/ScreeningTiles';
-import { RevenueComposition } from '@/components/record-detail/RevenueComposition';
-import { NotHalalRevenue } from '@/components/record-detail/NotHalalRevenue';
+import { HaramRevenueSection } from '@/components/record-detail/HaramRevenueSection';
+import { EvidenceSection } from '@/components/record-detail/EvidenceSection';
+import { ReferencesSection } from '@/components/record-detail/ReferencesSection';
 import { ClientSummaryTab } from '@/components/record-detail/ClientSummaryTab';
-import { MemoSection } from '@/components/record-detail/MemoSection';
+import { StructuredMemoSection } from '@/components/record-detail/StructuredMemoSection';
 import { ArrowLeft, RefreshCw, AlertTriangle, FileText, MessageSquare } from 'lucide-react';
 
 export default function RecordDetail() {
@@ -21,7 +22,6 @@ export default function RecordDetail() {
   if (isLoading) {
     return (
       <div className="container py-6 space-y-6">
-        {/* Header skeleton */}
         <div className="space-y-4">
           <Skeleton className="h-6 w-32" />
           <div className="flex items-center gap-4">
@@ -32,18 +32,12 @@ export default function RecordDetail() {
             </div>
           </div>
         </div>
-
-        {/* Verdict bar skeleton */}
         <Skeleton className="h-20 w-full" />
-
-        {/* Tiles skeleton */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => (
             <Skeleton key={i} className="h-32" />
           ))}
         </div>
-
-        {/* Content skeleton */}
         <Skeleton className="h-40 w-full" />
       </div>
     );
@@ -101,14 +95,17 @@ export default function RecordDetail() {
       {/* 2) Verdict Banner */}
       <VerdictBar record={record} />
 
-      {/* 5) Quantitative Screening (Ratios Card) */}
+      {/* 3) Quantitative Screening (Ratios Cards) */}
       <ScreeningTiles record={record} />
 
-      {/* 6) Haram Revenue Overview */}
-      <RevenueComposition record={record} />
+      {/* 4) Haram Revenue Overview (Donut + Segment Accordion) - Hidden if no data */}
+      <HaramRevenueSection record={record} />
 
-      {/* 7 & 8) Haram Segments and Composition Tables */}
-      <NotHalalRevenue record={record} />
+      {/* 5) Evidence / Business Flags - Hidden if no data */}
+      <EvidenceSection record={record} />
+
+      {/* 6) References - Hidden if no data */}
+      <ReferencesSection record={record} />
 
       {/* Tabs for detailed views */}
       <Tabs defaultValue="summary" className="mt-8">
@@ -134,7 +131,7 @@ export default function RecordDetail() {
         </TabsContent>
 
         <TabsContent value="memo" className="mt-6">
-          <MemoSection record={record} />
+          <StructuredMemoSection record={record} />
         </TabsContent>
       </Tabs>
     </div>

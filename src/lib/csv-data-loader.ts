@@ -23,6 +23,27 @@ function parseString(value: string | undefined): string | null {
   return value.trim();
 }
 
+// Safe JSON parsing helpers
+function parseJsonArraySafe(value: string | undefined): unknown[] {
+  if (!value || value.trim() === '' || value.trim() === '[]') return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function parseJsonObjectSafe(value: string | undefined): Record<string, unknown> {
+  if (!value || value.trim() === '' || value.trim() === '{}') return {};
+  try {
+    const parsed = JSON.parse(value);
+    return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
 // Parse CSV content handling quoted fields with embedded newlines
 function parseCSVContent(csvData: string): string[][] {
   const rows: string[][] = [];
@@ -203,6 +224,10 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       
       // Client References
       client_references_json: parseString(get('client_references_json')),
+      
+      // Additional client fields
+      client_badges: parseString(get('client_badges')),
+      client_website_summary_json: parseString(get('client_website_summary_json')),
       
       // Financial Ratios
       debt_ratio_pct: parseNumber(get('debt_ratio_pct')),
