@@ -162,6 +162,48 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       client_data_quality_note: parseString(get('client_data_quality_note')),
       client_disclaimer_short: parseString(get('client_disclaimer_short')),
       
+      // Client Identity Fields
+      client_identity_ticker: parseString(get('client_identity_ticker')),
+      client_identity_company_name: parseString(get('client_identity_company_name')),
+      client_identity_report_date: parseString(get('client_identity_report_date')),
+      client_identity_security_type: parseString(get('client_identity_security_type')),
+      client_identity_industry: parseString(get('client_identity_industry')),
+      client_identity_sector: parseString(get('client_identity_sector')),
+      
+      // Client Headline Fields
+      client_headline_final_classification: parseString(get('client_headline_final_classification')),
+      client_headline_screening_status: parseString(get('client_headline_screening_status')),
+      client_headline_one_line_summary: parseString(get('client_headline_one_line_summary')),
+      client_risk_level: parseString(get('client_risk_level')),
+      client_badges_json: parseString(get('client_badges_json')),
+      client_key_points_json: parseString(get('client_key_points_json')),
+      
+      // Client Quantitative Fields
+      client_numbers_debt_ratio_pct: parseString(get('client_numbers_debt_ratio_pct')),
+      client_numbers_cashinv_ratio_pct: parseString(get('client_numbers_cashinv_ratio_pct')),
+      client_numbers_npin_ratio_pct: parseString(get('client_numbers_npin_ratio_pct')),
+      
+      // Client Haram Revenue Fields
+      client_haram_total_pct_display: parseString(get('client_haram_total_pct_display')),
+      client_top_haram_segments_label: parseString(get('client_top_haram_segments_label')),
+      client_top_haram_composition_label: parseString(get('client_top_haram_composition_label')),
+      client_top_segments_json: parseString(get('client_top_segments_json')),
+      client_top_composition_json: parseString(get('client_top_composition_json')),
+      
+      // Client Explanatory Fields
+      client_what_it_means_for_investors: parseString(get('client_what_it_means_for_investors')),
+      
+      // Client Board Review Fields
+      client_board_review_needs_review: parseBoolean(get('client_board_review_needs_review')),
+      client_board_review_doubt_reason: parseString(get('client_board_review_doubt_reason')),
+      
+      // Client Data Quality Fields
+      client_data_quality_summary_display: parseString(get('client_data_quality_summary_display')),
+      client_data_quality_top_reasons_json: parseString(get('client_data_quality_top_reasons_json')),
+      
+      // Client References
+      client_references_json: parseString(get('client_references_json')),
+      
       // Financial Ratios
       debt_ratio_pct: parseNumber(get('debt_ratio_pct')),
       cash_inv_ratio_pct: parseNumber(get('cash_inv_ratio_pct')),
