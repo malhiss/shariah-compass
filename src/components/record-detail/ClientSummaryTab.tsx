@@ -57,7 +57,7 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Key Points (Bullets) */}
+      {/* Findings (Bullets) */}
       {keyPoints.length > 0 && (
         <Card className="premium-card">
           <CardHeader className="pb-3">
@@ -65,7 +65,7 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
               <div className="p-2 rounded-lg bg-compliant/10">
                 <CheckCircle2 className="w-5 h-5 text-compliant" />
               </div>
-              <CardTitle className="text-lg">Key Points</CardTitle>
+              <CardTitle className="text-lg">Findings</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
