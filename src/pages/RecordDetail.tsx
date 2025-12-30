@@ -9,7 +9,7 @@ import { VerdictBar } from '@/components/record-detail/VerdictBar';
 import { ScreeningTiles } from '@/components/record-detail/ScreeningTiles';
 import { KeyInsightsSection } from '@/components/record-detail/KeyInsightsSection';
 import { HaramRevenueSection } from '@/components/record-detail/HaramRevenueSection';
-import { EvidenceSection } from '@/components/record-detail/EvidenceSection';
+
 import { ReferencesSection } from '@/components/record-detail/ReferencesSection';
 import { ClientSummaryTab } from '@/components/record-detail/ClientSummaryTab';
 import { StructuredMemoSection } from '@/components/record-detail/StructuredMemoSection';
@@ -122,10 +122,10 @@ export default function RecordDetail() {
                 Revenue Analysis
               </TabsTrigger>
               <TabsTrigger
-                value="evidence"
+                value="references"
                 className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-6"
               >
-                Evidence
+                References
               </TabsTrigger>
               <TabsTrigger
                 value="memo"
@@ -145,8 +145,7 @@ export default function RecordDetail() {
                 <HaramRevenueSection record={record} />
               </TabsContent>
 
-              <TabsContent value="evidence" className="mt-0 space-y-6">
-                <EvidenceSection record={record} />
+              <TabsContent value="references" className="mt-0 space-y-6">
                 <ReferencesSection record={record} />
               </TabsContent>
 
