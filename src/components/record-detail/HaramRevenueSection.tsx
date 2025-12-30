@@ -48,7 +48,7 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <AlertTriangle className="w-5 h-5 text-warning" />
-          Haram Revenue Overview
+          Revenue Composition
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
