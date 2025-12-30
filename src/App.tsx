@@ -21,6 +21,8 @@ import SetupStaff from "./pages/SetupStaff";
 import ClientDashboard from "./pages/ClientDashboard";
 import ShariahDashboard from "./pages/ShariahDashboard";
 import RecordDetail from "./pages/RecordDetail";
+import Memos from "./pages/Memos";
+import MemoDetail from "./pages/MemoDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -99,6 +101,22 @@ const App = () => (
                 element={
                   <ProtectedRoute requireRole="any">
                     <RecordDetail />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/memos" 
+                element={
+                  <ProtectedRoute requireRole="any">
+                    <Memos />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/memos/:id" 
+                element={
+                  <ProtectedRoute requireRole="any">
+                    <MemoDetail />
                   </ProtectedRoute>
                 } 
               />
