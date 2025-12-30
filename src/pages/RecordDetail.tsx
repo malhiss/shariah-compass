@@ -1,6 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
 import { useScreeningRecord } from '@/hooks/useScreeningRecords';
-import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,15 +9,12 @@ import { VerdictBar } from '@/components/record-detail/VerdictBar';
 import { ScreeningTiles } from '@/components/record-detail/ScreeningTiles';
 import { RevenueComposition } from '@/components/record-detail/RevenueComposition';
 import { NotHalalRevenue } from '@/components/record-detail/NotHalalRevenue';
-import { BreakdownPanels } from '@/components/record-detail/BreakdownPanels';
-import { NumericScreenTab } from '@/components/record-detail/NumericScreenTab';
-import { MemoSection } from '@/components/record-detail/MemoSection';
 import { ClientSummaryTab } from '@/components/record-detail/ClientSummaryTab';
-import { ArrowLeft, RefreshCw, AlertTriangle, FileText, Calculator, MessageSquare } from 'lucide-react';
+import { MemoSection } from '@/components/record-detail/MemoSection';
+import { ArrowLeft, RefreshCw, AlertTriangle, FileText, MessageSquare } from 'lucide-react';
 
 export default function RecordDetail() {
   const { upsertKey } = useParams<{ upsertKey: string }>();
-  const { isStaff } = useAuth();
   const { data: record, isLoading, isError, error, refetch } = useScreeningRecord(upsertKey);
 
   // Loading state
@@ -41,14 +37,14 @@ export default function RecordDetail() {
         <Skeleton className="h-20 w-full" />
 
         {/* Tiles skeleton */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => (
             <Skeleton key={i} className="h-32" />
           ))}
         </div>
 
-        {/* Chart skeleton */}
-        <Skeleton className="h-80 w-full" />
+        {/* Content skeleton */}
+        <Skeleton className="h-40 w-full" />
       </div>
     );
   }
@@ -99,23 +95,20 @@ export default function RecordDetail() {
 
   return (
     <div className="container py-6 space-y-6">
-      {/* A) Header block */}
+      {/* 1) Header - Identity Section */}
       <RecordHeader record={record} />
 
-      {/* B) Verdict & Action Bar (sticky) */}
+      {/* 2) Verdict Banner */}
       <VerdictBar record={record} />
 
-      {/* C) Screening tiles row */}
+      {/* 5) Quantitative Screening (Ratios Card) */}
       <ScreeningTiles record={record} />
 
-      {/* D) Revenue Composition section - stacked vertically */}
-      <div className="space-y-6">
-        <RevenueComposition record={record} />
-        <NotHalalRevenue record={record} />
-      </div>
+      {/* 6) Haram Revenue Overview */}
+      <RevenueComposition record={record} />
 
-      {/* E) Breakdown panels */}
-      <BreakdownPanels record={record} />
+      {/* 7 & 8) Haram Segments and Composition Tables */}
+      <NotHalalRevenue record={record} />
 
       {/* Tabs for detailed views */}
       <Tabs defaultValue="summary" className="mt-8">
@@ -125,14 +118,7 @@ export default function RecordDetail() {
             className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
             <MessageSquare className="w-4 h-4 mr-2" />
-            Summary
-          </TabsTrigger>
-          <TabsTrigger
-            value="numeric"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-          >
-            <Calculator className="w-4 h-4 mr-2" />
-            Numeric
+            Details
           </TabsTrigger>
           <TabsTrigger
             value="memo"
@@ -145,10 +131,6 @@ export default function RecordDetail() {
 
         <TabsContent value="summary" className="mt-6">
           <ClientSummaryTab record={record} />
-        </TabsContent>
-
-        <TabsContent value="numeric" className="mt-6">
-          <NumericScreenTab record={record} />
         </TabsContent>
 
         <TabsContent value="memo" className="mt-6">

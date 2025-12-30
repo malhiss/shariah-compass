@@ -86,7 +86,7 @@ export interface ScreeningRecord {
   needs_board_review?: boolean | null;
   shariah_summary?: string | null;
 
-  // Client summaries (plain English)
+  // Client summaries (plain English) - CANONICAL WEBSITE FIELDS
   client_summary?: string | null;
   client_shariah_summary?: string | null;
   client_verdict_label?: string | null;
@@ -95,6 +95,48 @@ export interface ScreeningRecord {
   client_haram_breakdown?: string | null;
   client_data_quality_note?: string | null;
   client_disclaimer_short?: string | null;
+
+  // Client Identity Fields (use these for website display)
+  client_identity_ticker?: string | null;
+  client_identity_company_name?: string | null;
+  client_identity_report_date?: string | null;
+  client_identity_security_type?: string | null;
+  client_identity_industry?: string | null;
+  client_identity_sector?: string | null;
+
+  // Client Headline Fields
+  client_headline_final_classification?: string | null;
+  client_headline_screening_status?: string | null;
+  client_headline_one_line_summary?: string | null;
+  client_risk_level?: string | null;
+  client_badges_json?: string | null;
+  client_key_points_json?: string | null;
+
+  // Client Quantitative Fields
+  client_numbers_debt_ratio_pct?: number | string | null;
+  client_numbers_cashinv_ratio_pct?: number | string | null;
+  client_numbers_npin_ratio_pct?: number | string | null;
+
+  // Client Haram Revenue Fields
+  client_haram_total_pct_display?: string | null;
+  client_top_haram_segments_label?: string | null;
+  client_top_haram_composition_label?: string | null;
+  client_top_segments_json?: string | null;
+  client_top_composition_json?: string | null;
+
+  // Client Explanatory Fields
+  client_what_it_means_for_investors?: string | null;
+
+  // Client Board Review Fields
+  client_board_review_needs_review?: boolean | null;
+  client_board_review_doubt_reason?: string | null;
+
+  // Client Data Quality Fields
+  client_data_quality_summary_display?: string | null;
+  client_data_quality_top_reasons_json?: string | null;
+
+  // Client References
+  client_references_json?: string | null;
 
   // Verdict (legacy format)
   Final_Verdict?: 'COMPLIANT' | 'COMPLIANT_WITH_PURIFICATION' | 'NON_COMPLIANT' | 'DOUBTFUL_REVIEW' | string | null;

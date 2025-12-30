@@ -1,33 +1,34 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { coerceToNumber } from '@/types/mongodb';
-import { normalizeEvidence } from '@/types/screening-record';
 import type { ScreeningRecord } from '@/types/screening-record';
-import { Briefcase, Scale, DollarSign, TrendingDown, Info, CheckCircle2, XCircle, AlertTriangle, HelpCircle } from 'lucide-react';
+import { Scale, DollarSign, TrendingDown, CheckCircle2, XCircle, HelpCircle } from 'lucide-react';
 
 interface ScreeningTilesProps {
   record: ScreeningRecord;
 }
 
-type TileStatus = 'pass' | 'fail' | 'review' | 'unknown';
+type TileStatus = 'pass' | 'fail' | 'na';
 
 interface TileData {
   label: string;
   icon: React.ReactNode;
   status: TileStatus;
-  value: string | null;
-  formula?: string | null;
-  subtext?: string;
+  value: string;
 }
 
-const THRESHOLDS = {
-  debt: 0.33,
-  cashInv: 0.33,
-  npin: 0.05,
-};
+// Parse the client ratio value - could be number or string
+function parseClientRatio(value: number | string | null | undefined): string {
+  if (value === null || value === undefined || value === '') return 'N/A';
+  if (typeof value === 'number') return `${value.toFixed(2)}%`;
+  // If string, check if it already includes %
+  const strVal = String(value).trim();
+  if (strVal === 'N/A' || strVal === 'n/a' || strVal === '-') return 'N/A';
+  if (strVal.includes('%')) return strVal;
+  const numVal = parseFloat(strVal);
+  if (isNaN(numVal)) return strVal;
+  return `${numVal.toFixed(2)}%`;
+}
 
 function getStatusBadge(status: TileStatus) {
   switch (status) {
@@ -43,102 +44,59 @@ function getStatusBadge(status: TileStatus) {
           <XCircle className="w-3 h-3 mr-1" /> Fail
         </Badge>
       );
-    case 'review':
-      return (
-        <Badge className="bg-warning/15 text-warning border-warning/30">
-          <AlertTriangle className="w-3 h-3 mr-1" /> Review
-        </Badge>
-      );
     default:
       return (
         <Badge variant="secondary" className="bg-muted/30">
-          <HelpCircle className="w-3 h-3 mr-1" /> Unknown
+          <HelpCircle className="w-3 h-3 mr-1" /> N/A
         </Badge>
       );
   }
 }
 
+// Determine status based on value and threshold
+function determineStatus(value: string, thresholdPct: number): TileStatus {
+  if (value === 'N/A') return 'na';
+  const numVal = parseFloat(value.replace('%', ''));
+  if (isNaN(numVal)) return 'na';
+  return numVal <= thresholdPct ? 'pass' : 'fail';
+}
+
 export function ScreeningTiles({ record }: ScreeningTilesProps) {
-  // Business Activity tile logic
-  const businessStatus = record.business_status;
-  const llmFailFlag = record.llm_has_fail_flag;
-  const llmCautionFlag = record.llm_has_caution_flag;
-  const evidence = normalizeEvidence(record);
-  const evidenceCount = evidence.length;
-
-  let businessTileStatus: TileStatus = 'pass';
-  let businessSubtext = 'No red flags identified';
-  
-  if (businessStatus === 'FAIL' || llmFailFlag) {
-    businessTileStatus = 'fail';
-    businessSubtext = 'LLM Fail flag detected';
-  } else if (businessStatus === 'CAUTION' || businessStatus === 'REVIEW' || llmCautionFlag) {
-    businessTileStatus = 'review';
-    businessSubtext = 'LLM caution flag detected';
-  }
-
-  // Use snake_case fields with fallback to PascalCase
-  const debtRatio = record.debt_ratio_pct ?? coerceToNumber(record.Debt_Ratio ?? record.Debt_Ratio_Percent);
-  const cashInvRatio = record.cash_inv_ratio_pct ?? coerceToNumber(record.CashInv_Ratio ?? record.Cash_Investment_Ratio_Percent);
-  const npinRatio = record.npin_ratio_pct ?? coerceToNumber(record.NPIN_Ratio ?? record.Non_Permissible_Income_Percent);
-
-  // Get statuses from API or calculate
-  const getStatus = (apiStatus: string | null | undefined, value: number | null, threshold: number): TileStatus => {
-    if (apiStatus === 'PASS') return 'pass';
-    if (apiStatus === 'FAIL') return 'fail';
-    if (value === null) return 'unknown';
-    return value <= threshold ? 'pass' : 'fail';
-  };
-
-  const formatPercent = (val: number | null): string | null => {
-    if (val === null) return null;
-    return `${val.toFixed(2)}%`;
-  };
+  // Use client_numbers_* fields as canonical source
+  const debtRatioDisplay = parseClientRatio(record.client_numbers_debt_ratio_pct);
+  const cashInvRatioDisplay = parseClientRatio(record.client_numbers_cashinv_ratio_pct);
+  const npinRatioDisplay = parseClientRatio(record.client_numbers_npin_ratio_pct);
 
   const tiles: TileData[] = [
     {
-      label: 'Business Activity',
-      icon: <Briefcase className="w-5 h-5" />,
-      status: businessTileStatus,
-      value: null,
-      subtext: businessSubtext,
-    },
-    {
       label: 'Debt Ratio',
       icon: <Scale className="w-5 h-5" />,
-      status: getStatus(record.debt_status, debtRatio, record.debt_threshold_pct ?? 33),
-      value: formatPercent(debtRatio),
-      formula: record.debt_ratio_formula || record.Debt_Ratio_Formula,
-      subtext: `≤ ${record.debt_threshold_pct ?? 33}%`,
+      status: determineStatus(debtRatioDisplay, 33),
+      value: debtRatioDisplay,
     },
     {
-      label: 'Cash & Investments',
+      label: 'Cash & Investments Ratio',
       icon: <DollarSign className="w-5 h-5" />,
-      status: getStatus(record.cash_inv_status, cashInvRatio, record.cash_inv_threshold_pct ?? 33),
-      value: formatPercent(cashInvRatio),
-      formula: record.cash_inv_ratio_formula || record.CashInv_Ratio_Formula,
-      subtext: `≤ ${record.cash_inv_threshold_pct ?? 33}%`,
+      status: determineStatus(cashInvRatioDisplay, 33),
+      value: cashInvRatioDisplay,
     },
     {
-      label: 'NPIN',
+      label: 'Non-Permissible Income (NPIN)',
       icon: <TrendingDown className="w-5 h-5" />,
-      status: getStatus(record.npin_status, npinRatio, record.npin_threshold_pct ?? 5),
-      value: formatPercent(npinRatio),
-      formula: record.npin_ratio_formula || record.NPIN_Ratio_Formula,
-      subtext: `≤ ${record.npin_threshold_pct ?? 5}%`,
+      status: determineStatus(npinRatioDisplay, 5),
+      value: npinRatioDisplay,
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {tiles.map((tile, idx) => (
         <Card
           key={idx}
           className={cn(
             'premium-card transition-all',
             tile.status === 'pass' && 'border-compliant/30',
-            tile.status === 'fail' && 'border-non-compliant/30',
-            tile.status === 'review' && 'border-warning/30'
+            tile.status === 'fail' && 'border-non-compliant/30'
           )}
         >
           <CardContent className="p-4">
@@ -150,33 +108,9 @@ export function ScreeningTiles({ record }: ScreeningTilesProps) {
               {getStatusBadge(tile.status)}
             </div>
 
-            <div className="space-y-2">
-              {tile.value && (
-                <p className="text-2xl font-semibold font-mono">{tile.value}</p>
-              )}
-              {tile.subtext && (
-                <p className="text-xs text-muted-foreground">{tile.subtext}</p>
-              )}
+            <div className="space-y-1">
+              <p className="text-2xl font-semibold font-mono">{tile.value}</p>
             </div>
-
-            {tile.formula && (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="ghost" size="sm" className="mt-2 h-7 text-xs text-primary p-0">
-                    <Info className="w-3 h-3 mr-1" />
-                    View formula
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80" align="start">
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Formula</h4>
-                    <p className="text-xs text-muted-foreground font-mono bg-muted/20 p-2 rounded break-all">
-                      {tile.formula}
-                    </p>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            )}
           </CardContent>
         </Card>
       ))}

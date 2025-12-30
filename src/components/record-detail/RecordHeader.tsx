@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatDate } from '@/types/mongodb';
-import { getMemoUrl, getRecordTicker, getRecordCompanyName, getRecordReportDate } from '@/types/screening-record';
+import { getMemoUrl } from '@/types/screening-record';
 import type { ScreeningRecord } from '@/types/screening-record';
-import { ArrowLeft, ExternalLink, Calendar, Building2 } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Calendar, Building2, Briefcase, Factory } from 'lucide-react';
 
 interface RecordHeaderProps {
   record: ScreeningRecord;
@@ -12,10 +12,14 @@ interface RecordHeaderProps {
 
 export function RecordHeader({ record }: RecordHeaderProps) {
   const memoUrl = getMemoUrl(record);
-  const ticker = getRecordTicker(record);
-  const companyName = getRecordCompanyName(record);
-  const reportDate = getRecordReportDate(record);
-  const methodologyVersion = record.methodology_version || 'v3';
+  
+  // Use client_identity_* fields as canonical source
+  const ticker = record.client_identity_ticker || record.ticker || record.Ticker || 'N/A';
+  const companyName = record.client_identity_company_name || record.company_name || record.Company || 'N/A';
+  const reportDate = record.client_identity_report_date || record.report_date || record.Report_Date;
+  const securityType = record.client_identity_security_type || record.security_type || record.Security_Type;
+  const industry = record.client_identity_industry || record.industry || record.Industry;
+  const sector = record.client_identity_sector || record.sector || record.Sector;
 
   return (
     <div className="space-y-4">
@@ -35,7 +39,7 @@ export function RecordHeader({ record }: RecordHeaderProps) {
             <Building2 className="w-7 h-7 text-primary" />
           </div>
           <div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-2xl md:text-3xl font-serif font-semibold">
                 {companyName !== 'N/A' ? companyName : ticker}
               </h1>
@@ -43,14 +47,30 @@ export function RecordHeader({ record }: RecordHeaderProps) {
                 {ticker}
               </Badge>
             </div>
-            <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5" />
-                {formatDate(reportDate)}
-              </span>
-              <Badge variant="secondary" className="bg-muted/30 text-xs">
-                Methodology {methodologyVersion}
-              </Badge>
+            <div className="flex items-center gap-3 mt-2 flex-wrap">
+              {reportDate && (
+                <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Calendar className="w-3.5 h-3.5" />
+                  {formatDate(reportDate)}
+                </span>
+              )}
+              {securityType && (
+                <Badge variant="secondary" className="bg-muted/30 text-xs">
+                  {securityType}
+                </Badge>
+              )}
+              {industry && (
+                <Badge variant="secondary" className="bg-muted/30 text-xs flex items-center gap-1">
+                  <Factory className="w-3 h-3" />
+                  {industry}
+                </Badge>
+              )}
+              {sector && (
+                <Badge variant="secondary" className="bg-muted/30 text-xs flex items-center gap-1">
+                  <Briefcase className="w-3 h-3" />
+                  {sector}
+                </Badge>
+              )}
             </div>
           </div>
         </div>
