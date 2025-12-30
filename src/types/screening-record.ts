@@ -137,6 +137,10 @@ export interface ScreeningRecord {
 
   // Client References
   client_references_json?: string | null;
+  
+  // Additional client fields
+  client_badges?: string | null;
+  client_website_summary_json?: string | null;
 
   // Verdict (legacy format)
   Final_Verdict?: 'COMPLIANT' | 'COMPLIANT_WITH_PURIFICATION' | 'NON_COMPLIANT' | 'DOUBTFUL_REVIEW' | string | null;
