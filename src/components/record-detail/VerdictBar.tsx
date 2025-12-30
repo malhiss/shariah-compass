@@ -1,36 +1,44 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { coerceToBoolean } from '@/types/mongodb';
-import { getClassificationLabel, getClassificationColor } from '@/types/screening-record';
+import { safeParseJSON } from '@/types/screening-record';
 import type { ScreeningRecord } from '@/types/screening-record';
-import { CheckCircle2, AlertTriangle, XCircle, HelpCircle, Scale, Percent, Users, Ban } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, XCircle, HelpCircle, Scale, Percent, Users, Ban, AlertCircle, Shield } from 'lucide-react';
 
 interface VerdictBarProps {
   record: ScreeningRecord;
 }
 
+// Badge item parsed from client_badges_json
+interface BadgeItem {
+  label?: string;
+  type?: string;
+}
+
 export function VerdictBar({ record }: VerdictBarProps) {
-  // Check for auto-banned first
-  const isAutoBanned = coerceToBoolean(record.auto_banned ?? record.Auto_Banned);
+  // Use client_headline_* fields as canonical source
+  const verdictLabel = record.client_headline_final_classification || record.client_verdict_label || 'Not Available';
+  const screeningStatus = record.client_headline_screening_status;
+  const riskLevel = record.client_risk_level;
   
-  // Get classification
-  const classification = record.final_classification || record.Final_Verdict;
-  const colorClass = isAutoBanned ? 'non-compliant' : getClassificationColor(classification);
-  const label = isAutoBanned ? 'Automatically Non-Compliant' : getClassificationLabel(classification);
+  // Parse badges from JSON
+  const badges = safeParseJSON<BadgeItem[]>(record.client_badges_json, []);
 
-  const purificationRequired = coerceToBoolean(record.purification_required ?? record.Purification_Required);
-  const purificationPct = record.purification_pct_recommended ?? record.Purification_Percentage;
-  const needsBoardReview = coerceToBoolean(record.needs_board_review ?? record.Board_Review_Needed);
-  const qaNeedsReview = coerceToBoolean(record.qa_needs_review ?? record.QA_Needs_Review);
-  const isDoubtful = classification === 'DOUBTFUL_REVIEW';
+  // Determine color based on verdict label
+  const getColorClass = () => {
+    const lowerLabel = verdictLabel.toLowerCase();
+    if (lowerLabel.includes('compliant') && !lowerLabel.includes('non')) {
+      if (lowerLabel.includes('purification')) return 'warning';
+      return 'compliant';
+    }
+    if (lowerLabel.includes('non-compliant') || lowerLabel.includes('non compliant')) return 'non-compliant';
+    if (lowerLabel.includes('doubtful') || lowerLabel.includes('review')) return 'doubtful';
+    return 'no-data';
+  };
 
-  const showReviewRequired = needsBoardReview || isDoubtful || qaNeedsReview;
+  const colorClass = getColorClass();
 
   const getIcon = () => {
-    if (isAutoBanned) {
-      return <Ban className="w-6 h-6" />;
-    }
     switch (colorClass) {
       case 'compliant':
         return <CheckCircle2 className="w-6 h-6" />;
@@ -45,24 +53,20 @@ export function VerdictBar({ record }: VerdictBarProps) {
     }
   };
 
+  // Check for specific badges
+  const hasPurificationBadge = badges.some(b => 
+    b.label?.toLowerCase().includes('purification') || b.type?.toLowerCase().includes('purification')
+  );
+  const hasBoardReviewBadge = badges.some(b => 
+    b.label?.toLowerCase().includes('board') || b.type?.toLowerCase().includes('review')
+  );
+  const hasQABadge = badges.some(b => 
+    b.label?.toLowerCase().includes('qa') || b.type?.toLowerCase().includes('qa')
+  );
+
   return (
     <Card className="premium-card sticky top-4 z-10">
       <CardContent className="py-4">
-        <div className="flex flex-col md:flex-row md:items-center gap-4">
-          {/* Auto-banned banner */}
-          {isAutoBanned && record.auto_banned_summary && (
-            <div className="w-full mb-2 p-3 rounded-lg bg-non-compliant/10 border border-non-compliant/30">
-              <div className="flex items-center gap-2 text-non-compliant font-medium text-sm">
-                <Ban className="w-4 h-4" />
-                <span>Auto-Banned</span>
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                {record.auto_banned_summary}
-              </p>
-            </div>
-          )}
-        </div>
-
         <div className="flex flex-col md:flex-row md:items-center gap-4">
           {/* Verdict badge */}
           <div
@@ -76,40 +80,60 @@ export function VerdictBar({ record }: VerdictBarProps) {
             )}
           >
             {getIcon()}
-            <span className="text-lg">{label}</span>
+            <span className="text-lg">{verdictLabel}</span>
           </div>
 
           {/* Divider on desktop */}
           <div className="hidden md:block h-10 w-px bg-border" />
 
-          {/* Action cards */}
+          {/* Action cards & badges */}
           <div className="flex flex-wrap gap-3 flex-1">
-            {purificationRequired && (
+            {/* Screening Status Badge */}
+            {screeningStatus && (
+              <Badge variant="outline" className="bg-primary/10 border-primary/30 text-primary">
+                <Shield className="w-3 h-3 mr-1" />
+                {screeningStatus}
+              </Badge>
+            )}
+
+            {/* Risk Level Badge */}
+            {riskLevel && (
+              <Badge 
+                variant="outline" 
+                className={cn(
+                  riskLevel.toLowerCase() === 'low' && 'bg-compliant/10 border-compliant/30 text-compliant',
+                  riskLevel.toLowerCase() === 'medium' && 'bg-warning/10 border-warning/30 text-warning',
+                  riskLevel.toLowerCase() === 'high' && 'bg-non-compliant/10 border-non-compliant/30 text-non-compliant'
+                )}
+              >
+                Risk: {riskLevel}
+              </Badge>
+            )}
+
+            {/* Purification Badge */}
+            {hasPurificationBadge && (
               <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-warning/10 border border-warning/20">
                 <Percent className="w-4 h-4 text-warning" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Purification</p>
-                  <p className="font-semibold text-warning">
-                    {purificationPct !== null && purificationPct !== undefined 
-                      ? `${purificationPct.toFixed(2)}%`
-                      : 'Required'}
-                  </p>
-                </div>
+                <p className="font-medium text-warning text-sm">Purification Required</p>
               </div>
             )}
 
-            {showReviewRequired && (
+            {/* Board Review Badge */}
+            {hasBoardReviewBadge && (
               <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-doubtful/10 border border-doubtful/20">
                 <Users className="w-4 h-4 text-doubtful" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Action</p>
-                  <p className="font-medium text-doubtful text-sm">Board Review</p>
-                </div>
+                <p className="font-medium text-doubtful text-sm">Board Review</p>
+              </div>
+            )}
+
+            {/* QA Issues Badge */}
+            {hasQABadge && (
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/20 border border-border">
+                <AlertCircle className="w-4 h-4 text-muted-foreground" />
+                <p className="font-medium text-muted-foreground text-sm">QA Issues</p>
               </div>
             )}
           </div>
-
-          {/* Shariah summary teaser - hidden to prevent overflow issues */}
         </div>
       </CardContent>
     </Card>
