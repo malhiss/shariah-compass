@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { formatDate } from '@/types/mongodb';
 import { getMemoUrl } from '@/types/screening-record';
 import type { ScreeningRecord } from '@/types/screening-record';
-import { ArrowLeft, ExternalLink, Calendar, Building2, Briefcase, Factory } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Calendar, Building2, Factory } from 'lucide-react';
 
 interface RecordHeaderProps {
   record: ScreeningRecord;
@@ -19,7 +19,6 @@ export function RecordHeader({ record }: RecordHeaderProps) {
   const reportDate = record.client_identity_report_date || record.report_date || record.Report_Date;
   const securityType = record.client_identity_security_type || record.security_type || record.Security_Type;
   const industry = record.client_identity_industry || record.industry || record.Industry;
-  const sector = record.client_identity_sector || record.sector || record.Sector;
 
   return (
     <div className="space-y-4">
@@ -63,12 +62,6 @@ export function RecordHeader({ record }: RecordHeaderProps) {
                 <Badge variant="secondary" className="bg-muted/30 text-xs flex items-center gap-1">
                   <Factory className="w-3 h-3" />
                   {industry}
-                </Badge>
-              )}
-              {sector && (
-                <Badge variant="secondary" className="bg-muted/30 text-xs flex items-center gap-1">
-                  <Briefcase className="w-3 h-3" />
-                  {sector}
                 </Badge>
               )}
             </div>

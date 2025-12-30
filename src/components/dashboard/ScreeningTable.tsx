@@ -25,9 +25,10 @@ export function ScreeningTable({
   viewMode,
 }: ScreeningTableProps) {
   const navigate = useNavigate();
+  
   if (loading) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-3 p-4">
         {Array.from({ length: 10 }).map((_, i) => (
           <Skeleton key={i} className="h-12 w-full" />
         ))}
@@ -51,7 +52,6 @@ export function ScreeningTable({
             <TableRow className="border-border hover:bg-transparent">
               <TableHead className="text-muted-foreground">Ticker</TableHead>
               <TableHead className="text-muted-foreground">Company</TableHead>
-              <TableHead className="text-muted-foreground">Sector</TableHead>
               <TableHead className="text-center text-muted-foreground">Shariah</TableHead>
               <TableHead className="text-center text-muted-foreground">Zakat Status</TableHead>
               <TableHead className="text-right text-muted-foreground">Zakatable %</TableHead>
@@ -63,7 +63,7 @@ export function ScreeningTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-          {data.map((record: any) => (
+            {data.map((record: any) => (
               <TableRow
                 key={record.upsert_key}
                 className="cursor-pointer border-border hover:bg-primary/5"
@@ -74,9 +74,6 @@ export function ScreeningTable({
                 </TableCell>
                 <TableCell className="text-muted-foreground max-w-[200px] truncate">
                   {record.company_name || record.Company || 'N/A'}
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {record.Sector || 'N/A'}
                 </TableCell>
                 <TableCell className="text-center">
                   <BooleanBadge value={record.Shariah_Compliant} />
@@ -97,7 +94,7 @@ export function ScreeningTable({
                   {record.Zakat_Methodology || 'N/A'}
                 </TableCell>
                 <TableCell className="text-center">
-                  <RiskBadge level={record.Compliance_Risk_Level} />
+                  <RiskBadge level={record.client_risk_level || record.Compliance_Risk_Level} />
                 </TableCell>
                 <TableCell className="text-muted-foreground text-sm">
                   {formatDate(record.report_date || record.Screening_Date)}
@@ -118,15 +115,12 @@ export function ScreeningTable({
           <TableRow className="border-border hover:bg-transparent">
             <TableHead className="text-muted-foreground">Ticker</TableHead>
             <TableHead className="text-muted-foreground">Company</TableHead>
-            <TableHead className="text-muted-foreground">Sector</TableHead>
             <TableHead className="text-muted-foreground">Industry</TableHead>
-            <TableHead className="text-center text-muted-foreground">Verdict</TableHead>
-            <TableHead className="text-center text-muted-foreground">Shariah</TableHead>
+            <TableHead className="text-center text-muted-foreground">Classification</TableHead>
             <TableHead className="text-right text-muted-foreground">NPIN %</TableHead>
-            <TableHead className="text-right text-muted-foreground">Purification</TableHead>
+            <TableHead className="text-right text-muted-foreground">Purification %</TableHead>
             <TableHead className="text-center text-muted-foreground">Risk</TableHead>
-            <TableHead className="text-center text-muted-foreground">Dual-Use</TableHead>
-            <TableHead className="text-center text-muted-foreground">Board</TableHead>
+            <TableHead className="text-center text-muted-foreground">Board Review</TableHead>
             <TableHead className="text-muted-foreground">Date</TableHead>
           </TableRow>
         </TableHeader>
@@ -144,16 +138,10 @@ export function ScreeningTable({
                 {record.company_name || record.Company || 'N/A'}
               </TableCell>
               <TableCell className="text-muted-foreground">
-                {record.Sector || 'N/A'}
-              </TableCell>
-              <TableCell className="text-muted-foreground">
                 {record.industry || record.Industry || 'N/A'}
               </TableCell>
               <TableCell className="text-center">
                 <VerdictBadge verdict={record.final_classification || record.Final_Verdict} />
-              </TableCell>
-              <TableCell className="text-center">
-                <BooleanBadge value={record.final_classification === 'COMPLIANT' ? 'YES' : record.final_classification === 'NON_COMPLIANT' ? 'NO' : 'DOUBTFUL'} />
               </TableCell>
               <TableCell className="text-right font-mono text-sm">
                 {formatPercent(record.npin_ratio_pct ?? record.Non_Compliant_Revenue_Point_Estimate)}
@@ -162,13 +150,14 @@ export function ScreeningTable({
                 {formatPercent(record.purification_pct_recommended ?? record.Purification_Percentage)}
               </TableCell>
               <TableCell className="text-center">
-                <RiskBadge level={record.Compliance_Risk_Level} />
+                <RiskBadge level={record.client_risk_level || record.Compliance_Risk_Level} />
               </TableCell>
               <TableCell className="text-center">
-                <BooleanBadge value={record.business_status === 'CAUTION' ? 'YES' : 'NO'} />
-              </TableCell>
-              <TableCell className="text-center">
-                <BooleanBadge value={record.needs_board_review ? 'YES' : 'NO'} />
+                <BooleanBadge 
+                  value={record.client_board_review_needs_review || record.needs_board_review ? 'YES' : 'NO'} 
+                  trueLabel="Required"
+                  falseLabel="No"
+                />
               </TableCell>
               <TableCell className="text-muted-foreground text-sm">
                 {formatDate(record.report_date || record.Screening_Date)}
