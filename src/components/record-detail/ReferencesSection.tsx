@@ -7,7 +7,7 @@ interface ReferencesSectionProps {
   record: ScreeningRecord;
 }
 
-// Reference item structure
+// Reference item structure - support various field naming conventions
 interface ReferenceItem {
   source_name?: string;
   name?: string;
@@ -16,6 +16,8 @@ interface ReferenceItem {
   as_of?: string;
   as_of_date?: string;
   url?: string;
+  link?: string;
+  source_url?: string;
 }
 
 export function ReferencesSection({ record }: ReferencesSectionProps) {
@@ -45,10 +47,11 @@ export function ReferencesSection({ record }: ReferencesSectionProps) {
       
       <CardContent className="pt-0">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {references.map((ref, idx) => {
+        {references.map((ref, idx) => {
             const supports = ref.what_it_supports || ref.supports;
             const asOf = ref.as_of || ref.as_of_date;
-            const url = ref.url;
+            // Support multiple URL field names
+            const url = ref.url || ref.link || ref.source_url;
 
             // If no URL, just show as a non-clickable card
             if (!url) {
