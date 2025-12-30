@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { Layout } from "./components/Layout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ScrollToTop } from "./components/ScrollToTop";
+import { clearCache } from "./lib/csv-data-loader";
 import Landing from "./pages/Landing";
 import About from "./pages/About";
 import Leadership from "./pages/Leadership";
@@ -24,6 +26,9 @@ import RecordDetail from "./pages/RecordDetail";
 import Memos from "./pages/Memos";
 import MemoDetail from "./pages/MemoDetail";
 import NotFound from "./pages/NotFound";
+
+// Clear cache on app load to ensure fresh data
+clearCache();
 
 const queryClient = new QueryClient();
 

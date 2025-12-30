@@ -293,6 +293,12 @@ function parseCSV(csvData: string): ScreeningRecord[] {
 let cachedData: ScreeningRecord[] | null = null;
 let loadingPromise: Promise<ScreeningRecord[]> | null = null;
 
+// Clear cache to force reload
+export function clearCache(): void {
+  cachedData = null;
+  loadingPromise = null;
+}
+
 // Load data from CSV (singleton pattern)
 export async function loadScreeningData(): Promise<ScreeningRecord[]> {
   // Return cached data if available
@@ -304,7 +310,8 @@ export async function loadScreeningData(): Promise<ScreeningRecord[]> {
   // Start loading
   loadingPromise = (async () => {
     try {
-      const response = await fetch('/data/shariah-screening.csv');
+      // Add cache-busting timestamp to prevent browser caching
+      const response = await fetch(`/data/shariah-screening.csv?t=${Date.now()}`);
       if (!response.ok) {
         console.error(`Failed to fetch CSV: ${response.status}`);
         return [];
