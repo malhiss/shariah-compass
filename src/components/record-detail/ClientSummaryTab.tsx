@@ -29,10 +29,6 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
     .filter(p => p.length > 0)
     .slice(0, 6);
 
-  // Board review
-  const needsBoardReview = record.client_board_review_needs_review;
-  const boardReviewReason = record.client_board_review_doubt_reason;
-
   // Data quality
   const dataQualitySummary = record.client_data_quality_summary_display;
   const dataQualityReasonsRaw = safeParseJSON<DataQualityReason[] | string[]>(record.client_data_quality_top_reasons_json, []);
@@ -43,7 +39,7 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
   // Disclaimer
   const disclaimer = record.client_disclaimer_short;
 
-  const hasContent = keyPoints.length > 0 || needsBoardReview || dataQualitySummary;
+  const hasContent = keyPoints.length > 0 || dataQualitySummary;
 
   if (!hasContent) {
     return (
@@ -81,27 +77,6 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
                 </li>
               ))}
             </ul>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Board Review Notice */}
-      {needsBoardReview && (
-        <Card className="premium-card border-doubtful/30">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-doubtful/10">
-                <Users className="w-5 h-5 text-doubtful" />
-              </div>
-              <CardTitle className="text-lg text-doubtful">Board Review Required</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="p-4 rounded-lg bg-doubtful/10 border border-doubtful/20">
-              <p className="text-foreground leading-relaxed">
-                {boardReviewReason || 'This security requires review by a Shariah board due to uncertain compliance status.'}
-              </p>
-            </div>
           </CardContent>
         </Card>
       )}

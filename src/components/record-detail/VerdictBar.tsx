@@ -57,12 +57,14 @@ export function VerdictBar({ record }: VerdictBarProps) {
   const hasPurificationBadge = badges.some(b => 
     b.label?.toLowerCase().includes('purification') || b.type?.toLowerCase().includes('purification')
   );
-  const hasBoardReviewBadge = badges.some(b => 
+  const hasBoardReviewBadge = record.client_board_review_needs_review || badges.some(b => 
     b.label?.toLowerCase().includes('board') || b.type?.toLowerCase().includes('review')
   );
   const hasQABadge = badges.some(b => 
     b.label?.toLowerCase().includes('qa') || b.type?.toLowerCase().includes('qa')
   );
+  
+  const boardReviewReason = record.client_board_review_doubt_reason;
 
   return (
     <Card className="premium-card sticky top-4 z-10">
@@ -120,9 +122,9 @@ export function VerdictBar({ record }: VerdictBarProps) {
 
             {/* Board Review Badge */}
             {hasBoardReviewBadge && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-doubtful/10 border border-doubtful/20">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-doubtful/10 border border-doubtful/20" title={boardReviewReason || 'Board review required'}>
                 <Users className="w-4 h-4 text-doubtful" />
-                <p className="font-medium text-doubtful text-sm">Board Review</p>
+                <p className="font-medium text-doubtful text-sm">Board Review Required</p>
               </div>
             )}
 
