@@ -34,14 +34,14 @@ export function Layout() {
       
         {/* Footer */}
         <footer className="border-t border-border bg-card/50">
-        <div className="container py-16">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div className="container py-8 sm:py-16 px-4 sm:px-6">
+          <div className="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-4 gap-8 sm:gap-12">
             {/* Brand */}
-            <div className="md:col-span-2">
-              <Link to="/" className="inline-block mb-6">
-                <img src={invesenseLogo} alt="Invesense" className="h-10 w-auto" />
+            <div className="col-span-2 md:col-span-2">
+              <Link to="/" className="inline-block mb-4 sm:mb-6">
+                <img src={invesenseLogo} alt="Invesense" className="h-8 sm:h-10 w-auto" />
               </Link>
-              <p className="text-muted-foreground max-w-md leading-relaxed">
+              <p className="text-sm sm:text-base text-muted-foreground max-w-md leading-relaxed">
                 Shariah-compliant investment screening powered by Invesense methodology. 
                 Make informed investment decisions aligned with Islamic principles.
               </p>
@@ -49,13 +49,13 @@ export function Layout() {
             
             {/* Screening Links */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4">Screening</h4>
-              <ul className="space-y-3">
+              <h4 className="font-semibold text-foreground mb-3 sm:mb-4 text-sm sm:text-base">Screening</h4>
+              <ul className="space-y-2 sm:space-y-3">
                 {footerLinks.screening.map((link) => (
                   <li key={link.path}>
                     <Link 
                       to={link.path}
-                      className="text-muted-foreground hover:text-primary transition-colors"
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -66,13 +66,13 @@ export function Layout() {
             
             {/* Company Links */}
             <div>
-              <h4 className="font-semibold text-foreground mb-4">Company</h4>
-              <ul className="space-y-3">
+              <h4 className="font-semibold text-foreground mb-3 sm:mb-4 text-sm sm:text-base">Company</h4>
+              <ul className="space-y-2 sm:space-y-3">
                 {footerLinks.company.map((link) => (
                   <li key={link.path}>
                     <Link 
                       to={link.path}
-                      className="text-muted-foreground hover:text-primary transition-colors"
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -83,12 +83,12 @@ export function Layout() {
           </div>
           
           {/* Bottom Bar */}
-          <div className="mt-12 pt-8 border-t border-border">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-sm text-muted-foreground">
+          <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-border">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 © {new Date().getFullYear()} Invesense. All rights reserved.
               </p>
-              <p className="text-sm text-muted-foreground text-center md:text-right">
+              <p className="text-xs sm:text-sm text-muted-foreground text-center md:text-right">
                 For informational purposes only. Consult a qualified scholar for definitive rulings.
               </p>
             </div>

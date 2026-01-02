@@ -61,32 +61,32 @@ export function VerdictBar({ record }: VerdictBarProps) {
 
   return (
     <div className={cn(
-      'rounded-xl border p-4',
+      'rounded-lg sm:rounded-xl border p-3 sm:p-4',
       colorClass === 'compliant' && 'bg-compliant/5 border-compliant/20',
       colorClass === 'warning' && 'bg-warning/5 border-warning/20',
       colorClass === 'non-compliant' && 'bg-non-compliant/5 border-non-compliant/20',
       colorClass === 'doubtful' && 'bg-doubtful/5 border-doubtful/20',
       colorClass === 'no-data' && 'bg-muted/10 border-border'
     )}>
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
         {/* Main verdict */}
         <div className={cn(
-          'flex items-center gap-3 font-semibold',
+          'flex items-center gap-2 sm:gap-3 font-semibold',
           colorClass === 'compliant' && 'text-compliant',
           colorClass === 'warning' && 'text-warning',
           colorClass === 'non-compliant' && 'text-non-compliant',
           colorClass === 'doubtful' && 'text-doubtful',
           colorClass === 'no-data' && 'text-muted-foreground'
         )}>
-          {getIcon()}
-          <span className="text-lg">{verdictLabel}</span>
+          <span className="[&>svg]:w-4 [&>svg]:h-4 sm:[&>svg]:w-5 sm:[&>svg]:h-5">{getIcon()}</span>
+          <span className="text-sm sm:text-lg">{verdictLabel}</span>
         </div>
 
         {/* Badges row */}
-        <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 sm:ml-auto">
           {screeningStatus && (
-            <Badge variant="outline" className="bg-background/50 gap-1.5">
-              <Shield className="w-3 h-3" />
+            <Badge variant="outline" className="bg-background/50 gap-1 sm:gap-1.5 text-[10px] sm:text-xs py-0.5 px-1.5 sm:px-2">
+              <Shield className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
               {screeningStatus}
             </Badge>
           )}
@@ -95,7 +95,7 @@ export function VerdictBar({ record }: VerdictBarProps) {
             <Badge 
               variant="outline" 
               className={cn(
-                'bg-background/50',
+                'bg-background/50 text-[10px] sm:text-xs py-0.5 px-1.5 sm:px-2',
                 riskLevel.toLowerCase() === 'low' && 'text-compliant border-compliant/30',
                 riskLevel.toLowerCase() === 'medium' && 'text-warning border-warning/30',
                 riskLevel.toLowerCase() === 'high' && 'text-non-compliant border-non-compliant/30'
@@ -106,27 +106,29 @@ export function VerdictBar({ record }: VerdictBarProps) {
           )}
 
           {hasPurificationBadge && (
-            <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30 gap-1.5">
-              <Percent className="w-3 h-3" />
-              Purification Required
+            <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30 gap-1 sm:gap-1.5 text-[10px] sm:text-xs py-0.5 px-1.5 sm:px-2">
+              <Percent className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              <span className="hidden sm:inline">Purification Required</span>
+              <span className="sm:hidden">Purification</span>
             </Badge>
           )}
 
           {hasBoardReviewBadge && (
             <Badge 
               variant="outline" 
-              className="bg-doubtful/10 text-doubtful border-doubtful/30 gap-1.5"
+              className="bg-doubtful/10 text-doubtful border-doubtful/30 gap-1 sm:gap-1.5 text-[10px] sm:text-xs py-0.5 px-1.5 sm:px-2"
               title={boardReviewReason || 'Board review required'}
             >
-              <Users className="w-3 h-3" />
-              Board Review
+              <Users className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              <span className="hidden sm:inline">Board Review</span>
+              <span className="sm:hidden">Review</span>
             </Badge>
           )}
 
           {hasQABadge && (
-            <Badge variant="outline" className="bg-muted/20 text-muted-foreground gap-1.5">
-              <AlertCircle className="w-3 h-3" />
-              QA Issues
+            <Badge variant="outline" className="bg-muted/20 text-muted-foreground gap-1 sm:gap-1.5 text-[10px] sm:text-xs py-0.5 px-1.5 sm:px-2">
+              <AlertCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              QA
             </Badge>
           )}
         </div>

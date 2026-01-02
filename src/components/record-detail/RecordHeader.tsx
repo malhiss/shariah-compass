@@ -21,46 +21,47 @@ export function RecordHeader({ record }: RecordHeaderProps) {
   const industry = record.client_identity_industry || record.industry || record.Industry;
 
   return (
-    <header className="space-y-6">
+    <header className="space-y-4 sm:space-y-6">
       {/* Back navigation */}
       <Link to="/shariah-dashboard" className="inline-block">
         <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground gap-2 -ml-2">
           <ArrowLeft className="w-4 h-4" />
-          Dashboard
+          <span className="hidden sm:inline">Dashboard</span>
+          <span className="sm:hidden">Back</span>
         </Button>
       </Link>
 
       {/* Main header */}
-      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 sm:gap-6">
         {/* Company identity */}
-        <div className="flex items-start gap-5">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20 shrink-0">
-            <Building2 className="w-8 h-8 text-primary" />
+        <div className="flex items-start gap-3 sm:gap-5">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20 shrink-0">
+            <Building2 className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
           </div>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-3xl font-serif font-semibold tracking-tight">
+          <div className="space-y-2 sm:space-y-3 min-w-0 flex-1">
+            <div className="flex items-start sm:items-center gap-2 sm:gap-3 flex-wrap">
+              <h1 className="text-xl sm:text-3xl font-serif font-semibold tracking-tight break-words">
                 {companyName !== 'N/A' ? companyName : ticker}
               </h1>
-              <Badge variant="outline" className="bg-primary/10 border-primary/30 text-primary font-mono text-sm px-3">
+              <Badge variant="outline" className="bg-primary/10 border-primary/30 text-primary font-mono text-xs sm:text-sm px-2 sm:px-3">
                 {ticker}
               </Badge>
             </div>
             
-            <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
               {reportDate && (
-                <span className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="w-4 h-4" />
+                <span className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
+                  <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   {formatDate(reportDate)}
                 </span>
               )}
               {securityType && (
-                <Badge variant="secondary" className="bg-muted/40 text-muted-foreground">
+                <Badge variant="secondary" className="bg-muted/40 text-muted-foreground text-xs">
                   {securityType}
                 </Badge>
               )}
               {industry && industry !== 'N/A' && (
-                <Badge variant="secondary" className="bg-muted/40 text-muted-foreground gap-1">
+                <Badge variant="secondary" className="bg-muted/40 text-muted-foreground gap-1 text-xs hidden sm:flex">
                   <Factory className="w-3 h-3" />
                   {industry}
                 </Badge>
@@ -71,8 +72,8 @@ export function RecordHeader({ record }: RecordHeaderProps) {
 
         {/* Actions */}
         {memoUrl && (
-          <a href={memoUrl} target="_blank" rel="noopener noreferrer" className="shrink-0">
-            <Button className="btn-invesense gap-2">
+          <a href={memoUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 w-full sm:w-auto">
+            <Button className="btn-invesense gap-2 w-full sm:w-auto text-sm">
               <ExternalLink className="w-4 h-4" />
               Open Memo Doc
             </Button>

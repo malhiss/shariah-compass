@@ -22,25 +22,25 @@ export default function RecordDetail() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="container py-8 max-w-6xl mx-auto">
-        <div className="space-y-6">
-          <Skeleton className="h-6 w-32" />
-          <div className="flex items-center gap-4">
-            <Skeleton className="w-14 h-14 rounded-xl" />
-            <div className="space-y-2">
-              <Skeleton className="h-8 w-64" />
-              <Skeleton className="h-4 w-40" />
-            </div>
+    <div className="container py-4 sm:py-8 px-4 sm:px-6 max-w-6xl mx-auto">
+      <div className="space-y-4 sm:space-y-6">
+        <Skeleton className="h-6 w-32" />
+        <div className="flex items-center gap-3 sm:gap-4">
+          <Skeleton className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl" />
+          <div className="space-y-2 flex-1">
+            <Skeleton className="h-6 sm:h-8 w-full max-w-[250px]" />
+            <Skeleton className="h-4 w-32 sm:w-40" />
           </div>
-          <Skeleton className="h-20 w-full rounded-xl" />
-          <div className="grid grid-cols-3 gap-4">
-            {[...Array(3)].map((_, i) => (
-              <Skeleton key={i} className="h-24 rounded-xl" />
-            ))}
-          </div>
-          <Skeleton className="h-48 w-full rounded-xl" />
         </div>
+        <Skeleton className="h-16 sm:h-20 w-full rounded-xl" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} className="h-20 sm:h-24 rounded-xl" />
+          ))}
+        </div>
+        <Skeleton className="h-40 sm:h-48 w-full rounded-xl" />
       </div>
+    </div>
     );
   }
 
@@ -89,14 +89,14 @@ export default function RecordDetail() {
   }
 
   return (
-    <div className="container py-8 max-w-6xl mx-auto">
+    <div className="container py-4 sm:py-8 px-4 sm:px-6 max-w-6xl mx-auto">
       {/* Header Section */}
       <RecordHeader record={record} />
 
       {/* Main Content */}
-      <div className="mt-8 space-y-8">
+      <div className="mt-6 sm:mt-8 space-y-6 sm:space-y-8">
         {/* Verdict + Ratios in one visual block */}
-        <section className="space-y-4">
+        <section className="space-y-3 sm:space-y-4">
           <VerdictBar record={record} />
           <ScreeningTiles record={record} />
         </section>
@@ -107,47 +107,50 @@ export default function RecordDetail() {
         {/* Detailed Analysis Tabs */}
         <section>
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="w-full justify-start bg-muted/20 border border-border p-1 rounded-xl">
+            <TabsList className="w-full flex flex-wrap sm:flex-nowrap justify-start gap-1 bg-muted/20 border border-border p-1 rounded-xl overflow-x-auto">
               <TabsTrigger
                 value="overview"
-                className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-6"
+                className="flex-1 sm:flex-none rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-3 sm:px-6 text-xs sm:text-sm"
               >
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Overview
+                <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                <span className="hidden xs:inline">Overview</span>
+                <span className="xs:hidden">Info</span>
               </TabsTrigger>
               <TabsTrigger
                 value="revenue"
-                className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-6"
+                className="flex-1 sm:flex-none rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-3 sm:px-6 text-xs sm:text-sm"
               >
-                <PieChart className="w-4 h-4 mr-2" />
-                Revenue Analysis
+                <PieChart className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                <span className="hidden xs:inline">Revenue Analysis</span>
+                <span className="xs:hidden">Revenue</span>
               </TabsTrigger>
               <TabsTrigger
                 value="references"
-                className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-6"
+                className="flex-1 sm:flex-none rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-3 sm:px-6 text-xs sm:text-sm"
               >
-                <BookOpen className="w-4 h-4 mr-2" />
-                References
+                <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                <span className="hidden xs:inline">References</span>
+                <span className="xs:hidden">Refs</span>
               </TabsTrigger>
               <TabsTrigger
                 value="memo"
-                className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-6"
+                className="flex-1 sm:flex-none rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-3 sm:px-6 text-xs sm:text-sm"
               >
-                <FileText className="w-4 h-4 mr-2" />
+                <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                 Memo
               </TabsTrigger>
             </TabsList>
 
-            <div className="mt-6">
+            <div className="mt-4 sm:mt-6">
               <TabsContent value="overview" className="mt-0">
                 <ClientSummaryTab record={record} />
               </TabsContent>
 
-              <TabsContent value="revenue" className="mt-0 space-y-6">
+              <TabsContent value="revenue" className="mt-0 space-y-4 sm:space-y-6">
                 <HaramRevenueSection record={record} />
               </TabsContent>
 
-              <TabsContent value="references" className="mt-0 space-y-6">
+              <TabsContent value="references" className="mt-0 space-y-4 sm:space-y-6">
                 <ReferencesSection record={record} />
               </TabsContent>
 

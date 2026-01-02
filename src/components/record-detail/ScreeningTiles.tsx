@@ -80,28 +80,28 @@ export function ScreeningTiles({ record }: ScreeningTilesProps) {
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-3 gap-2 sm:gap-3">
       {tiles.map((tile, idx) => (
         <div
           key={idx}
           className={cn(
-            'rounded-xl border bg-card/50 p-4 transition-all',
+            'rounded-lg sm:rounded-xl border bg-card/50 p-2.5 sm:p-4 transition-all',
             tile.status === 'pass' && 'border-compliant/20',
             tile.status === 'fail' && 'border-non-compliant/20',
             tile.status === 'na' && 'border-border'
           )}
         >
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              {tile.icon}
-              <span className="text-xs font-medium hidden sm:inline">{tile.label}</span>
-              <span className="text-xs font-medium sm:hidden">{tile.shortLabel}</span>
+          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground">
+              <span className="[&>svg]:w-3.5 [&>svg]:h-3.5 sm:[&>svg]:w-4 sm:[&>svg]:h-4">{tile.icon}</span>
+              <span className="text-[10px] sm:text-xs font-medium hidden sm:inline">{tile.label}</span>
+              <span className="text-[10px] sm:text-xs font-medium sm:hidden">{tile.shortLabel}</span>
             </div>
-            {getStatusIndicator(tile.status)}
+            <span className="[&>svg]:w-3.5 [&>svg]:h-3.5 sm:[&>svg]:w-4 sm:[&>svg]:h-4">{getStatusIndicator(tile.status)}</span>
           </div>
           
-          <p className="text-xl font-semibold font-mono">{tile.value}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">Threshold: {tile.threshold}</p>
+          <p className="text-base sm:text-xl font-semibold font-mono">{tile.value}</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">{tile.threshold}</p>
         </div>
       ))}
     </div>
