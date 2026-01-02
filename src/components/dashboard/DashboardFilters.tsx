@@ -50,44 +50,46 @@ export function DashboardFilters({
     filters.zakatStatus;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {/* Search */}
-      <form onSubmit={handleSearchSubmit} className="flex gap-2">
+      <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
-            placeholder="Search by ticker or company name..."
-            className="pl-10 bg-background border-border"
+            placeholder="Search ticker or company..."
+            className="pl-10 bg-background border-border text-sm"
           />
         </div>
-        <Button type="submit" className="btn-invesense">
-          Search
-        </Button>
-        {hasActiveFilters && (
-          <Button type="button" variant="ghost" onClick={clearFilters}>
-            <X className="w-4 h-4 mr-1" />
-            Clear All
+        <div className="flex gap-2">
+          <Button type="submit" className="btn-invesense flex-1 sm:flex-none text-sm">
+            Search
           </Button>
-        )}
+          {hasActiveFilters && (
+            <Button type="button" variant="ghost" onClick={clearFilters} className="text-sm px-2 sm:px-3">
+              <X className="w-4 h-4 sm:mr-1" />
+              <span className="hidden sm:inline">Clear</span>
+            </Button>
+          )}
+        </div>
       </form>
 
       {/* Filters Row */}
-      <div className="flex flex-wrap gap-4 items-end">
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-4 items-end">
         {viewMode === 'shariah' && (
           <>
             {/* Verdict Filter */}
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Classification</Label>
+            <div className="space-y-1 sm:space-y-1.5">
+              <Label className="text-[10px] sm:text-xs text-muted-foreground">Classification</Label>
               <Select
                 value={filters.finalVerdict || 'all'}
                 onValueChange={(v) => handleFilterChange('finalVerdict', v)}
               >
-                <SelectTrigger className="w-[180px] bg-background border-border">
-                  <SelectValue placeholder="All Classifications" />
+                <SelectTrigger className="w-full sm:w-[180px] bg-background border-border text-xs sm:text-sm h-9">
+                  <SelectValue placeholder="All" />
                 </SelectTrigger>
-                <SelectContent className="bg-background border-border">
+                <SelectContent className="bg-card border-border z-50">
                   <SelectItem value="all">All Classifications</SelectItem>
                   <SelectItem value="COMPLIANT">Compliant</SelectItem>
                   <SelectItem value="COMPLIANT_WITH_PURIFICATION">With Purification</SelectItem>
@@ -98,16 +100,16 @@ export function DashboardFilters({
             </div>
 
             {/* Risk Level Filter */}
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Risk Level</Label>
+            <div className="space-y-1 sm:space-y-1.5">
+              <Label className="text-[10px] sm:text-xs text-muted-foreground">Risk Level</Label>
               <Select
                 value={filters.riskLevel || 'all'}
                 onValueChange={(v) => handleFilterChange('riskLevel', v)}
               >
-                <SelectTrigger className="w-[140px] bg-background border-border">
-                  <SelectValue placeholder="All Risks" />
+                <SelectTrigger className="w-full sm:w-[140px] bg-background border-border text-xs sm:text-sm h-9">
+                  <SelectValue placeholder="All" />
                 </SelectTrigger>
-                <SelectContent className="bg-background border-border">
+                <SelectContent className="bg-card border-border z-50">
                   <SelectItem value="all">All Risks</SelectItem>
                   <SelectItem value="Low">Low Risk</SelectItem>
                   <SelectItem value="Medium">Medium Risk</SelectItem>
@@ -117,16 +119,16 @@ export function DashboardFilters({
             </div>
 
             {/* Board Review Filter */}
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Board Review</Label>
+            <div className="space-y-1 sm:space-y-1.5 col-span-2 sm:col-span-1">
+              <Label className="text-[10px] sm:text-xs text-muted-foreground">Board Review</Label>
               <Select
                 value={filters.boardReviewNeeded || 'all'}
                 onValueChange={(v) => handleFilterChange('boardReviewNeeded', v)}
               >
-                <SelectTrigger className="w-[160px] bg-background border-border">
+                <SelectTrigger className="w-full sm:w-[160px] bg-background border-border text-xs sm:text-sm h-9">
                   <SelectValue placeholder="All" />
                 </SelectTrigger>
-                <SelectContent className="bg-background border-border">
+                <SelectContent className="bg-card border-border z-50">
                   <SelectItem value="all">All</SelectItem>
                   <SelectItem value="YES">Review Required</SelectItem>
                   <SelectItem value="NO">No Review Needed</SelectItem>
@@ -139,16 +141,16 @@ export function DashboardFilters({
         {viewMode === 'zakat' && (
           <>
             {/* Zakat Status Filter */}
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Zakat Status</Label>
+            <div className="space-y-1 sm:space-y-1.5 col-span-2">
+              <Label className="text-[10px] sm:text-xs text-muted-foreground">Zakat Status</Label>
               <Select
                 value={filters.zakatStatus || 'all'}
                 onValueChange={(v) => handleFilterChange('zakatStatus', v)}
               >
-                <SelectTrigger className="w-[160px] bg-background border-border">
+                <SelectTrigger className="w-full sm:w-[160px] bg-background border-border text-xs sm:text-sm h-9">
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
-                <SelectContent className="bg-background border-border">
+                <SelectContent className="bg-card border-border z-50">
                   <SelectItem value="all">All Statuses</SelectItem>
                   <SelectItem value="ZAKATABLE">Zakatable</SelectItem>
                   <SelectItem value="NON_ZAKATABLE">Non-Zakatable</SelectItem>

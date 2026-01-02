@@ -56,14 +56,14 @@ export default function ShariahDashboard() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative py-16 md:py-20 overflow-hidden">
+      <section className="relative py-8 sm:py-16 md:py-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
-        <div className="container relative z-10">
+        <div className="container relative z-10 px-4 sm:px-6">
           <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-5xl font-serif font-light mb-4 text-foreground">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-serif font-light mb-2 sm:mb-4 text-foreground">
               Shariah Screening Dashboard
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-sm sm:text-lg text-muted-foreground">
               Comprehensive Shariah compliance and Zakatable assets screening for global equities.
             </p>
           </div>
@@ -72,24 +72,24 @@ export default function ShariahDashboard() {
       </section>
 
       {/* Main Content */}
-      <section className="py-8">
-        <div className="container">
+      <section className="py-4 sm:py-8">
+        <div className="container px-4 sm:px-6">
           {/* View Toggle */}
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
-              <TabsList className="bg-muted/30">
+              <TabsList className="bg-muted/30 w-full sm:w-auto">
                 <TabsTrigger
                   value="shariah"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  className="flex-1 sm:flex-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm"
                 >
-                  <Scale className="w-4 h-4 mr-2" />
+                  <Scale className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                   Shariah
                 </TabsTrigger>
                 <TabsTrigger
                   value="zakat"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  className="flex-1 sm:flex-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm"
                 >
-                  <Coins className="w-4 h-4 mr-2" />
+                  <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                   Zakat
                 </TabsTrigger>
               </TabsList>
@@ -97,18 +97,18 @@ export default function ShariahDashboard() {
           </div>
 
           {/* Filters */}
-          <Card className="premium-card mb-6">
-            <CardContent className="p-4">
+          <Card className="premium-card mb-4 sm:mb-6">
+            <CardContent className="p-3 sm:p-4">
               <DashboardFilters filters={filters} onFiltersChange={handleFiltersChange} viewMode={viewMode} />
             </CardContent>
           </Card>
 
           {/* Results Info */}
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-muted-foreground">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {loading ? (
                 <span className="flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" />
                   Loading...
                 </span>
               ) : (
@@ -130,18 +130,19 @@ export default function ShariahDashboard() {
 
           {/* Pagination */}
           {data && data.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-4 mt-6">
+            <div className="flex items-center justify-center gap-2 sm:gap-4 mt-4 sm:mt-6">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(data.page - 1)}
                 disabled={data.page <= 1}
-                className="border-border"
+                className="border-border text-xs sm:text-sm px-2 sm:px-3"
               >
-                <ChevronLeft className="w-4 h-4 mr-1" />
-                Previous
+                <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" />
+                <span className="hidden xs:inline">Previous</span>
+                <span className="xs:hidden">Prev</span>
               </Button>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
                 Page {data.page} of {data.totalPages}
               </span>
               <Button
@@ -149,10 +150,10 @@ export default function ShariahDashboard() {
                 size="sm"
                 onClick={() => handlePageChange(data.page + 1)}
                 disabled={data.page >= data.totalPages}
-                className="border-border"
+                className="border-border text-xs sm:text-sm px-2 sm:px-3"
               >
                 Next
-                <ChevronRight className="w-4 h-4 ml-1" />
+                <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-0.5 sm:ml-1" />
               </Button>
             </div>
           )}
