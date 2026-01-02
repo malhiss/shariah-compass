@@ -23,24 +23,24 @@ export function KeyInsightsSection({ record }: KeyInsightsSectionProps) {
   ].filter(i => i.content);
 
   return (
-    <section className="space-y-3">
+    <section className="space-y-2 sm:space-y-3">
       {insights.map((insight, idx) => (
         <div
           key={idx}
-          className="flex items-start gap-4 p-4 rounded-xl bg-muted/10 border border-border/50"
+          className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg sm:rounded-xl bg-muted/10 border border-border/50"
         >
-          <div className={`p-2 rounded-lg shrink-0 ${
+          <div className={`p-1.5 sm:p-2 rounded-md sm:rounded-lg shrink-0 ${
             insight.color === 'warning' ? 'bg-warning/10' : 'bg-primary/10'
           }`}>
-            <insight.icon className={`w-4 h-4 ${
+            <insight.icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${
               insight.color === 'warning' ? 'text-warning' : 'text-primary'
             }`} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
+            <p className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide mb-0.5 sm:mb-1">
               {insight.label}
             </p>
-            <p className="text-sm text-foreground leading-relaxed">
+            <p className="text-xs sm:text-sm text-foreground leading-relaxed">
               {insight.content}
             </p>
           </div>
