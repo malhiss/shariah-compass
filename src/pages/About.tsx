@@ -208,42 +208,42 @@ export default function About() {
           </AnimatedSection>
 
           <StaggerContainer className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <StaggerItem>
+            <StaggerItem className="h-full">
               <motion.div 
-                className="text-center p-8 rounded-2xl bg-card border border-compliant/30 hover:border-compliant/50 transition-all duration-300"
+                className="h-full flex flex-col text-center p-8 rounded-2xl bg-card border border-compliant/30 hover:border-compliant/50 transition-all duration-300"
                 whileHover={{ y: -4, scale: 1.02 }}
               >
                 <div className="w-16 h-16 rounded-xl bg-compliant/10 mx-auto mb-4 flex items-center justify-center">
                   <CheckCircle className="w-8 h-8 text-compliant" />
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Compliant</h3>
-                <p className="text-sm text-muted-foreground">Fully permissible with no purification required.</p>
+                <p className="text-sm text-muted-foreground flex-1">Fully permissible with no purification required.</p>
               </motion.div>
             </StaggerItem>
             
-            <StaggerItem>
+            <StaggerItem className="h-full">
               <motion.div 
-                className="text-center p-8 rounded-2xl bg-card border border-warning/30 hover:border-warning/50 transition-all duration-300"
+                className="h-full flex flex-col text-center p-8 rounded-2xl bg-card border border-warning/30 hover:border-warning/50 transition-all duration-300"
                 whileHover={{ y: -4, scale: 1.02 }}
               >
                 <div className="w-16 h-16 rounded-xl bg-warning/10 mx-auto mb-4 flex items-center justify-center">
                   <AlertTriangle className="w-8 h-8 text-warning" />
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Purification Required</h3>
-                <p className="text-sm text-muted-foreground">Permissible but requires donation of impure income.</p>
+                <p className="text-sm text-muted-foreground flex-1">Permissible but requires donation of impure income.</p>
               </motion.div>
             </StaggerItem>
             
-            <StaggerItem>
+            <StaggerItem className="h-full">
               <motion.div 
-                className="text-center p-8 rounded-2xl bg-card border border-destructive/30 hover:border-destructive/50 transition-all duration-300"
+                className="h-full flex flex-col text-center p-8 rounded-2xl bg-card border border-destructive/30 hover:border-destructive/50 transition-all duration-300"
                 whileHover={{ y: -4, scale: 1.02 }}
               >
                 <div className="w-16 h-16 rounded-xl bg-destructive/10 mx-auto mb-4 flex items-center justify-center">
                   <XCircle className="w-8 h-8 text-destructive" />
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Non-Compliant</h3>
-                <p className="text-sm text-muted-foreground">Not permissible due to core business or excessive impure income.</p>
+                <p className="text-sm text-muted-foreground flex-1">Not permissible due to core business or excessive impure income.</p>
               </motion.div>
             </StaggerItem>
           </StaggerContainer>
