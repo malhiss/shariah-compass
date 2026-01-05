@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { 
   Shield, Eye, Users, BookOpen, BarChart3, Database, Brain, ArrowRight, 
-  Globe, Target, DollarSign, Droplets, LogIn, UserCog, Scale, CheckCircle, 
+  Globe, Target, DollarSign, Droplets, LogIn, UserCog, CheckCircle, 
   AlertTriangle, XCircle, Search, Briefcase, FileQuestion, MessageSquare,
-  TrendingUp, Award, Clock, Sparkles, ChevronRight, Building2, Zap
+  Sparkles, Zap
 } from 'lucide-react';
 import { AnimatedSection, StaggerContainer, StaggerItem } from '@/components/AnimatedSection';
 import { motion, useScroll, useTransform } from 'framer-motion';
@@ -13,56 +13,8 @@ import { useRef } from 'react';
 
 // Landing components
 import { FloatingParticles } from '@/components/landing/FloatingParticles';
-import { StatCard } from '@/components/landing/StatCard';
 import { FeatureCard } from '@/components/landing/FeatureCard';
-import { TestimonialCard } from '@/components/landing/TestimonialCard';
 import { GradientText } from '@/components/landing/GradientText';
-
-// Import team images
-import faisalImg from '@/assets/team/faisal-al-osaimi.png';
-import nawafImg from '@/assets/team/nawaf-al-mansour.png';
-import mathewsImg from '@/assets/team/mathews-b-abraham.png';
-import ahmedImg from '@/assets/team/ahmed-ali.png';
-import ibrahimImg from '@/assets/team/ibrahim-al-shaibani.png';
-
-const teamMembers = [
-  {
-    name: 'Faisal Al Osaimi',
-    role: 'CEO',
-    image: faisalImg,
-    bio: 'Certified portfolio and wealth manager with 18 years\' experience in trading, dealing, and senior executive management at KFIC Asset Management.',
-  },
-  {
-    name: 'Nawaf Al Mansour',
-    role: 'CIO',
-    image: nawafImg,
-    bio: 'Chartered Financial Analyst with 20 years of experience, previously managing billions at Kuwait Investment Authority.',
-  },
-  {
-    name: 'Mathews B Abraham',
-    role: 'Chief - Finance & Operations',
-    image: mathewsImg,
-    bio: 'CIPM holder with 23+ years of experience in risk analysis, financial reporting, and market tracking.',
-  },
-  {
-    name: 'Ahmed Ali',
-    role: 'Portfolio Manager',
-    image: ahmedImg,
-    bio: 'Former Morgan Stanley intern and KIA graduate with global and regional portfolio experience.',
-  },
-  {
-    name: 'Ibrahim Al Shaibani',
-    role: 'Portfolio Manager',
-    image: ibrahimImg,
-    bio: 'Former intern at Kuwait Investment Office London with global multi-asset experience.',
-  },
-  {
-    name: 'Tahira Muktar',
-    role: 'Head of Sales',
-    image: 'https://invesense.com/_next/image?url=%2Fassets%2Fimages%2FIMG_2760a_2.jpg&w=1080&q=75',
-    bio: '16+ years of experience, previously with Dimensional Fund Advisors developing client relations in the Middle East.',
-  },
-];
 
 const firmValues = [
   {
@@ -133,38 +85,6 @@ const features = [
   },
 ];
 
-const stats = [
-  { icon: Building2, value: 5000, suffix: '+', label: 'Stocks Screened' },
-  { icon: Users, value: 1000, suffix: '+', label: 'Active Users' },
-  { icon: Clock, value: 40, suffix: '+', label: 'Years Combined Experience' },
-  { icon: Award, value: 99, suffix: '%', label: 'Accuracy Rate' },
-];
-
-const testimonials = [
-  {
-    quote: "Invesense has transformed how I approach Shariah-compliant investing. The detailed screening reports give me complete confidence in my investment decisions.",
-    author: "Mohammed Al-Rashid",
-    role: "Private Investor",
-    company: "Dubai, UAE"
-  },
-  {
-    quote: "The AI-powered analysis and multi-methodology approach sets Invesense apart. It's become an essential tool for our family office.",
-    author: "Fatima Hassan",
-    role: "Family Office Manager",
-    company: "Kuwait City, Kuwait"
-  },
-  {
-    quote: "Finally, a platform that combines rigorous Shariah scholarship with modern technology. The purification calculations alone save us hours each quarter.",
-    author: "Ahmed Bin Salman",
-    role: "Portfolio Manager",
-    company: "Riyadh, Saudi Arabia"
-  },
-];
-
-const trustedBy = [
-  "DIFC", "DFSA", "Kuwait Investment Authority", "Dubai Islamic Bank"
-];
-
 export default function Home() {
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -176,7 +96,7 @@ export default function Home() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-x-hidden">
       {/* Hero Section - Enhanced */}
       <section ref={heroRef} id="hero" className="relative min-h-[100vh] flex items-center py-24 lg:py-32 overflow-hidden">
         {/* Background layers */}
@@ -327,24 +247,6 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 lg:py-24 relative bg-card/30">
-        <div className="absolute inset-0 bg-gradient-to-b from-background to-transparent" />
-        <div className="container relative z-10 px-4 sm:px-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {stats.map((stat, index) => (
-              <StatCard
-                key={stat.label}
-                icon={stat.icon}
-                value={stat.value}
-                suffix={stat.suffix}
-                label={stat.label}
-                delay={index * 0.1}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Features Section - Enhanced */}
       <section id="features" className="py-20 lg:py-32">
@@ -407,36 +309,6 @@ export default function Home() {
                 </StaggerItem>
               );
             })}
-          </StaggerContainer>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="py-20 lg:py-28 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background" />
-        <motion.div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
-          transition={{ duration: 10, repeat: Infinity }}
-        />
-        
-        <div className="container relative z-10 px-4 sm:px-6">
-          <AnimatedSection className="text-center mb-16">
-            <p className="section-label">Testimonials</p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold mb-6">
-              Trusted by <GradientText>Investors</GradientText> Worldwide
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              See what our clients say about their experience with Invesense.
-            </p>
-          </AnimatedSection>
-          
-          <StaggerContainer className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {testimonials.map((testimonial, index) => (
-              <StaggerItem key={testimonial.author}>
-                <TestimonialCard {...testimonial} />
-              </StaggerItem>
-            ))}
           </StaggerContainer>
         </div>
       </section>
@@ -600,111 +472,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Leadership */}
-      <section id="leadership" className="py-20 lg:py-28 bg-card/50">
-        <div className="container px-4 sm:px-6">
-          <AnimatedSection className="text-center mb-16">
-            <p className="section-label">Our Team</p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold mb-6">Leadership</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Decades of combined experience in institutional asset management and Islamic finance.
-            </p>
-          </AnimatedSection>
-          
-          <StaggerContainer className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {teamMembers.map((member) => (
-              <StaggerItem key={member.name}>
-                <motion.div 
-                  className="bg-card rounded-xl overflow-hidden border border-border hover:border-primary/40 transition-all duration-300"
-                  whileHover={{ y: -6 }}
-                >
-                  <div className="aspect-[4/5] overflow-hidden bg-muted">
-                    <img
-                      src={member.image}
-                      alt={member.name}
-                      className="w-full h-full object-cover object-top"
-                    />
-                  </div>
-                  <div className="p-5">
-                    <h3 className="font-serif text-lg font-semibold mb-1">{member.name}</h3>
-                    <p className="text-primary text-sm font-medium mb-3">{member.role}</p>
-                    <p className="text-muted-foreground text-sm leading-relaxed">{member.bio}</p>
-                  </div>
-                </motion.div>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-        </div>
-      </section>
 
-      {/* CTA Section - Enhanced */}
-      <section className="py-24 lg:py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-primary/10" />
-        
-        {/* Animated background */}
-        <motion.div className="absolute inset-0">
-          <motion.div 
-            className="absolute top-10 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-3xl"
-            animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.5, 0.3] }}
-            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div 
-            className="absolute bottom-10 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl"
-            animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.4, 0.2] }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        </motion.div>
-        
-        <div className="container relative z-10 px-4 sm:px-6">
-          <AnimatedSection className="max-w-4xl mx-auto text-center">
-            <motion.div 
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5 text-primary text-sm mb-8"
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-            >
-              <TrendingUp className="w-4 h-4" />
-              <span>Start Your Journey</span>
-            </motion.div>
-            
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-serif font-bold mb-6">
-              Ready to Invest with <GradientText>Confidence</GradientText>?
-            </h2>
-            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-              Join thousands of investors making informed, Shariah-compliant decisions. Start screening your portfolio today.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="btn-invesense group h-14 px-8 text-base" asChild>
-                <Link to="/client-login">
-                  <LogIn className="w-5 h-5 mr-2" />
-                  Client Login
-                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" className="h-14 px-8 text-base border-primary/30 hover:bg-primary/10" asChild>
-                <Link to="/screen">
-                  <Search className="w-5 h-5 mr-2" />
-                  Try Free Screening
-                </Link>
-              </Button>
-            </div>
-            
-            {/* Login options */}
-            <motion.div 
-              className="mt-8 flex items-center justify-center gap-4 text-sm text-muted-foreground"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-            >
-              <Link to="/staff-login" className="flex items-center gap-2 hover:text-primary transition-colors">
-                <UserCog className="w-4 h-4" />
-                Staff Login
-              </Link>
-            </motion.div>
-          </AnimatedSection>
-        </div>
-      </section>
     </div>
   );
 }
