@@ -126,12 +126,10 @@ export function AppSidebar({ children }: AppSidebarProps) {
           className={cn(
             'fixed top-16 lg:top-[72px] left-0 z-50 h-[calc(100vh-4rem)] lg:h-[calc(100vh-72px)] bg-sidebar-background w-[272px]',
             'transition-transform duration-300 ease-in-out',
-            // Desktop: slide left when collapsed
-            collapsed ? 'lg:-translate-x-full' : 'lg:translate-x-0',
-            // Mobile: slide in/out based on mobileOpen
-            mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
-            // When collapsed on desktop, override to hide
-            collapsed && !mobileOpen && '-translate-x-full'
+            // Mobile: always use -translate-x-full unless mobileOpen
+            mobileOpen ? 'translate-x-0' : '-translate-x-full',
+            // Desktop: override mobile - show unless collapsed
+            !collapsed && 'lg:translate-x-0'
           )}
         >
           {/* Right border */}
