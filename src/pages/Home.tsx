@@ -106,8 +106,8 @@ export default function Home() {
         {/* Floating particles */}
         <FloatingParticles count={30} />
         
-        {/* Animated orbs */}
-        <motion.div className="absolute inset-0 opacity-30" style={{ y: heroY }}>
+        {/* Animated orbs - contained within bounds */}
+        <motion.div className="absolute inset-0 opacity-30 overflow-hidden" style={{ y: heroY }}>
           <motion.div 
             className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl"
             animate={{ x: [0, 30, 0], y: [0, -20, 0], scale: [1, 1.1, 1] }}
@@ -169,7 +169,7 @@ export default function Home() {
             
             {/* CTA buttons */}
             <motion.div 
-              className="flex flex-wrap gap-4 justify-center mb-16"
+              className="flex flex-wrap gap-4 justify-center mb-6"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
@@ -179,9 +179,9 @@ export default function Home() {
                 className="btn-invesense text-base md:text-lg h-14 px-8 group"
                 asChild
               >
-                <Link to="/screen">
-                  <Search className="w-5 h-5 mr-2" />
-                  Screen a Ticker
+                <Link to="/client-login">
+                  <LogIn className="w-5 h-5 mr-2" />
+                  Client Login
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
@@ -191,11 +191,24 @@ export default function Home() {
                 className="text-base md:text-lg h-14 px-8 border-primary/30 hover:bg-primary/10 hover:border-primary"
                 asChild
               >
-                <Link to="/portfolio">
-                  <Briefcase className="w-5 h-5 mr-2" />
-                  Screen Portfolio
+                <Link to="/screen">
+                  <Search className="w-5 h-5 mr-2" />
+                  Try Free Screening
                 </Link>
               </Button>
+            </motion.div>
+            
+            {/* Staff Login link */}
+            <motion.div 
+              className="flex items-center justify-center gap-4 text-sm text-muted-foreground mb-16"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+            >
+              <Link to="/staff-login" className="flex items-center gap-2 hover:text-primary transition-colors">
+                <UserCog className="w-4 h-4" />
+                Staff Login
+              </Link>
             </motion.div>
 
             {/* Trust indicators */}
