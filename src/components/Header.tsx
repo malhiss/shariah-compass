@@ -1,7 +1,20 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Menu, X, LogIn, LogOut, UserCog, ChevronDown } from 'lucide-react';
+import { 
+  Menu, 
+  X, 
+  LogIn, 
+  LogOut, 
+  UserCog, 
+  ChevronDown,
+  Search,
+  Bell,
+  HelpCircle,
+  User,
+  Settings,
+  Shield
+} from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import invesenseLogo from '@/assets/invesense-logo.png';
@@ -9,8 +22,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const aboutSections = [
   { path: '/#about', label: 'About Invesense' },
@@ -21,17 +37,16 @@ const aboutSections = [
   { path: '/#leadership', label: 'Leadership' },
 ];
 
-const protectedNavItems = [
-  { path: '/shariah-dashboard', label: 'Dashboard' },
-  { path: '/portfolio', label: 'Dividends Purification' },
-  { path: '/request', label: 'Request Screening' },
-  { path: '/chat', label: 'AI Chat' },
-  { path: '/my-activity', label: 'My Activity' },
-];
-
-const staffNavItems = [
-  { path: '/staff-portal', label: 'Manage Users' },
-];
+// Page titles for breadcrumb display
+const pageTitles: Record<string, string> = {
+  '/shariah-dashboard': 'Dashboard',
+  '/portfolio': 'Dividends Purification',
+  '/request': 'Request Screening',
+  '/chat': 'AI Chat',
+  '/my-activity': 'My Activity',
+  '/screen': 'Ticker Screening',
+  '/staff-portal': 'Manage Users',
+};
 
 export function Header() {
   const location = useLocation();
@@ -54,140 +69,184 @@ export function Header() {
     }
   };
 
-  const isActive = (path: string) => {
-    if (path.startsWith('/#')) return location.pathname === '/' && location.hash === path.replace('/', '');
-    return location.pathname === path;
-  };
+  const currentPageTitle = pageTitles[location.pathname];
+  const isProtectedRoute = Object.keys(pageTitles).includes(location.pathname) || location.pathname.startsWith('/record/');
+  const userInitials = user?.email ? user.email.substring(0, 2).toUpperCase() : 'U';
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4 sm:px-6">
-        <Link to="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
-          <img src={invesenseLogo} alt="Invesense" className="h-8 w-auto" />
-        </Link>
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80">
+      <div className="flex h-16 lg:h-[72px] items-center justify-between px-4 sm:px-6">
+        {/* Left side: Logo + Breadcrumb */}
+        <div className="flex items-center gap-4">
+          <Link to="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
+            <img src={invesenseLogo} alt="Invesense" className="h-7 lg:h-8 w-auto" />
+          </Link>
+          
+          {/* Breadcrumb / Page Title - only show on protected routes */}
+          {isProtectedRoute && currentPageTitle && (
+            <div className="hidden sm:flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground/40">/</span>
+              <span className="text-muted-foreground font-medium">{currentPageTitle}</span>
+            </div>
+          )}
+        </div>
         
-        <nav className="hidden lg:flex items-center gap-1">
-          {/* About Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className={cn(
-                'flex items-center gap-1 px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg',
-                location.pathname === '/' ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-              )}>
-                Invesense
-                <ChevronDown className="w-4 h-4" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56">
-              {aboutSections.map((item) => (
-                <DropdownMenuItem key={item.path} asChild>
-                  <Link 
-                    to={item.path} 
-                    onClick={() => handleNavClick(item.path)}
-                    className="cursor-pointer"
-                  >
-                    {item.label}
-                  </Link>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+        {/* Right side: Utility actions */}
+        <div className="hidden lg:flex items-center gap-1">
+          {/* Public navigation - About dropdown */}
+          {!isProtectedRoute && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className={cn(
+                  'flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg',
+                  location.pathname === '/' ? 'text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                )}>
+                  About
+                  <ChevronDown className="w-3.5 h-3.5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {aboutSections.map((item) => (
+                  <DropdownMenuItem key={item.path} asChild>
+                    <Link 
+                      to={item.path} 
+                      onClick={() => handleNavClick(item.path)}
+                      className="cursor-pointer"
+                    >
+                      {item.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
-          {/* Protected Nav Items */}
-          {user && role && (
+          {/* Utility icons for logged in users */}
+          {user && (
             <>
-              {protectedNavItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={cn(
-                    'px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg relative',
-                    isActive(item.path)
-                      ? 'text-primary bg-primary/10' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  )}
-                >
-                  {item.label}
-                  {isActive(item.path) && (
-                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
-                  )}
-                </Link>
-              ))}
-              {isStaff && staffNavItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={cn(
-                    'px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg relative',
-                    isActive(item.path)
-                      ? 'text-primary bg-primary/10' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  )}
-                >
-                  {item.label}
-                </Link>
-              ))}
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-10 w-10">
+                <Search className="w-[18px] h-[18px]" />
+              </Button>
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-10 w-10">
+                <HelpCircle className="w-[18px] h-[18px]" />
+              </Button>
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-10 w-10 relative">
+                <Bell className="w-[18px] h-[18px]" />
+                <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full" />
+              </Button>
+              
+              <div className="w-px h-6 bg-border mx-2" />
             </>
           )}
           
+          {/* Auth section */}
           {!loading && (
-            <div className="flex items-center gap-3 ml-4 pl-4 border-l border-border">
+            <>
               {user ? (
-                <>
-                  <span className="text-xs font-medium text-muted-foreground px-2 py-1 bg-muted/50 rounded-md">
-                    {role === 'staff' ? 'Staff' : 'Client'}
-                  </span>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={handleSignOut}
-                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
-                  </Button>
-                </>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors">
+                      <Avatar className="h-8 w-8 border border-border">
+                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                          {userInitials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="hidden xl:flex flex-col items-start">
+                        <span className="text-sm font-medium text-foreground leading-tight">
+                          {user.email?.split('@')[0]}
+                        </span>
+                        <span className="text-xs text-muted-foreground capitalize">
+                          {role}
+                        </span>
+                      </div>
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium">{user.email}</p>
+                        <p className="text-xs text-muted-foreground capitalize">{role} Account</p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/my-activity" className="cursor-pointer">
+                        <User className="w-4 h-4 mr-2" />
+                        My Activity
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem disabled>
+                      <Settings className="w-4 h-4 mr-2" />
+                      Settings
+                    </DropdownMenuItem>
+                    {isStaff && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+                          Administration
+                        </DropdownMenuLabel>
+                        <DropdownMenuItem asChild>
+                          <Link to="/staff-portal" className="cursor-pointer">
+                            <Shield className="w-4 h-4 mr-2" />
+                            Manage Users
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={handleSignOut}
+                      className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
-                <>
-                  <Button variant="outline" size="sm" asChild>
-                    <Link to="/client-login">
-                      <LogIn className="w-4 h-4 mr-2" />
-                      Client Login
-                    </Link>
-                  </Button>
-                  <Button variant="ghost" size="sm" asChild className="text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground">
                     <Link to="/staff-login">
                       <UserCog className="w-4 h-4 mr-2" />
                       Staff
                     </Link>
                   </Button>
-                </>
+                  <Button size="sm" asChild className="btn-invesense">
+                    <Link to="/client-login">
+                      <LogIn className="w-4 h-4 mr-2" />
+                      Sign In
+                    </Link>
+                  </Button>
+                </div>
               )}
-            </div>
+            </>
           )}
-        </nav>
+        </div>
         
+        {/* Mobile menu button */}
         <Button 
           variant="ghost" 
           size="icon" 
-          className="lg:hidden" 
+          className="lg:hidden h-10 w-10" 
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </Button>
       </div>
       
+      {/* Mobile menu */}
       {mobileMenuOpen && (
-        <nav className="lg:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl animate-slide-up max-h-[80vh] overflow-y-auto">
-          <div className="container py-4 space-y-1 px-4">
+        <nav className="lg:hidden border-t border-border/50 bg-background/98 backdrop-blur-xl animate-slide-up max-h-[80vh] overflow-y-auto">
+          <div className="py-4 space-y-1 px-4">
             {/* About Sections */}
             <div className="pb-3 mb-3 border-b border-border/50">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 py-2">Invesense</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2">About</p>
               {aboutSections.map((item) => (
                 <Link 
                   key={item.path} 
                   to={item.path} 
-                  className="block px-4 py-2.5 rounded-lg text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors"
+                  className="block px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors text-sm"
                   onClick={() => handleNavClick(item.path)}
                 >
                   {item.label}
@@ -195,73 +254,64 @@ export function Header() {
               ))}
             </div>
             
-            {/* Protected Items */}
-            {user && role && (
+            {/* Admin items for staff */}
+            {user && isStaff && (
               <div className="pb-3 mb-3 border-b border-border/50">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 py-2">Platform</p>
-                {protectedNavItems.map((item) => (
-                  <Link 
-                    key={item.path} 
-                    to={item.path} 
-                    className={cn(
-                      'block px-4 py-2.5 rounded-lg transition-colors', 
-                      isActive(item.path)
-                        ? 'bg-primary/10 text-primary font-medium' 
-                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                    )} 
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-                {isStaff && staffNavItems.map((item) => (
-                  <Link 
-                    key={item.path} 
-                    to={item.path} 
-                    className={cn(
-                      'block px-4 py-2.5 rounded-lg transition-colors', 
-                      isActive(item.path)
-                        ? 'bg-primary/10 text-primary font-medium' 
-                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                    )} 
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2">Admin</p>
+                <Link 
+                  to="/staff-portal" 
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors text-sm"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Shield className="w-4 h-4" />
+                  Manage Users
+                </Link>
               </div>
             )}
             
             {/* Auth Buttons */}
             <div className="pt-2 space-y-2">
               {user ? (
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start"
-                  onClick={handleSignOut}
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out ({role === 'staff' ? 'Staff' : 'Client'})
-                </Button>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 px-3 py-2">
+                    <Avatar className="h-10 w-10 border border-border">
+                      <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+                        {userInitials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{user.email?.split('@')[0]}</p>
+                      <p className="text-xs text-muted-foreground capitalize">{role}</p>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={handleSignOut}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </div>
               ) : (
-                <>
+                <div className="space-y-2">
                   <Link 
                     to="/client-login" 
-                    className="flex items-center gap-2 px-4 py-3 rounded-lg bg-primary/10 text-primary font-medium"
+                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-primary text-primary-foreground font-medium"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <LogIn className="w-4 h-4" />
-                    Client Login
+                    Sign In
                   </Link>
                   <Link 
                     to="/staff-login" 
-                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-muted-foreground hover:bg-muted/50"
+                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-muted-foreground hover:bg-muted/50 border border-border"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <UserCog className="w-4 h-4" />
                     Staff Login
                   </Link>
-                </>
+                </div>
               )}
             </div>
           </div>
