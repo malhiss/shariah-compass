@@ -10,7 +10,6 @@ import {
   ChevronDown,
   Search,
   Bell,
-  HelpCircle,
   User,
   Settings,
   Shield,
@@ -40,6 +39,7 @@ import {
   SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet";
+import { HelpSupportDialog } from './HelpSupportDialog';
 
 const sidebarNavItems = [
   { path: '/shariah-dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -193,9 +193,7 @@ export function Header() {
               <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-10 w-10">
                 <Search className="w-[18px] h-[18px]" />
               </Button>
-              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-10 w-10">
-                <HelpCircle className="w-[18px] h-[18px]" />
-              </Button>
+              <HelpSupportDialog />
               <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-10 w-10 relative">
                 <Bell className="w-[18px] h-[18px]" />
                 <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full" />
