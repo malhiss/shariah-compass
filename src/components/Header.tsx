@@ -177,7 +177,12 @@ export function Header() {
         
         {/* Right side: Utility actions */}
         <div className="hidden lg:flex items-center gap-1">
-
+          {/* About link */}
+          <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground">
+            <Link to="/about">About</Link>
+          </Button>
+          
+          <div className="w-px h-6 bg-border mx-2" />
           {/* Utility icons for logged in users */}
           {user && (
             <>
