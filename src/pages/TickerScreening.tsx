@@ -47,89 +47,56 @@ export default function TickerScreening() {
   };
 
   return (
-    <div>
-      {/* Hero Section */}
-      <section className="relative py-16 md:py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
-        <motion.div 
-          className="absolute inset-0 opacity-30"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.3 }}
-          transition={{ duration: 1 }}
-        >
-          <motion.div 
-            className="absolute top-10 right-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl"
-            animate={{ x: [0, 20, 0] }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        </motion.div>
-        
-        <div className="container relative z-10">
-          <div className="max-w-4xl mx-auto">
-            <motion.div 
-              className="text-center mb-10"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5 text-primary text-sm mb-6">
-                <Search className="w-4 h-4" />
-                <span>Ticker Analysis</span>
-              </div>
-              <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4">
-                Screen a Ticker
-              </h1>
-              <p className="text-lg text-muted-foreground">
-                Enter a stock symbol to check its Shariah compliance status
-              </p>
-            </motion.div>
-
-            {/* Search Form */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              <Card className="premium-card">
-                <CardContent className="pt-6">
-                  <form onSubmit={handleSubmit} className="flex gap-3">
-                    <div className="relative flex-1">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                      <Input
-                        type="text"
-                        placeholder="Enter ticker symbol (e.g., NVDA, AAPL)"
-                        value={ticker}
-                        onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                        className="pl-12 h-14 text-lg bg-background border-border focus:border-primary"
-                        disabled={loading}
-                      />
-                    </div>
-                    <Button type="submit" size="lg" disabled={loading || !ticker.trim()} className="btn-invesense h-14 px-8 group">
-                      {loading ? (
-                        <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Screening...
-                        </>
-                      ) : (
-                        <>
-                          Screen
-                          <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                        </>
-                      )}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </motion.div>
+    <AppSidebar>
+      <div className="p-4 sm:p-6 lg:p-8">
+        {/* Header */}
+        <div className="mb-6 lg:mb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-sm mb-4">
+            <Search className="w-4 h-4" />
+            <span>Ticker Analysis</span>
           </div>
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold mb-2">
+            Screen a Ticker
+          </h1>
+          <p className="text-muted-foreground">
+            Enter a stock symbol to check its Shariah compliance status
+          </p>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-      </section>
 
-      {/* Results */}
-      <section className="py-12 md:py-16">
-        <div className="container">
-          <div className="max-w-4xl mx-auto">
+        {/* Search Form */}
+        <Card className="mb-6 lg:mb-8">
+          <CardContent className="p-4 sm:p-6">
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Enter ticker symbol (e.g., NVDA, AAPL)"
+                  value={ticker}
+                  onChange={(e) => setTicker(e.target.value.toUpperCase())}
+                  className="pl-12 h-12 sm:h-14 text-base sm:text-lg bg-background border-border focus:border-primary"
+                  disabled={loading}
+                />
+              </div>
+              <Button type="submit" size="lg" disabled={loading || !ticker.trim()} className="btn-invesense h-12 sm:h-14 px-6 sm:px-8 group">
+                {loading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Screening...
+                  </>
+                ) : (
+                  <>
+                    Screen
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Results */}
+        <div className="max-w-4xl">
             {result && (
               <motion.div 
                 className="space-y-6"
@@ -333,9 +300,8 @@ export default function TickerScreening() {
                 </Tabs>
               </motion.div>
             )}
-          </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </AppSidebar>
   );
 }

@@ -9,10 +9,10 @@ import { VerdictBar } from '@/components/record-detail/VerdictBar';
 import { ScreeningTiles } from '@/components/record-detail/ScreeningTiles';
 import { KeyInsightsSection } from '@/components/record-detail/KeyInsightsSection';
 import { HaramRevenueSection } from '@/components/record-detail/HaramRevenueSection';
-
 import { ReferencesSection } from '@/components/record-detail/ReferencesSection';
 import { ClientSummaryTab } from '@/components/record-detail/ClientSummaryTab';
 import { StructuredMemoSection } from '@/components/record-detail/StructuredMemoSection';
+import { AppSidebar } from '@/components/AppSidebar';
 import { ArrowLeft, RefreshCw, AlertTriangle, FileText, MessageSquare, PieChart, BookOpen } from 'lucide-react';
 
 export default function RecordDetail() {
@@ -22,74 +22,81 @@ export default function RecordDetail() {
   // Loading state
   if (isLoading) {
     return (
-    <div className="container py-4 sm:py-8 px-4 sm:px-6 max-w-6xl mx-auto">
-      <div className="space-y-4 sm:space-y-6">
-        <Skeleton className="h-6 w-32" />
-        <div className="flex items-center gap-3 sm:gap-4">
-          <Skeleton className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl" />
-          <div className="space-y-2 flex-1">
-            <Skeleton className="h-6 sm:h-8 w-full max-w-[250px]" />
-            <Skeleton className="h-4 w-32 sm:w-40" />
+      <AppSidebar>
+        <div className="p-4 sm:p-6 lg:p-8 max-w-6xl">
+          <div className="space-y-4 sm:space-y-6">
+            <Skeleton className="h-6 w-32" />
+            <div className="flex items-center gap-3 sm:gap-4">
+              <Skeleton className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl" />
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-6 sm:h-8 w-full max-w-[250px]" />
+                <Skeleton className="h-4 w-32 sm:w-40" />
+              </div>
+            </div>
+            <Skeleton className="h-16 sm:h-20 w-full rounded-xl" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+              {[...Array(3)].map((_, i) => (
+                <Skeleton key={i} className="h-20 sm:h-24 rounded-xl" />
+              ))}
+            </div>
+            <Skeleton className="h-40 sm:h-48 w-full rounded-xl" />
           </div>
         </div>
-        <Skeleton className="h-16 sm:h-20 w-full rounded-xl" />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-          {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="h-20 sm:h-24 rounded-xl" />
-          ))}
-        </div>
-        <Skeleton className="h-40 sm:h-48 w-full rounded-xl" />
-      </div>
-    </div>
+      </AppSidebar>
     );
   }
 
   // Error state
   if (isError) {
     return (
-      <div className="container py-8 max-w-6xl mx-auto">
-        <Card className="border-destructive/30 bg-destructive/5">
-          <CardContent className="py-12 text-center">
-            <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Failed to load record</h2>
-            <p className="text-muted-foreground mb-4">
-              {error instanceof Error ? error.message : 'An unexpected error occurred'}
-            </p>
-            <Button onClick={() => refetch()} className="btn-invesense">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Retry
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <AppSidebar>
+        <div className="p-4 sm:p-6 lg:p-8 max-w-6xl">
+          <Card className="border-destructive/30 bg-destructive/5">
+            <CardContent className="py-12 text-center">
+              <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2">Failed to load record</h2>
+              <p className="text-muted-foreground mb-4">
+                {error instanceof Error ? error.message : 'An unexpected error occurred'}
+              </p>
+              <Button onClick={() => refetch()} className="btn-invesense">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Retry
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </AppSidebar>
     );
   }
 
   // Not found state
   if (!record) {
     return (
-      <div className="container py-8 max-w-6xl mx-auto">
-        <Card className="border-border">
-          <CardContent className="py-12 text-center">
-            <AlertTriangle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Record Not Found</h2>
-            <p className="text-muted-foreground mb-4">
-              The screening record you're looking for doesn't exist or has been removed.
-            </p>
-            <Link to="/shariah-dashboard">
-              <Button variant="outline" className="border-border">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Dashboard
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
+      <AppSidebar>
+        <div className="p-4 sm:p-6 lg:p-8 max-w-6xl">
+          <Card className="border-border">
+            <CardContent className="py-12 text-center">
+              <AlertTriangle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2">Record Not Found</h2>
+              <p className="text-muted-foreground mb-4">
+                The screening record you're looking for doesn't exist or has been removed.
+              </p>
+              <Link to="/shariah-dashboard">
+                <Button variant="outline" className="border-border">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Dashboard
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </AppSidebar>
     );
   }
 
   return (
-    <div className="container py-4 sm:py-8 px-4 sm:px-6 max-w-6xl mx-auto">
+    <AppSidebar>
+      <div className="p-4 sm:p-6 lg:p-8 max-w-6xl">
       {/* Header Section */}
       <RecordHeader record={record} />
 
@@ -160,7 +167,8 @@ export default function RecordDetail() {
             </div>
           </Tabs>
         </section>
+        </div>
       </div>
-    </div>
+    </AppSidebar>
   );
 }
