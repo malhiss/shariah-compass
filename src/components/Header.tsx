@@ -178,33 +178,6 @@ export function Header() {
         
         {/* Right side: Utility actions */}
         <div className="hidden lg:flex items-center gap-1">
-          {/* Public navigation - About dropdown */}
-          {!isProtectedRoute && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className={cn(
-                  'flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg',
-                  location.pathname === '/' ? 'text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                )}>
-                  About
-                  <ChevronDown className="w-3.5 h-3.5" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                {aboutSections.map((item) => (
-                  <DropdownMenuItem key={item.path} asChild>
-                    <Link 
-                      to={item.path} 
-                      onClick={() => handleNavClick(item.path)}
-                      className="cursor-pointer"
-                    >
-                      {item.label}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
 
           {/* Utility icons for logged in users */}
           {user && (
