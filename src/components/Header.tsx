@@ -49,12 +49,11 @@ const sidebarNavItems = [
 ];
 
 const aboutSections = [
-  { path: '/#about', label: 'About Invesense' },
-  { path: '/#firm-overview', label: 'Firm Overview' },
-  { path: '/#investing-approach', label: 'Investing Approach' },
-  { path: '/#screening-approach', label: 'Screening Approach' },
-  { path: '/#methodology', label: 'Screening Methodology' },
-  { path: '/#leadership', label: 'Leadership' },
+  { path: '/about', label: 'About Us' },
+  { path: '/about#firm-overview', label: 'Firm Overview' },
+  { path: '/about#investing-approach', label: 'Investing Approach' },
+  { path: '/about#screening-approach', label: 'Screening Approach' },
+  { path: '/about#methodology', label: 'Compliance Status' },
 ];
 
 // Page titles for breadcrumb display
