@@ -64,7 +64,7 @@ export default function TickerScreening() {
         </div>
 
         {/* Search Form */}
-        <Card className="mb-6 lg:mb-8 max-w-4xl">
+        <Card className="mb-6 lg:mb-8">
           <CardContent className="p-4 sm:p-6">
             <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
@@ -96,7 +96,7 @@ export default function TickerScreening() {
         </Card>
 
         {/* Results */}
-        <div className="max-w-4xl">
+        <div>
             {result && (
               <motion.div 
                 className="space-y-6"
