@@ -88,16 +88,6 @@ const screeningMethodologies = [
     description: 'Comprehensive screening using financial ratios, qualitative analysis, and AI-powered haram sector estimation.',
     icon: Scale,
   },
-  {
-    name: 'Auto-banned Methodology',
-    description: 'Automatic screening based on security type and industry classification for forbidden sectors.',
-    icon: AlertTriangle,
-  },
-  {
-    name: 'Numeric Methodology',
-    description: 'Pure financial ratio screening: Debt ≤33%, Cash+Investments ≤33%, and NPIN ≤5%.',
-    icon: CheckCircle,
-  },
 ];
 
 const investingApproach = [
@@ -206,6 +196,13 @@ export default function Home() {
                 <Link to="/portfolio">
                   <Briefcase className="w-5 h-5 mr-2" />
                   Dividends Purification
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="text-base group">
+                <Link to="/client-login">
+                  <LogIn className="w-5 h-5 mr-2" />
+                  Get Started
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
             </motion.div>
@@ -361,7 +358,7 @@ export default function Home() {
             </p>
           </AnimatedSection>
           
-          <StaggerContainer className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-12">
+          <StaggerContainer className="grid gap-6 max-w-xl mx-auto mb-12">
             {screeningMethodologies.map((method) => {
               const Icon = method.icon;
               return (
