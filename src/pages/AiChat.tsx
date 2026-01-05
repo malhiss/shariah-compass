@@ -92,7 +92,7 @@ export default function AiChat() {
           </p>
         </div>
 
-        <div className="max-w-3xl mx-auto lg:mx-0">
+        <div className="max-w-4xl mx-auto">
           {/* Ticker Selection */}
           {!ticker ? (
             <Card className="animate-fade-in">
