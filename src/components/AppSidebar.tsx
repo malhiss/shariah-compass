@@ -124,11 +124,14 @@ export function AppSidebar({ children }: AppSidebarProps) {
         {/* Sidebar */}
         <aside
           className={cn(
-            'fixed lg:sticky top-16 lg:top-[72px] left-0 z-50 h-[calc(100vh-4rem)] lg:h-[calc(100vh-72px)] bg-sidebar-background',
-            'transition-[width,transform,opacity] duration-300 ease-in-out',
-            collapsed ? 'lg:w-[68px] lg:opacity-100' : 'w-[272px]',
-            // Mobile: slide in/out
-            mobileOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 lg:opacity-100 lg:translate-x-0'
+            'fixed top-16 lg:top-[72px] left-0 z-50 h-[calc(100vh-4rem)] lg:h-[calc(100vh-72px)] bg-sidebar-background w-[272px]',
+            'transition-transform duration-300 ease-in-out',
+            // Desktop: slide left when collapsed
+            collapsed ? 'lg:-translate-x-full' : 'lg:translate-x-0',
+            // Mobile: slide in/out based on mobileOpen
+            mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+            // When collapsed on desktop, override to hide
+            collapsed && !mobileOpen && '-translate-x-full'
           )}
         >
           {/* Right border */}
