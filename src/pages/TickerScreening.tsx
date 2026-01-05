@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { MethodologyCard } from '@/components/MethodologyCard';
 import { RatioDisplay } from '@/components/RatioDisplay';
+import { AppSidebar } from '@/components/AppSidebar';
 import { screenTicker } from '@/lib/api';
 import { getStatusColor, getStatusLabel } from '@/types/screening';
 import type { TickerScreeningResponse } from '@/types/screening';
