@@ -10,6 +10,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { clearCache } from "./lib/csv-data-loader";
 import Home from "./pages/Home";
+import About from "./pages/About";
 import TickerScreening from "./pages/TickerScreening";
 import PortfolioScreening from "./pages/PortfolioScreening";
 import ScreeningRequest from "./pages/ScreeningRequest";
@@ -40,10 +41,10 @@ const App = () => (
           <ScrollToTop />
           <Routes>
             <Route element={<Layout />}>
-              <Route path="/" element={<Home />} />
-              {/* Redirects for old routes */}
-              <Route path="/about" element={<Navigate to="/#about" replace />} />
-              <Route path="/leadership" element={<Navigate to="/#leadership" replace />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            {/* Redirects for old routes */}
+            <Route path="/leadership" element={<Navigate to="/about" replace />} />
               <Route 
                 path="/screen" 
                 element={
