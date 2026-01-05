@@ -121,21 +121,28 @@ export function AppSidebar({ children }: AppSidebarProps) {
           />
         )}
 
-        {/* Sidebar */}
+        {/* Sidebar - fixed on mobile, static on desktop */}
         <aside
           className={cn(
-            'fixed top-16 lg:top-[72px] left-0 z-50 h-[calc(100vh-4rem)] lg:h-[calc(100vh-72px)] bg-sidebar-background w-[272px]',
-            'transition-transform duration-300 ease-in-out',
-            // Mobile: always use -translate-x-full unless mobileOpen
-            mobileOpen ? 'translate-x-0' : '-translate-x-full',
-            // Desktop: override mobile - show unless collapsed
-            !collapsed && 'lg:translate-x-0'
+            'bg-sidebar-background shrink-0 relative',
+            'transition-[width] duration-300 ease-in-out',
+            // Desktop: width changes based on collapsed state
+            collapsed ? 'lg:w-0' : 'lg:w-[272px]',
+            // Mobile: fixed overlay
+            'fixed lg:relative top-16 lg:top-0 left-0 z-50 lg:z-auto',
+            'h-[calc(100vh-4rem)] lg:h-auto w-[272px]',
+            mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           )}
         >
-          {/* Right border */}
-          <div className="absolute right-0 top-0 bottom-0 w-px bg-sidebar-border" />
-          
-          <div className="flex flex-col h-full">
+          {/* Inner container to prevent content collapse */}
+          <div className={cn(
+            'w-[272px] h-full flex flex-col',
+            'lg:sticky lg:top-[72px] lg:h-[calc(100vh-72px)]',
+            collapsed && 'lg:opacity-0 lg:pointer-events-none'
+          )}>
+            {/* Right border */}
+            <div className="absolute right-0 top-0 bottom-0 w-px bg-sidebar-border" />
+            
             {/* Header */}
             <div className={cn(
               'flex items-center h-14 px-4',
