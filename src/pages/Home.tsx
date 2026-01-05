@@ -5,7 +5,7 @@ import {
   Shield, Eye, Users, BookOpen, BarChart3, Database, Brain, ArrowRight, 
   Globe, Target, DollarSign, Droplets, LogIn, UserCog, Scale, CheckCircle, 
   AlertTriangle, XCircle, Search, Briefcase, FileQuestion, MessageSquare,
-  ChevronRight, ChevronLeft
+  ChevronRight, ChevronLeft, Menu
 } from 'lucide-react';
 import { AnimatedSection, StaggerContainer, StaggerItem } from '@/components/AnimatedSection';
 import { motion } from 'framer-motion';
@@ -180,29 +180,48 @@ export default function Home() {
             </motion.p>
             
             <motion.div 
-              className="flex flex-col sm:flex-row gap-4 justify-center"
+              className="flex flex-wrap gap-3 justify-center"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.5 }}
             >
-              <Button size="lg" className="btn-invesense text-base group" asChild>
-                <Link to="/screen">
-                  <Search className="w-5 h-5 mr-2" />
-                  Screen a Ticker
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild className="text-base">
-                <Link to="/portfolio">
-                  <Briefcase className="w-5 h-5 mr-2" />
-                  Dividends Purification
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild className="text-base group">
-                <Link to="/client-login">
-                  <LogIn className="w-5 h-5 mr-2" />
-                  Get Started
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              {features.map((feature, index) => {
+                const Icon = feature.icon;
+                const isPrimary = index === 0;
+                return (
+                  <Button 
+                    key={feature.path}
+                    size="lg" 
+                    variant={isPrimary ? "default" : "outline"}
+                    className={isPrimary ? "btn-invesense text-base group" : "text-base group"}
+                    asChild
+                  >
+                    <Link to={feature.path}>
+                      <Icon className="w-5 h-5 mr-2" />
+                      {feature.title}
+                      {isPrimary && <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />}
+                    </Link>
+                  </Button>
+                );
+              })}
+            </motion.div>
+            
+            {/* Menu button to open sidebar */}
+            <motion.div
+              className="mt-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.7 }}
+            >
+              <Button 
+                variant="ghost" 
+                size="lg"
+                className="text-muted-foreground hover:text-foreground"
+                asChild
+              >
+                <Link to="/dashboard">
+                  <Menu className="w-5 h-5 mr-2" />
+                  Open Dashboard
                 </Link>
               </Button>
             </motion.div>
