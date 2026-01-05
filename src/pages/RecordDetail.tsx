@@ -23,7 +23,7 @@ export default function RecordDetail() {
   if (isLoading) {
     return (
       <AppSidebar>
-        <div className="p-4 sm:p-6 lg:p-8 max-w-6xl">
+        <div className="p-4 sm:p-6 lg:p-8">
           <div className="space-y-4 sm:space-y-6">
             <Skeleton className="h-6 w-32" />
             <div className="flex items-center gap-3 sm:gap-4">
@@ -50,7 +50,7 @@ export default function RecordDetail() {
   if (isError) {
     return (
       <AppSidebar>
-        <div className="p-4 sm:p-6 lg:p-8 max-w-6xl">
+        <div className="p-4 sm:p-6 lg:p-8">
           <Card className="border-destructive/30 bg-destructive/5">
             <CardContent className="py-12 text-center">
               <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-4" />
@@ -73,7 +73,7 @@ export default function RecordDetail() {
   if (!record) {
     return (
       <AppSidebar>
-        <div className="p-4 sm:p-6 lg:p-8 max-w-6xl">
+        <div className="p-4 sm:p-6 lg:p-8">
           <Card className="border-border">
             <CardContent className="py-12 text-center">
               <AlertTriangle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -96,7 +96,7 @@ export default function RecordDetail() {
 
   return (
     <AppSidebar>
-      <div className="p-4 sm:p-6 lg:p-8 max-w-6xl">
+      <div className="p-4 sm:p-6 lg:p-8">
       {/* Header Section */}
       <RecordHeader record={record} />
 
