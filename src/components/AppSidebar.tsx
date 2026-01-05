@@ -124,9 +124,11 @@ export function AppSidebar({ children }: AppSidebarProps) {
         {/* Sidebar */}
         <aside
           className={cn(
-            'fixed lg:sticky top-16 lg:top-[72px] left-0 z-50 h-[calc(100vh-4rem)] lg:h-[calc(100vh-72px)] bg-sidebar-background transition-all duration-300 ease-in-out',
-            collapsed ? 'w-[68px]' : 'w-[272px]',
-            mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+            'fixed lg:sticky top-16 lg:top-[72px] left-0 z-50 h-[calc(100vh-4rem)] lg:h-[calc(100vh-72px)] bg-sidebar-background',
+            'transition-[width,transform,opacity] duration-300 ease-in-out',
+            collapsed ? 'lg:w-[68px] lg:opacity-100' : 'w-[272px]',
+            // Mobile: slide in/out
+            mobileOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 lg:opacity-100 lg:translate-x-0'
           )}
         >
           {/* Right border */}
