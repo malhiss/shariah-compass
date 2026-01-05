@@ -231,23 +231,28 @@ export function AppSidebar({ children }: AppSidebarProps) {
         </aside>
 
         {/* Floating expand button - visible when sidebar is collapsed on desktop */}
-        {collapsed && (
+        <div 
+          className={cn(
+            'hidden lg:block fixed left-0 top-[72px] z-40 transition-opacity duration-300',
+            collapsed ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          )}
+        >
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="hidden lg:flex fixed top-[84px] left-3 z-50 h-9 w-9 bg-sidebar-background border border-sidebar-border shadow-md hover:bg-sidebar-accent transition-all duration-300"
+                className="h-10 w-10 rounded-none rounded-r-lg bg-sidebar-background border-r border-y border-sidebar-border hover:bg-sidebar-accent text-sidebar-foreground/70 hover:text-sidebar-foreground shadow-sm"
                 onClick={() => setCollapsed(false)}
               >
                 <PanelLeft className="w-4 h-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="right">
+            <TooltipContent side="right" sideOffset={4}>
               Expand sidebar
             </TooltipContent>
           </Tooltip>
-        )}
+        </div>
 
         {/* Main content */}
         <div className="flex-1 flex flex-col min-w-0">
