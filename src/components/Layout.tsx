@@ -12,11 +12,6 @@ const footerLinks = {
     { label: 'Request Screening', path: '/request' },
     { label: 'AI Chat', path: '/chat' },
   ],
-  company: [
-    { label: 'About Invesense', path: '/#about' },
-    { label: 'Firm Overview', path: '/#firm-overview' },
-    { label: 'Leadership', path: '/#leadership' },
-  ],
 };
 
 export function Layout() {
@@ -37,9 +32,9 @@ export function Layout() {
       {/* Footer */}
       <footer className="border-t border-border bg-card/50">
         <div className="container py-12 lg:py-16 px-4 sm:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
             {/* Brand */}
-            <div className="col-span-2">
+            <div className="col-span-1 md:col-span-2">
               <Link to="/" className="inline-block mb-6">
                 <img src={invesenseLogo} alt="Invesense" className="h-8 lg:h-10 w-auto" />
               </Link>
@@ -53,23 +48,6 @@ export function Layout() {
               <h4 className="font-semibold text-foreground mb-4 text-sm">Screening</h4>
               <ul className="space-y-3">
                 {footerLinks.screening.map((link) => (
-                  <li key={link.path}>
-                    <Link 
-                      to={link.path}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            {/* Company Links */}
-            <div>
-              <h4 className="font-semibold text-foreground mb-4 text-sm">Company</h4>
-              <ul className="space-y-3">
-                {footerLinks.company.map((link) => (
                   <li key={link.path}>
                     <Link 
                       to={link.path}
