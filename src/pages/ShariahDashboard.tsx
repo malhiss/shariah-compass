@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 import { ScreeningTable } from "@/components/dashboard/ScreeningTable";
 import { getClientFacingRecords } from "@/lib/shariah-api";
+import { AppSidebar } from "@/components/AppSidebar";
 import { Scale, Coins, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import type { ScreeningFilters, ViewMode, PaginatedResponse } from "@/types/mongodb";
 import type { ScreeningRecord } from "@/types/screening-record";
@@ -35,8 +36,6 @@ export default function ShariahDashboard() {
     }
   };
 
-  // IMPORTANT: when filters change (search, sector, zakat status, etc),
-  // reset page back to 1 so you don't end up on an empty page.
   const handleFiltersChange = (newFilters: ScreeningFilters) => {
     setFilters((prev) => ({
       ...prev,
@@ -54,111 +53,99 @@ export default function ShariahDashboard() {
   };
 
   return (
-    <div>
-      {/* Hero Section */}
-      <section className="relative py-8 sm:py-16 md:py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
-        <div className="container relative z-10 px-4 sm:px-6">
-          <div className="max-w-3xl">
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-serif font-light mb-2 sm:mb-4 text-foreground">
-              Shariah Screening Dashboard
-            </h1>
-            <p className="text-sm sm:text-lg text-muted-foreground">
-              Comprehensive Shariah compliance and Zakatable assets screening for global equities.
-            </p>
-          </div>
+    <AppSidebar>
+      <div className="p-4 sm:p-6 lg:p-8">
+        {/* Header */}
+        <div className="mb-6 lg:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold mb-2">
+            Screening Dashboard
+          </h1>
+          <p className="text-muted-foreground">
+            Comprehensive Shariah compliance and Zakat screening for global equities.
+          </p>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-      </section>
 
-      {/* Main Content */}
-      <section className="py-4 sm:py-8">
-        <div className="container px-4 sm:px-6">
-          {/* View Toggle */}
-          <div className="mb-4 sm:mb-6">
-            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
-              <TabsList className="bg-muted/30 w-full sm:w-auto">
-                <TabsTrigger
-                  value="shariah"
-                  className="flex-1 sm:flex-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm"
-                >
-                  <Scale className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                  Shariah
-                </TabsTrigger>
-                <TabsTrigger
-                  value="zakat"
-                  className="flex-1 sm:flex-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs sm:text-sm"
-                >
-                  <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                  Zakat
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-
-          {/* Filters */}
-          <Card className="premium-card mb-4 sm:mb-6">
-            <CardContent className="p-3 sm:p-4">
-              <DashboardFilters filters={filters} onFiltersChange={handleFiltersChange} viewMode={viewMode} />
-            </CardContent>
-          </Card>
-
-          {/* Results Info */}
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" />
-                  Loading...
-                </span>
-              ) : (
-                `Showing ${data?.data.length || 0} of ${data?.total || 0} records`
-              )}
-            </p>
-          </div>
-
-          {/* Table */}
-          <Card className="premium-card">
-            <CardContent className="p-0">
-              <ScreeningTable
-                data={data?.data || []}
-                loading={loading}
-                viewMode={viewMode}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Pagination */}
-          {data && data.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 sm:gap-4 mt-4 sm:mt-6">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(data.page - 1)}
-                disabled={data.page <= 1}
-                className="border-border text-xs sm:text-sm px-2 sm:px-3"
+        {/* View Toggle */}
+        <div className="mb-4 sm:mb-6">
+          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
+            <TabsList className="bg-muted/30">
+              <TabsTrigger
+                value="shariah"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
-                <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" />
-                <span className="hidden xs:inline">Previous</span>
-                <span className="xs:hidden">Prev</span>
-              </Button>
-              <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
-                Page {data.page} of {data.totalPages}
+                <Scale className="w-4 h-4 mr-2" />
+                Shariah
+              </TabsTrigger>
+              <TabsTrigger
+                value="zakat"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                <Coins className="w-4 h-4 mr-2" />
+                Zakat
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+
+        {/* Filters */}
+        <Card className="mb-4 sm:mb-6">
+          <CardContent className="p-4">
+            <DashboardFilters filters={filters} onFiltersChange={handleFiltersChange} viewMode={viewMode} />
+          </CardContent>
+        </Card>
+
+        {/* Results Info */}
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-sm text-muted-foreground">
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Loading...
               </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(data.page + 1)}
-                disabled={data.page >= data.totalPages}
-                className="border-border text-xs sm:text-sm px-2 sm:px-3"
-              >
-                Next
-                <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-0.5 sm:ml-1" />
-              </Button>
-            </div>
-          )}
+            ) : (
+              `Showing ${data?.data.length || 0} of ${data?.total || 0} records`
+            )}
+          </p>
         </div>
-      </section>
-    </div>
+
+        {/* Table */}
+        <Card>
+          <CardContent className="p-0">
+            <ScreeningTable
+              data={data?.data || []}
+              loading={loading}
+              viewMode={viewMode}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Pagination */}
+        {data && data.totalPages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-6">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(data.page - 1)}
+              disabled={data.page <= 1}
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Previous
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Page {data.page} of {data.totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(data.page + 1)}
+              disabled={data.page >= data.totalPages}
+            >
+              Next
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        )}
+      </div>
+    </AppSidebar>
   );
 }

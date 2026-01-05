@@ -5,9 +5,10 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { AppSidebar } from '@/components/AppSidebar';
 import { submitScreeningRequest } from '@/lib/api';
 import type { ScreeningRequestInput, ScreeningRequestResponse } from '@/types/screening';
-import { FileQuestion, Loader2, CheckCircle, ArrowRight, Send } from 'lucide-react';
+import { FileText, Loader2, CheckCircle, ArrowRight, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 
@@ -67,206 +68,178 @@ export default function ScreeningRequest() {
 
   if (result?.success) {
     return (
-      <div>
-        <section className="py-20 md:py-28 min-h-screen flex items-center">
-          <div className="container">
-            <div className="max-w-lg mx-auto text-center animate-fade-in">
-              <div className="w-24 h-24 rounded-2xl bg-compliant/10 mx-auto mb-8 flex items-center justify-center">
-                <CheckCircle className="w-12 h-12 text-compliant" />
-              </div>
-              <h1 className="text-3xl md:text-4xl font-serif font-bold mb-4">Request Submitted!</h1>
-              <p className="text-muted-foreground mb-8 text-lg">
-                Your screening request for <strong className="text-foreground">{form.ticker}</strong> has been submitted successfully.
-              </p>
-              
-              <Card className="premium-card text-left mb-8">
-                <CardContent className="pt-6 space-y-4">
-                  <div className="flex justify-between items-center py-2 border-b border-border">
-                    <span className="text-muted-foreground">Request ID</span>
-                    <span className="font-mono font-medium text-foreground">{result.id}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-border">
-                    <span className="text-muted-foreground">Status</span>
-                    <span className="font-medium text-primary">{result.status}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2">
-                    <span className="text-muted-foreground">Methodology</span>
-                    <span className="font-medium text-foreground capitalize">{form.methodology.replace('_', '-')}</span>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <div className="flex gap-4 justify-center">
-                <Button variant="outline" onClick={() => setResult(null)} className="border-border hover:border-primary hover:bg-primary/5">
-                  Submit Another
-                </Button>
-                <Button asChild className="btn-invesense group">
-                  <Link to="/screen">
-                    Screen a Ticker
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </Button>
-              </div>
+      <AppSidebar>
+        <div className="p-4 sm:p-6 lg:p-8 flex items-center justify-center min-h-[60vh]">
+          <div className="max-w-md text-center animate-fade-in">
+            <div className="w-20 h-20 rounded-2xl bg-compliant/10 mx-auto mb-6 flex items-center justify-center">
+              <CheckCircle className="w-10 h-10 text-compliant" />
+            </div>
+            <h1 className="text-2xl font-serif font-bold mb-3">Request Submitted!</h1>
+            <p className="text-muted-foreground mb-6">
+              Your screening request for <strong className="text-foreground">{form.ticker}</strong> has been submitted.
+            </p>
+            
+            <Card className="text-left mb-6">
+              <CardContent className="pt-6 space-y-3">
+                <div className="flex justify-between items-center py-2 border-b border-border">
+                  <span className="text-sm text-muted-foreground">Request ID</span>
+                  <span className="font-mono text-sm">{result.id}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-border">
+                  <span className="text-sm text-muted-foreground">Status</span>
+                  <span className="text-sm text-primary font-medium">{result.status}</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-sm text-muted-foreground">Methodology</span>
+                  <span className="text-sm capitalize">{form.methodology.replace('_', '-')}</span>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <div className="flex gap-3 justify-center">
+              <Button variant="outline" onClick={() => setResult(null)}>
+                Submit Another
+              </Button>
+              <Button asChild className="btn-invesense group">
+                <Link to="/screen">
+                  Screen a Ticker
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </AppSidebar>
     );
   }
 
   return (
-    <div>
-      {/* Hero Section */}
-      <section className="relative py-16 md:py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-10 left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl" />
+    <AppSidebar>
+      <div className="p-4 sm:p-6 lg:p-8">
+        {/* Header */}
+        <div className="mb-6 lg:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold mb-2">
+            Request Screening
+          </h1>
+          <p className="text-muted-foreground">
+            Submit a ticker that hasn't been screened yet for comprehensive analysis.
+          </p>
         </div>
-        
-        <div className="container relative z-10">
-          <div className="max-w-3xl mx-auto text-center animate-fade-in">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5 text-primary text-sm mb-6">
-              <FileQuestion className="w-4 h-4" />
-              <span>Request Analysis</span>
-            </div>
-            
-            <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4">
-              Request a Screening
-            </h1>
-            
-            <p className="text-lg text-muted-foreground">
-              Submit a ticker that hasn't been screened yet for comprehensive analysis.
-            </p>
-          </div>
-        </div>
-        
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-      </section>
 
-      {/* Form Section */}
-      <section className="py-12 md:py-16">
-        <div className="container">
-          <div className="max-w-2xl mx-auto">
-            <Card className="premium-card">
-              <CardHeader>
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <FileQuestion className="w-7 h-7 text-primary" />
+        <div className="max-w-xl">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Screening Request</CardTitle>
+                  <CardDescription>Fill in details for the security you want screened</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-5">
+                {/* Ticker */}
+                <div className="space-y-2">
+                  <Label htmlFor="ticker">Ticker Symbol *</Label>
+                  <Input
+                    id="ticker"
+                    value={form.ticker}
+                    onChange={(e) => handleChange('ticker', e.target.value)}
+                    placeholder="e.g., NVDA"
+                    required
+                  />
+                </div>
+
+                {/* Exchange & ISIN */}
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="exchange">Exchange</Label>
+                    <Input
+                      id="exchange"
+                      value={form.exchange}
+                      onChange={(e) => handleChange('exchange', e.target.value)}
+                      placeholder="e.g., NASDAQ"
+                    />
                   </div>
-                  <div>
-                    <CardTitle className="font-serif text-xl">Screening Request Form</CardTitle>
-                    <CardDescription>
-                      Fill in the details for the security you want screened
-                    </CardDescription>
+                  <div className="space-y-2">
+                    <Label htmlFor="isin">ISIN</Label>
+                    <Input
+                      id="isin"
+                      value={form.isin}
+                      onChange={(e) => handleChange('isin', e.target.value)}
+                      placeholder="e.g., US0378331005"
+                    />
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Ticker */}
-                  <div className="space-y-2">
-                    <Label htmlFor="ticker" className="text-foreground">Ticker Symbol *</Label>
-                    <Input
-                      id="ticker"
-                      value={form.ticker}
-                      onChange={(e) => handleChange('ticker', e.target.value)}
-                      placeholder="e.g., NVDA"
-                      required
-                      className="bg-background border-border focus:border-primary"
-                    />
-                  </div>
 
-                  {/* Exchange & ISIN */}
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="exchange" className="text-foreground">Exchange (optional)</Label>
-                      <Input
-                        id="exchange"
-                        value={form.exchange}
-                        onChange={(e) => handleChange('exchange', e.target.value)}
-                        placeholder="e.g., NASDAQ"
-                        className="bg-background border-border focus:border-primary"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="isin" className="text-foreground">ISIN (optional)</Label>
-                      <Input
-                        id="isin"
-                        value={form.isin}
-                        onChange={(e) => handleChange('isin', e.target.value)}
-                        placeholder="e.g., US0378331005"
-                        className="bg-background border-border focus:border-primary"
-                      />
-                    </div>
-                  </div>
+                {/* Email */}
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => handleChange('email', e.target.value)}
+                    placeholder="your@email.com"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    We'll notify you when the screening is complete
+                  </p>
+                </div>
 
-                  {/* Email */}
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-foreground">Email (optional)</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={form.email}
-                      onChange={(e) => handleChange('email', e.target.value)}
-                      placeholder="your@email.com"
-                      className="bg-background border-border focus:border-primary"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      We'll notify you when the screening is complete
-                    </p>
-                  </div>
+                {/* Methodology */}
+                <div className="space-y-2">
+                  <Label htmlFor="methodology">Preferred Methodology</Label>
+                  <Select
+                    value={form.methodology}
+                    onValueChange={(value) => handleChange('methodology', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="invesense">Invesense Methodology</SelectItem>
+                      <SelectItem value="numeric">Numeric Methodology</SelectItem>
+                      <SelectItem value="auto_banned">Auto-banned Methodology</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                  {/* Methodology */}
-                  <div className="space-y-2">
-                    <Label htmlFor="methodology" className="text-foreground">Preferred Methodology</Label>
-                    <Select
-                      value={form.methodology}
-                      onValueChange={(value) => handleChange('methodology', value)}
-                    >
-                      <SelectTrigger className="bg-background border-border focus:border-primary">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-card border-border">
-                        <SelectItem value="invesense">Invesense Methodology</SelectItem>
-                        <SelectItem value="numeric">Numeric Methodology</SelectItem>
-                        <SelectItem value="auto_banned">Auto-banned Methodology</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                {/* Use Case */}
+                <div className="space-y-2">
+                  <Label htmlFor="useCase">Use Case</Label>
+                  <Textarea
+                    id="useCase"
+                    value={form.useCase}
+                    onChange={(e) => handleChange('useCase', e.target.value)}
+                    placeholder="e.g., Personal portfolio, Institutional investment..."
+                    rows={3}
+                    className="resize-none"
+                  />
+                </div>
 
-                  {/* Use Case */}
-                  <div className="space-y-2">
-                    <Label htmlFor="useCase" className="text-foreground">Use Case (optional)</Label>
-                    <Textarea
-                      id="useCase"
-                      value={form.useCase}
-                      onChange={(e) => handleChange('useCase', e.target.value)}
-                      placeholder="e.g., Personal portfolio, Institutional investment, Research..."
-                      rows={3}
-                      className="bg-background border-border focus:border-primary resize-none"
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full btn-invesense group" size="lg" disabled={loading}>
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Submitting...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-5 h-5 mr-2" />
-                        Submit Request
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
+                <Button type="submit" className="w-full btn-invesense group" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 mr-2" />
+                      Submit Request
+                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
-      </section>
-    </div>
+      </div>
+    </AppSidebar>
   );
 }

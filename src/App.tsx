@@ -3,15 +3,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { Layout } from "./components/Layout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { clearCache } from "./lib/csv-data-loader";
-import Landing from "./pages/Landing";
-import About from "./pages/About";
-import Leadership from "./pages/Leadership";
+import Home from "./pages/Home";
 import TickerScreening from "./pages/TickerScreening";
 import PortfolioScreening from "./pages/PortfolioScreening";
 import ScreeningRequest from "./pages/ScreeningRequest";
@@ -42,9 +40,10 @@ const App = () => (
           <ScrollToTop />
           <Routes>
             <Route element={<Layout />}>
-              <Route path="/" element={<Landing />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/leadership" element={<Leadership />} />
+              <Route path="/" element={<Home />} />
+              {/* Redirects for old routes */}
+              <Route path="/about" element={<Navigate to="/#about" replace />} />
+              <Route path="/leadership" element={<Navigate to="/#leadership" replace />} />
               <Route 
                 path="/screen" 
                 element={

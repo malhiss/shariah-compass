@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { AnimatedSection, StaggerContainer, StaggerItem } from '@/components/AnimatedSection';
+import { AppSidebar } from '@/components/AppSidebar';
 import { 
   Activity, 
   RefreshCw, 
@@ -18,7 +18,6 @@ import {
   FileText,
   Clock,
   TrendingUp,
-  BarChart3,
   History,
   CheckCircle
 } from 'lucide-react';
@@ -60,7 +59,6 @@ export default function ClientDashboard() {
     
     setLoading(true);
     try {
-      // Fetch activity logs for current user
       let query = supabase
         .from('activity_logs')
         .select('*')
@@ -76,7 +74,6 @@ export default function ClientDashboard() {
 
       if (error) throw error;
 
-      // Cast the logs to our interface type
       const typedLogs = (fetchedLogs || []).map(log => ({
         ...log,
         activity_type: log.activity_type as string,
@@ -85,7 +82,6 @@ export default function ClientDashboard() {
 
       setLogs(typedLogs);
 
-      // Calculate stats from all user logs (not filtered)
       const { data: allLogs } = await supabase
         .from('activity_logs')
         .select('activity_type')
@@ -154,7 +150,6 @@ export default function ClientDashboard() {
     );
   };
 
-  // Get unique tickers from screening activities
   const screenedTickers = [...new Set(
     logs
       .filter(l => l.activity_type === 'ticker_screening' && l.metadata?.ticker)
@@ -162,93 +157,85 @@ export default function ClientDashboard() {
   )];
 
   return (
-    <div className="min-h-screen">
-      <div className="container max-w-7xl py-8 md:py-12">
+    <AppSidebar>
+      <div className="p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <AnimatedSection className="mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-sm mb-4">
-                <BarChart3 className="w-4 h-4" />
-                <span>My Dashboard</span>
-              </div>
-              <h1 className="text-3xl md:text-4xl font-serif font-bold">Activity History</h1>
-              <p className="text-muted-foreground mt-2">Track your screenings, requests, and usage history</p>
-            </div>
-            
-            <div className="flex gap-3">
-              <Button variant="outline" asChild>
-                <Link to="/screen">
-                  <SearchIcon className="w-4 h-4 mr-2" />
-                  New Screening
-                </Link>
-              </Button>
-              <Button className="btn-invesense" asChild>
-                <Link to="/request">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Submit Request
-                </Link>
-              </Button>
-            </div>
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6 lg:mb-8">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold mb-2">My Activity</h1>
+            <p className="text-muted-foreground">Track your screenings, requests, and usage history</p>
           </div>
-        </AnimatedSection>
+          
+          <div className="flex gap-3">
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/screen">
+                <SearchIcon className="w-4 h-4 mr-2" />
+                New Screening
+              </Link>
+            </Button>
+            <Button size="sm" className="btn-invesense" asChild>
+              <Link to="/request">
+                <FileText className="w-4 h-4 mr-2" />
+                Submit Request
+              </Link>
+            </Button>
+          </div>
+        </div>
 
         {/* Stats Cards */}
-        <AnimatedSection delay={0.1} className="mb-8">
-          <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StaggerItem>
-              <Card className="stat-card">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <TrendingUp className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{stats.totalScreenings}</p>
-                  <p className="text-sm text-muted-foreground">Total Screenings</p>
-                </div>
-              </Card>
-            </StaggerItem>
-            <StaggerItem>
-              <Card className="stat-card hover:border-compliant/30">
-                <div className="w-12 h-12 rounded-xl bg-compliant/10 flex items-center justify-center shrink-0">
-                  <SearchIcon className="w-6 h-6 text-compliant" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{stats.tickerScreenings}</p>
-                  <p className="text-sm text-muted-foreground">Ticker Screenings</p>
-                </div>
-              </Card>
-            </StaggerItem>
-            <StaggerItem>
-              <Card className="stat-card hover:border-warning/30">
-                <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center shrink-0">
-                  <PieChart className="w-6 h-6 text-warning" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{stats.portfolioScreenings}</p>
-                  <p className="text-sm text-muted-foreground">Portfolio Screenings</p>
-                </div>
-              </Card>
-            </StaggerItem>
-            <StaggerItem>
-              <Card className="stat-card hover:border-muted-foreground/30">
-                <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center shrink-0">
-                  <MessageSquare className="w-6 h-6 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{stats.aiChats}</p>
-                  <p className="text-sm text-muted-foreground">AI Chats</p>
-                </div>
-              </Card>
-            </StaggerItem>
-          </StaggerContainer>
-        </AnimatedSection>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <Card className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.totalScreenings}</p>
+                <p className="text-xs text-muted-foreground">Total Screenings</p>
+              </div>
+            </div>
+          </Card>
+          <Card className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-compliant/10 flex items-center justify-center">
+                <SearchIcon className="w-5 h-5 text-compliant" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.tickerScreenings}</p>
+                <p className="text-xs text-muted-foreground">Ticker Screenings</p>
+              </div>
+            </div>
+          </Card>
+          <Card className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
+                <PieChart className="w-5 h-5 text-warning" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.portfolioScreenings}</p>
+                <p className="text-xs text-muted-foreground">Portfolio Screenings</p>
+              </div>
+            </div>
+          </Card>
+          <Card className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                <MessageSquare className="w-5 h-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.aiChats}</p>
+                <p className="text-xs text-muted-foreground">AI Chats</p>
+              </div>
+            </div>
+          </Card>
+        </div>
 
-        {/* Tabs for different views */}
-        <Tabs defaultValue="history" className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+        {/* Tabs */}
+        <Tabs defaultValue="history" className="space-y-4">
+          <TabsList>
             <TabsTrigger value="history" className="flex items-center gap-2">
               <History className="w-4 h-4" />
-              Activity History
+              History
             </TabsTrigger>
             <TabsTrigger value="tickers" className="flex items-center gap-2">
               <CheckCircle className="w-4 h-4" />
@@ -257,172 +244,133 @@ export default function ClientDashboard() {
           </TabsList>
 
           <TabsContent value="history">
-            <AnimatedSection delay={0.2}>
-              <Card className="premium-card">
-                <CardHeader className="border-b border-border">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div>
-                      <CardTitle className="font-serif">Recent Activity</CardTitle>
-                      <CardDescription>Your screening and chat history</CardDescription>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Select value={activityFilter} onValueChange={setActivityFilter}>
-                        <SelectTrigger className="w-48">
-                          <SelectValue placeholder="Filter by type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Activities</SelectItem>
-                          <SelectItem value="ticker_screening">Ticker Screening</SelectItem>
-                          <SelectItem value="portfolio_screening">Portfolio Screening</SelectItem>
-                          <SelectItem value="ai_chat">AI Chat</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Button variant="outline" size="icon" onClick={fetchMyActivity} title="Refresh">
-                        <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            <Card>
+              <CardHeader className="border-b border-border py-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div>
+                    <CardTitle className="text-lg">Recent Activity</CardTitle>
+                    <CardDescription>Your screening and chat history</CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Select value={activityFilter} onValueChange={setActivityFilter}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Filter" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Activities</SelectItem>
+                        <SelectItem value="ticker_screening">Ticker Screening</SelectItem>
+                        <SelectItem value="portfolio_screening">Portfolio Screening</SelectItem>
+                        <SelectItem value="ai_chat">AI Chat</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button variant="outline" size="icon" onClick={fetchMyActivity}>
+                      <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                {loading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+                  </div>
+                ) : logs.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <Activity className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                    <p>No activity yet.</p>
+                    <p className="text-sm mt-1">Start by screening a ticker.</p>
+                    <div className="flex justify-center gap-3 mt-4">
+                      <Button variant="outline" size="sm" asChild>
+                        <Link to="/screen">Screen a Ticker</Link>
                       </Button>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent className="p-0">
-                  {loading ? (
-                    <div className="flex items-center justify-center py-16">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-                    </div>
-                  ) : logs.length === 0 ? (
-                    <div className="text-center py-16 text-muted-foreground">
-                      <Activity className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p>No activity yet.</p>
-                      <p className="text-sm mt-2">Start by screening a ticker or submitting a request.</p>
-                      <div className="flex justify-center gap-3 mt-6">
-                        <Button variant="outline" asChild>
-                          <Link to="/screen">Screen a Ticker</Link>
-                        </Button>
-                        <Button className="btn-invesense" asChild>
-                          <Link to="/request">Submit Request</Link>
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="hover:bg-transparent">
-                            <TableHead className="w-[60px]">Type</TableHead>
-                            <TableHead>Activity</TableHead>
-                            <TableHead className="hidden md:table-cell">Details</TableHead>
-                            <TableHead className="w-[120px]">Time</TableHead>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-12">Type</TableHead>
+                          <TableHead>Activity</TableHead>
+                          <TableHead className="hidden md:table-cell">Details</TableHead>
+                          <TableHead className="w-24">Time</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {logs.map((log) => (
+                          <TableRow key={log.id}>
+                            <TableCell>
+                              <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center">
+                                {getActivityIcon(log.activity_type)}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="space-y-1">
+                                {getActivityBadge(log.activity_type)}
+                                <p className="text-sm text-muted-foreground">{log.description}</p>
+                              </div>
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell">
+                              {log.metadata && Object.keys(log.metadata).length > 0 && (
+                                <div className="text-xs text-muted-foreground">
+                                  {log.metadata.ticker && (
+                                    <div className="flex items-center gap-2">
+                                      <span>Ticker:</span>
+                                      <Badge variant="outline" className="font-mono text-xs">{log.metadata.ticker}</Badge>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                                <Clock className="w-3 h-3" />
+                                {formatDate(log.created_at)}
+                              </div>
+                            </TableCell>
                           </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {logs.map((log) => (
-                            <TableRow key={log.id} className="group">
-                              <TableCell>
-                                <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center">
-                                  {getActivityIcon(log.activity_type)}
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-2">
-                                    {getActivityBadge(log.activity_type)}
-                                  </div>
-                                  <p className="text-sm text-muted-foreground">{log.description}</p>
-                                </div>
-                              </TableCell>
-                              <TableCell className="hidden md:table-cell">
-                                {log.metadata && Object.keys(log.metadata).length > 0 && (
-                                  <div className="text-xs text-muted-foreground space-y-0.5">
-                                    {log.metadata.ticker && (
-                                      <div className="flex items-center gap-2">
-                                        <span>Ticker:</span>
-                                        <Badge variant="outline" className="font-mono">{log.metadata.ticker}</Badge>
-                                        {log.metadata.invesense_classification && (
-                                          <Badge 
-                                            variant="secondary"
-                                            className={
-                                              log.metadata.invesense_classification === 'COMPLIANT' 
-                                                ? 'bg-compliant/20 text-compliant' 
-                                                : log.metadata.invesense_classification === 'NON_COMPLIANT'
-                                                  ? 'bg-destructive/20 text-destructive'
-                                                  : 'bg-warning/20 text-warning'
-                                            }
-                                          >
-                                            {log.metadata.invesense_classification?.replace(/_/g, ' ')}
-                                          </Badge>
-                                        )}
-                                      </div>
-                                    )}
-                                    {log.metadata.tickers && (
-                                      <div>
-                                        <span>Tickers: </span>
-                                        <span className="font-mono">
-                                          {log.metadata.tickers.slice(0, 5).join(', ')}
-                                          {log.metadata.tickers.length > 5 && ` +${log.metadata.tickers.length - 5} more`}
-                                        </span>
-                                      </div>
-                                    )}
-                                    {log.metadata.holdings_count && (
-                                      <div>Holdings: {log.metadata.holdings_count}</div>
-                                    )}
-                                    {log.metadata.total_value && (
-                                      <div>Value: ${Number(log.metadata.total_value).toLocaleString()}</div>
-                                    )}
-                                  </div>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
-                                  <Clock className="w-3.5 h-3.5" />
-                                  {formatDate(log.created_at)}
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </AnimatedSection>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="tickers">
-            <AnimatedSection delay={0.2}>
-              <Card className="border-border">
-                <CardHeader className="border-b border-border">
-                  <CardTitle className="font-serif">Screened Tickers</CardTitle>
-                  <CardDescription>All tickers you have screened</CardDescription>
-                </CardHeader>
-                <CardContent className="p-6">
-                  {screenedTickers.length === 0 ? (
-                    <div className="text-center py-12 text-muted-foreground">
-                      <SearchIcon className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p>No tickers screened yet.</p>
-                      <Button className="btn-invesense mt-4" asChild>
-                        <Link to="/screen">Screen Your First Ticker</Link>
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="flex flex-wrap gap-2">
-                      {screenedTickers.map((ticker) => (
-                        <Link key={ticker} to={`/screen?ticker=${ticker}`}>
-                          <Badge 
-                            variant="outline" 
-                            className="px-3 py-1.5 text-sm font-mono hover:bg-primary/10 hover:border-primary cursor-pointer transition-colors"
-                          >
-                            {ticker}
-                          </Badge>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </AnimatedSection>
+            <Card>
+              <CardHeader className="border-b border-border py-4">
+                <CardTitle className="text-lg">Screened Tickers</CardTitle>
+                <CardDescription>All tickers you have screened</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                {screenedTickers.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <SearchIcon className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                    <p>No tickers screened yet.</p>
+                    <Button variant="outline" size="sm" className="mt-4" asChild>
+                      <Link to="/screen">Screen Your First Ticker</Link>
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {screenedTickers.map((ticker) => (
+                      <Link
+                        key={ticker}
+                        to={`/screen?ticker=${ticker}`}
+                        className="inline-flex items-center px-3 py-1.5 rounded-lg bg-muted hover:bg-primary/10 hover:text-primary transition-colors font-mono text-sm"
+                      >
+                        {ticker}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </AppSidebar>
   );
 }

@@ -1,23 +1,32 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Menu, X, LogIn, LogOut, UserCog } from 'lucide-react';
+import { Menu, X, LogIn, LogOut, UserCog, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import invesenseLogo from '@/assets/invesense-logo.png';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const publicNavItems = [
-  { path: '/about', label: 'About' },
-  { path: '/leadership', label: 'Leadership' },
+const aboutSections = [
+  { path: '/#about', label: 'About Invesense' },
+  { path: '/#firm-overview', label: 'Firm Overview' },
+  { path: '/#investing-approach', label: 'Investing Approach' },
+  { path: '/#screening-approach', label: 'Screening Approach' },
+  { path: '/#methodology', label: 'Screening Methodology' },
+  { path: '/#leadership', label: 'Leadership' },
 ];
 
 const protectedNavItems = [
-  { path: '/screen', label: 'Screen' },
+  { path: '/shariah-dashboard', label: 'Dashboard' },
   { path: '/portfolio', label: 'Dividends Purification' },
-  { path: '/request', label: 'Request' },
+  { path: '/request', label: 'Request Screening' },
   { path: '/chat', label: 'AI Chat' },
   { path: '/my-activity', label: 'My Activity' },
-  { path: '/shariah-dashboard', label: 'Dashboard' },
 ];
 
 const staffNavItems = [
@@ -29,44 +38,97 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, role, signOut, loading, isStaff } = useAuth();
 
-  let navItems = publicNavItems;
-  if (user && role) {
-    navItems = [...publicNavItems, ...protectedNavItems];
-    if (isStaff) {
-      navItems = [...navItems, ...staffNavItems];
-    }
-  }
-
   const handleSignOut = async () => {
     await signOut();
     setMobileMenuOpen(false);
   };
 
+  const handleNavClick = (path: string) => {
+    setMobileMenuOpen(false);
+    if (path.startsWith('/#')) {
+      const sectionId = path.replace('/#', '');
+      if (location.pathname === '/') {
+        const element = document.getElementById(sectionId);
+        element?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  const isActive = (path: string) => {
+    if (path.startsWith('/#')) return location.pathname === '/' && location.hash === path.replace('/', '');
+    return location.pathname === path;
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container flex h-16 items-center justify-between px-4 sm:px-6">
         <Link to="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
           <img src={invesenseLogo} alt="Invesense" className="h-8 w-auto" />
         </Link>
         
-        <nav className="hidden md:flex items-center gap-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                'px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg relative',
-                location.pathname === item.path 
-                  ? 'text-primary bg-primary/10' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-              )}
-            >
-              {item.label}
-              {location.pathname === item.path && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
-              )}
-            </Link>
-          ))}
+        <nav className="hidden lg:flex items-center gap-1">
+          {/* About Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className={cn(
+                'flex items-center gap-1 px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg',
+                location.pathname === '/' ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+              )}>
+                Invesense
+                <ChevronDown className="w-4 h-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56">
+              {aboutSections.map((item) => (
+                <DropdownMenuItem key={item.path} asChild>
+                  <Link 
+                    to={item.path} 
+                    onClick={() => handleNavClick(item.path)}
+                    className="cursor-pointer"
+                  >
+                    {item.label}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Protected Nav Items */}
+          {user && role && (
+            <>
+              {protectedNavItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    'px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg relative',
+                    isActive(item.path)
+                      ? 'text-primary bg-primary/10' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  )}
+                >
+                  {item.label}
+                  {isActive(item.path) && (
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                  )}
+                </Link>
+              ))}
+              {isStaff && staffNavItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    'px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg relative',
+                    isActive(item.path)
+                      ? 'text-primary bg-primary/10' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </>
+          )}
           
           {!loading && (
             <div className="flex items-center gap-3 ml-4 pl-4 border-l border-border">
@@ -108,7 +170,7 @@ export function Header() {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="md:hidden" 
+          className="lg:hidden" 
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -116,25 +178,62 @@ export function Header() {
       </div>
       
       {mobileMenuOpen && (
-        <nav className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl animate-slide-up">
-          <div className="container py-4 space-y-1">
-            {navItems.map((item) => (
-              <Link 
-                key={item.path} 
-                to={item.path} 
-                className={cn(
-                  'block px-4 py-3 rounded-lg transition-colors', 
-                  location.pathname === item.path 
-                    ? 'bg-primary/10 text-primary font-medium' 
-                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                )} 
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item.label}
-              </Link>
-            ))}
+        <nav className="lg:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl animate-slide-up max-h-[80vh] overflow-y-auto">
+          <div className="container py-4 space-y-1 px-4">
+            {/* About Sections */}
+            <div className="pb-3 mb-3 border-b border-border/50">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 py-2">Invesense</p>
+              {aboutSections.map((item) => (
+                <Link 
+                  key={item.path} 
+                  to={item.path} 
+                  className="block px-4 py-2.5 rounded-lg text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors"
+                  onClick={() => handleNavClick(item.path)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
             
-            <div className="pt-4 border-t border-border mt-4 space-y-2">
+            {/* Protected Items */}
+            {user && role && (
+              <div className="pb-3 mb-3 border-b border-border/50">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 py-2">Platform</p>
+                {protectedNavItems.map((item) => (
+                  <Link 
+                    key={item.path} 
+                    to={item.path} 
+                    className={cn(
+                      'block px-4 py-2.5 rounded-lg transition-colors', 
+                      isActive(item.path)
+                        ? 'bg-primary/10 text-primary font-medium' 
+                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                    )} 
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+                {isStaff && staffNavItems.map((item) => (
+                  <Link 
+                    key={item.path} 
+                    to={item.path} 
+                    className={cn(
+                      'block px-4 py-2.5 rounded-lg transition-colors', 
+                      isActive(item.path)
+                        ? 'bg-primary/10 text-primary font-medium' 
+                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                    )} 
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+            
+            {/* Auth Buttons */}
+            <div className="pt-2 space-y-2">
               {user ? (
                 <Button 
                   variant="outline" 
