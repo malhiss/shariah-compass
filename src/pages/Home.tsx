@@ -103,17 +103,13 @@ export default function Home() {
             
             {/* Main headline */}
             <motion.h1 
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-serif font-bold mb-6 leading-[1.1]"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-serif font-bold mb-8 leading-[1.1]"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
               Invest with{' '}
               <GradientText>Confidence</GradientText>
-              <br />
-              <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-muted-foreground font-normal">
-                Guided by Faith
-              </span>
             </motion.h1>
             
             {/* Subheadline */}
@@ -123,8 +119,8 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              Screen stocks against multiple Shariah compliance methodologies with detailed analysis, 
-              AI-powered insights, and purification calculations.
+              Screen stocks against Invesense Shariah screening methodology with detailed analysis, 
+              AI-powered insights, purification calculation, and Zakat calculation.
             </motion.p>
             
             {/* CTA buttons */}
