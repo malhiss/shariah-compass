@@ -152,7 +152,7 @@ export default function PortfolioScreening() {
           </p>
         </div>
 
-        <div className="max-w-6xl space-y-6">
+        <div className="space-y-6">
           {/* Input Section */}
           <Card>
             <CardHeader>
