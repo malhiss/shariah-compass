@@ -13,7 +13,12 @@ import {
   HelpCircle,
   User,
   Settings,
-  Shield
+  Shield,
+  LayoutDashboard,
+  Briefcase,
+  FileQuestion,
+  MessageSquare,
+  Activity
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -27,6 +32,21 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+
+const sidebarNavItems = [
+  { path: '/shariah-dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/portfolio', label: 'Dividends Purification', icon: Briefcase },
+  { path: '/request', label: 'Request Screening', icon: FileQuestion },
+  { path: '/chat', label: 'AI Chat', icon: MessageSquare },
+  { path: '/my-activity', label: 'My Activity', icon: Activity },
+];
 
 const aboutSections = [
   { path: '/#about', label: 'About Invesense' },
@@ -78,17 +98,70 @@ export function Header() {
       <div className="flex h-16 lg:h-[72px] items-center justify-between px-4 sm:px-6">
         {/* Left side: Hamburger + Logo + Breadcrumb */}
         <div className="flex items-center gap-2">
-          {/* Hamburger menu for sidebar/dashboard access */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-10 w-10 text-muted-foreground hover:text-foreground"
-            asChild
-          >
-            <Link to="/shariah-dashboard">
-              <Menu className="w-5 h-5" />
-            </Link>
-          </Button>
+          {/* Hamburger menu - opens navigation drawer */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-10 w-10 text-muted-foreground hover:text-foreground"
+              >
+                <Menu className="w-5 h-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-72 p-0">
+              <SheetHeader className="p-6 border-b border-border">
+                <SheetTitle className="flex items-center gap-3">
+                  <img src={invesenseLogo} alt="Invesense" className="h-7 w-auto" />
+                </SheetTitle>
+              </SheetHeader>
+              <nav className="p-4">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2 mb-2">
+                  Platform
+                </p>
+                <div className="space-y-1">
+                  {sidebarNavItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                          isActive 
+                            ? "bg-primary/10 text-primary border-l-2 border-primary" 
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        )}
+                      >
+                        <Icon className="w-5 h-5" />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+                
+                {/* Screen a Ticker link */}
+                <div className="mt-6 pt-6 border-t border-border">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2 mb-2">
+                    Quick Actions
+                  </p>
+                  <Link
+                    to="/screen"
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                      location.pathname === '/screen'
+                        ? "bg-primary/10 text-primary border-l-2 border-primary"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    )}
+                  >
+                    <Search className="w-5 h-5" />
+                    Screen a Ticker
+                  </Link>
+                </div>
+              </nav>
+            </SheetContent>
+          </Sheet>
           
           <Link to="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
             <img src={invesenseLogo} alt="Invesense" className="h-7 lg:h-8 w-auto" />
