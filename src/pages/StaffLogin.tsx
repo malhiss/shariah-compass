@@ -28,7 +28,7 @@ export default function StaffLogin() {
 
   useEffect(() => {
     if (!loading && user && isStaff) {
-      navigate('/screen');
+      navigate('/staff-portal');
     }
   }, [user, loading, isStaff, navigate]);
 
@@ -71,7 +71,7 @@ export default function StaffLogin() {
           title: 'Welcome back!',
           description: 'You have successfully signed in.',
         });
-        navigate('/screen');
+        navigate('/staff-portal');
       }
     } finally {
       setIsLoading(false);
