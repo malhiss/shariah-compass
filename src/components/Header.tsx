@@ -76,8 +76,20 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80">
       <div className="flex h-16 lg:h-[72px] items-center justify-between px-4 sm:px-6">
-        {/* Left side: Logo + Breadcrumb */}
-        <div className="flex items-center gap-4">
+        {/* Left side: Hamburger + Logo + Breadcrumb */}
+        <div className="flex items-center gap-2">
+          {/* Hamburger menu for sidebar/dashboard access */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-10 w-10 text-muted-foreground hover:text-foreground"
+            asChild
+          >
+            <Link to="/shariah-dashboard">
+              <Menu className="w-5 h-5" />
+            </Link>
+          </Button>
+          
           <Link to="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
             <img src={invesenseLogo} alt="Invesense" className="h-7 lg:h-8 w-auto" />
           </Link>
