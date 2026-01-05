@@ -54,10 +54,15 @@ export function AppSidebar({ children }: AppSidebarProps) {
     const Icon = item.icon;
     const active = isActive(item.path);
 
+    const handleNavClick = () => {
+      setMobileOpen(false);
+      setCollapsed(true);
+    };
+
     const linkContent = (
       <Link
         to={item.path}
-        onClick={() => setMobileOpen(false)}
+        onClick={handleNavClick}
         className={cn(
           'group relative flex items-center gap-3 rounded-[10px] transition-all duration-200 outline-none',
           'focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar-background',
