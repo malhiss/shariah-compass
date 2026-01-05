@@ -94,12 +94,16 @@ const App = () => (
                 } 
               />
               <Route 
-                path="/shariah-dashboard" 
+                path="/dashboard" 
                 element={
                   <ProtectedRoute requireRole="any">
                     <ShariahDashboard />
                   </ProtectedRoute>
                 } 
+              />
+              <Route 
+                path="/shariah-dashboard" 
+                element={<Navigate to="/dashboard" replace />}
               />
               <Route 
                 path="/record/:upsertKey" 
