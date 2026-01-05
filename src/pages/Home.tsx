@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { 
   Shield, ArrowRight, LogIn, UserCog, CheckCircle, 
   Search, Briefcase, FileQuestion, MessageSquare,
-  Sparkles, Zap
+  Sparkles, Zap, LayoutDashboard
 } from 'lucide-react';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { motion, useScroll, useTransform } from 'framer-motion';
@@ -42,6 +42,13 @@ const features = [
     description: 'Get AI-powered explanations for screening results and Islamic finance guidance.', 
     path: '/chat',
     gradient: 'from-amber-500/10 to-orange-500/5'
+  },
+  { 
+    icon: LayoutDashboard, 
+    title: 'Dashboard', 
+    description: 'Access your personalized dashboard with all screened stocks and compliance status.', 
+    path: '/dashboard',
+    gradient: 'from-rose-500/10 to-pink-500/5'
   },
 ];
 
