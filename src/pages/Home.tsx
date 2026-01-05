@@ -205,26 +205,6 @@ export default function Home() {
                 );
               })}
             </motion.div>
-            
-            {/* Menu button to open sidebar */}
-            <motion.div
-              className="mt-8"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
-            >
-              <Button 
-                variant="ghost" 
-                size="lg"
-                className="text-muted-foreground hover:text-foreground"
-                asChild
-              >
-                <Link to="/dashboard">
-                  <Menu className="w-5 h-5 mr-2" />
-                  Open Dashboard
-                </Link>
-              </Button>
-            </motion.div>
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
