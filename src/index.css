@@ -66,6 +66,11 @@
     --ring: 172 55% 50%;
     --radius: 0.625rem;
     
+    /* Header height */
+    --header-height: 4rem;
+    --header-height-lg: 72px;
+    --radius: 0.625rem;
+    
     /* Sidebar - deeper for hierarchy */
     --sidebar-background: 215 28% 16%;
     --sidebar-foreground: 210 15% 88%;
