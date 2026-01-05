@@ -69,8 +69,8 @@ export default function ScreeningRequest() {
   if (result?.success) {
     return (
       <AppSidebar>
-        <div className="p-4 sm:p-6 lg:p-8 flex items-center justify-center min-h-[60vh]">
-          <div className="max-w-md text-center animate-fade-in">
+        <div className="p-4 sm:p-6 lg:p-8">
+          <div className="max-w-lg animate-fade-in">
             <div className="w-20 h-20 rounded-2xl bg-compliant/10 mx-auto mb-6 flex items-center justify-center">
               <CheckCircle className="w-10 h-10 text-compliant" />
             </div>
@@ -126,7 +126,7 @@ export default function ScreeningRequest() {
           </p>
         </div>
 
-        <div className="max-w-2xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
               <div className="flex items-center gap-4">
