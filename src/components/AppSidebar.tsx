@@ -8,11 +8,11 @@ import {
   Activity,
   Menu,
   X,
-  HelpCircle,
-  ExternalLink
+  HelpCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { HelpSupportDialog } from './HelpSupportDialog';
 
 const sidebarItems = [
   { path: '/shariah-dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -120,14 +120,14 @@ export function AppSidebar({ children }: AppSidebarProps) {
 
           {/* Footer */}
           <div className="p-3 border-t border-sidebar-border">
-            <a 
-              href="#" 
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors text-[13px]"
-            >
-              <HelpCircle className="w-4 h-4" />
-              <span>Help & Support</span>
-              <ExternalLink className="w-3 h-3 ml-auto opacity-50" />
-            </a>
+            <HelpSupportDialog 
+              trigger={
+                <button className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors text-[13px]">
+                  <HelpCircle className="w-4 h-4" />
+                  <span>Help & Support</span>
+                </button>
+              }
+            />
           </div>
         </div>
       </aside>
