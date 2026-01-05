@@ -16,6 +16,14 @@ import { GradientText } from '@/components/landing/GradientText';
 
 const features = [
   { 
+    icon: LayoutDashboard, 
+    title: 'Dashboard', 
+    description: 'Access your personalized dashboard with all screened stocks, compliance status, and portfolio insights in one place.', 
+    path: '/dashboard',
+    gradient: 'from-primary/15 to-primary/5',
+    featured: true
+  },
+  { 
     icon: Search, 
     title: 'Screen a Ticker', 
     description: 'Instantly check Shariah compliance using three independent methodologies with detailed analysis.', 
@@ -42,13 +50,6 @@ const features = [
     description: 'Get AI-powered explanations for screening results and Islamic finance guidance.', 
     path: '/chat',
     gradient: 'from-amber-500/10 to-orange-500/5'
-  },
-  { 
-    icon: LayoutDashboard, 
-    title: 'Dashboard', 
-    description: 'Access your personalized dashboard with all screened stocks and compliance status.', 
-    path: '/dashboard',
-    gradient: 'from-rose-500/10 to-pink-500/5'
   },
 ];
 
@@ -247,6 +248,7 @@ export default function Home() {
                 path={feature.path}
                 gradient={feature.gradient}
                 delay={index * 0.1}
+                featured={'featured' in feature ? feature.featured : false}
               />
             ))}
           </div>
