@@ -126,7 +126,7 @@ export default function ScreeningRequest() {
           </p>
         </div>
 
-        <div className="max-w-xl mx-auto lg:mx-0">
+        <div className="max-w-2xl mx-auto">
           <Card>
             <CardHeader>
               <div className="flex items-center gap-4">
