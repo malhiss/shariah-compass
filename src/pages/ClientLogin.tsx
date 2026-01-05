@@ -28,7 +28,7 @@ export default function ClientLogin() {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate('/screen');
+      navigate('/dashboard');
     }
   }, [user, loading, navigate]);
 
@@ -71,7 +71,7 @@ export default function ClientLogin() {
           title: 'Welcome back!',
           description: 'You have successfully signed in.',
         });
-        navigate('/screen');
+        navigate('/dashboard');
       }
     } finally {
       setIsLoading(false);
