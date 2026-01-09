@@ -6,12 +6,13 @@ import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 import { ScreeningTable } from "@/components/dashboard/ScreeningTable";
 import { getClientFacingRecords } from "@/lib/shariah-api";
 import { AppSidebar } from "@/components/AppSidebar";
-import { Scale, Coins, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import type { ScreeningFilters, ViewMode, PaginatedResponse } from "@/types/mongodb";
+import { Scale, Coins, ChevronLeft, ChevronRight, Loader2, Globe, MapPin } from "lucide-react";
+import type { ScreeningFilters, ViewMode, PaginatedResponse, Universe } from "@/types/mongodb";
 import type { ScreeningRecord } from "@/types/screening-record";
 
 export default function ShariahDashboard() {
   const [viewMode, setViewMode] = useState<ViewMode>("shariah");
+  const [universe, setUniverse] = useState<Universe>("global");
   const [filters, setFilters] = useState<ScreeningFilters>({
     page: 1,
     pageSize: 50,
@@ -22,12 +23,12 @@ export default function ShariahDashboard() {
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
+  }, [filters, universe]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const result = await getClientFacingRecords(filters);
+      const result = await getClientFacingRecords({ ...filters, universe });
       setData(result);
     } catch (error) {
       console.error("Failed to fetch data:", error);
@@ -52,6 +53,14 @@ export default function ShariahDashboard() {
     }));
   };
 
+  const handleUniverseChange = (newUniverse: Universe) => {
+    setUniverse(newUniverse);
+    setFilters((prev) => ({
+      ...prev,
+      page: 1,
+    }));
+  };
+
   return (
     <AppSidebar>
       <div className="p-4 sm:p-6 lg:p-8">
@@ -61,8 +70,30 @@ export default function ShariahDashboard() {
             Screening Dashboard
           </h1>
           <p className="text-muted-foreground">
-            Comprehensive Shariah compliance and Zakat screening for global equities.
+            Comprehensive Shariah compliance and Zakat screening for {universe === "gcc" ? "GCC" : "global"} equities.
           </p>
+        </div>
+
+        {/* Universe Toggle */}
+        <div className="mb-4 sm:mb-6">
+          <Tabs value={universe} onValueChange={(v) => handleUniverseChange(v as Universe)}>
+            <TabsList className="bg-muted/30">
+              <TabsTrigger
+                value="global"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                <Globe className="w-4 h-4 mr-2" />
+                Global
+              </TabsTrigger>
+              <TabsTrigger
+                value="gcc"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                <MapPin className="w-4 h-4 mr-2" />
+                GCC
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
 
         {/* View Toggle */}
