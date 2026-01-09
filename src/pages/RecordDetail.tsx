@@ -12,8 +12,10 @@ import { HaramRevenueSection } from '@/components/record-detail/HaramRevenueSect
 import { ReferencesSection } from '@/components/record-detail/ReferencesSection';
 import { ClientSummaryTab } from '@/components/record-detail/ClientSummaryTab';
 import { StructuredMemoSection } from '@/components/record-detail/StructuredMemoSection';
+import { QuantitativeScreenSection } from '@/components/record-detail/QuantitativeScreenSection';
+import { DataQualitySection } from '@/components/record-detail/DataQualitySection';
 import { AppSidebar } from '@/components/AppSidebar';
-import { ArrowLeft, RefreshCw, AlertTriangle, FileText, MessageSquare, PieChart, BookOpen } from 'lucide-react';
+import { ArrowLeft, RefreshCw, AlertTriangle, FileText, MessageSquare, PieChart, BookOpen, Calculator } from 'lucide-react';
 
 export default function RecordDetail() {
   const { upsertKey } = useParams<{ upsertKey: string }>();
@@ -155,6 +157,8 @@ export default function RecordDetail() {
 
               <TabsContent value="revenue" className="mt-0 space-y-4 sm:space-y-6">
                 <HaramRevenueSection record={record} />
+                <QuantitativeScreenSection record={record} />
+                <DataQualitySection record={record} />
               </TabsContent>
 
               <TabsContent value="references" className="mt-0 space-y-4 sm:space-y-6">

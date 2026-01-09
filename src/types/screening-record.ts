@@ -1,13 +1,51 @@
 // Extended Screening Record Types matching the Methodology 3 Website Schema v1
 // This defines the complete data contract for client and staff views
 
+// ============ JSON PARSING HELPERS ============
+
+// Safe JSON parse for any value (string, object, or undefined)
+export function safeParseJSON<T>(value: string | T | null | undefined, fallback: T): T {
+  if (value === null || value === undefined || value === '' || value === '[]' || value === '{}') {
+    return fallback;
+  }
+  // If already parsed object/array, return it
+  if (typeof value === 'object') {
+    return value as T;
+  }
+  // Parse string
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value) as T;
+    } catch {
+      return fallback;
+    }
+  }
+  return fallback;
+}
+
+// Safe JSON parse for arrays
+export function safeParseJSONArray<T>(value: string | T[] | null | undefined): T[] {
+  return safeParseJSON<T[]>(value, []);
+}
+
+// Safe JSON parse for objects
+export function safeParseJSONObject<T extends object>(value: string | T | null | undefined): T | null {
+  const result = safeParseJSON<T | null>(value, null);
+  return result;
+}
+
+// ============ DATA CONTRACT TYPES ============
+
 // Composition item within a haram segment
 export interface CompositionItem {
   item_name?: string;
+  name?: string;
   haram_pct_of_total_revenue_lower?: number | null;
   haram_pct_of_total_revenue_upper?: number | null;
   haram_pct_of_total_revenue_point_estimate?: number | null;
+  pct_of_revenue?: number | null;
   why_haram?: string;
+  why_it_matters?: string;
   reference_ids?: string[];
 }
 
@@ -15,26 +53,29 @@ export interface CompositionItem {
 export interface ReferenceItem {
   id?: string;
   source_name?: string;
+  source?: string;
   source_type?: string;
   what_it_supports?: string;
+  supports?: string;
   url?: string;
   as_of?: string;
+  asOf?: string;
 }
 
 // Haram segment breakdown
 export interface HaramSegment {
   name: string;
+  segment_name?: string;
   point?: number | null;
   lower?: number | null;
   upper?: number | null;
+  pct_of_revenue?: number | null;
   confidence?: string | number | null;
   reasoning?: string | null;
   limitations?: string | null;
-  // Composition breakdown
+  why_it_matters?: string | null;
   composition?: CompositionItem[];
-  // References
   references?: ReferenceItem[];
-  // Legacy/extended fields
   description?: string;
   haram_pct_of_total_revenue_lower?: number | null;
   haram_pct_of_total_revenue_point_estimate?: number | null;
@@ -50,6 +91,7 @@ export interface EvidenceItem {
   snippet?: string;
   source?: string;
   ref?: string;
+  url?: string;
 }
 
 // QA Issue
@@ -59,24 +101,48 @@ export interface QAIssue {
   severity?: string;
 }
 
+// Key Driver item
+export interface KeyDriverItem {
+  driver?: string;
+  text?: string;
+  name?: string;
+}
+
+// Red Flag Industry item
+export interface RedFlagItem {
+  industry?: string;
+  name?: string;
+  text?: string;
+  reason?: string;
+}
+
+// Shariah Key Bullet
+export interface ShariahBulletItem {
+  bullet?: string;
+  text?: string;
+  point?: string;
+}
+
+// ============ MAIN SCREENING RECORD TYPE ============
 // Complete ScreeningRecord type with all fields from Methodology 3 data contract
 export interface ScreeningRecord {
-  // Identity fields (snake_case - new format)
+  // ===== IDENTITY / HEADER =====
   upsert_key: string;
   ticker?: string;
   company_name?: string;
+  sector?: string;
+  industry?: string;
   report_date?: string;
+  screening_date?: string;
   methodology_version?: string;
   security_type?: string;
-  
-  // Company Profile fields (optional)
+
+  // Company Profile (optional)
   exchange?: string | null;
   country?: string | null;
   reporting_period?: string | null;
   company_description?: string | null;
   business_segments_summary?: string[] | null;
-  industry?: string;
-  sector?: string;
 
   // Legacy identity fields (PascalCase - old format)
   Ticker?: string;
@@ -86,111 +152,68 @@ export interface ScreeningRecord {
   Sector?: string;
   Security_Type?: string;
 
-  // Verdict & Action Bar (new format)
+  // ===== VERDICT & RISK (PRIMARY) =====
   final_classification?: 'COMPLIANT' | 'COMPLIANT_WITH_PURIFICATION' | 'NON_COMPLIANT' | 'DOUBTFUL_REVIEW' | string | null;
-  purification_required?: boolean | null;
-  purification_pct_recommended?: number | null;
-  needs_board_review?: boolean | null;
-  shariah_summary?: string | null;
-
-  // Client summaries (plain English) - CANONICAL WEBSITE FIELDS
-  client_summary?: string | null;
-  client_shariah_summary?: string | null;
   client_verdict_label?: string | null;
-  client_purification_guidance?: string | null;
-  client_key_points?: string | null;
-  client_haram_breakdown?: string | null;
-  client_data_quality_note?: string | null;
-  client_disclaimer_short?: string | null;
-
-  // Client Identity Fields (use these for website display)
-  client_identity_ticker?: string | null;
-  client_identity_company_name?: string | null;
-  client_identity_report_date?: string | null;
-  client_identity_security_type?: string | null;
-  client_identity_industry?: string | null;
-  client_identity_sector?: string | null;
-
-  // Client Headline Fields
-  client_headline_final_classification?: string | null;
-  client_headline_screening_status?: string | null;
-  client_headline_one_line_summary?: string | null;
   client_risk_level?: string | null;
-  client_badges_json?: string | null;
-  client_key_points_json?: string | null;
+  needs_board_review?: boolean | null;
+  doubt_reason?: string | null;
 
-  // Client Quantitative Fields
-  client_numbers_debt_ratio_pct?: number | string | null;
-  client_numbers_cashinv_ratio_pct?: number | string | null;
-  client_numbers_npin_ratio_pct?: number | string | null;
+  // ===== SHARIAH SUMMARY (CLIENT) =====
+  shariah_summary?: string | null;
+  shariah_key_bullets_json?: string | null;
+  client_summary?: string | null;
+  client_what_it_means_for_investors?: string | null;
 
-  // Client Haram Revenue Fields
+  // ===== HARAM EXPOSURE (CLIENT + WEBSITE CHARTS) =====
   client_haram_total_pct_display?: string | null;
   client_top_haram_segments_label?: string | null;
   client_top_haram_composition_label?: string | null;
+  client_haram_breakdown?: string | null;
+  website_haram_segments_json?: string | null;
+  website_haram_composition_json?: string | null;
+
+  // Legacy haram fields
+  haram_pct_point?: number | null;
+  haram_pct_lower?: number | null;
+  haram_pct_upper?: number | null;
+  halal_pct_point?: number | null;
+  haram_total_pct_display?: string | null;
+  haram_confidence?: string | null;
+  haram_limitations?: string | null;
+  haram_segments_json?: string | null;
+  haram_segments?: HaramSegment[];
+  haram_composition_json?: string | null;
+  haram_top_segments_label?: string | null;
   client_top_segments_json?: string | null;
   client_top_composition_json?: string | null;
 
-  // Client Explanatory Fields
-  client_what_it_means_for_investors?: string | null;
+  // ===== PURIFICATION =====
+  purification_required?: boolean | null;
+  purification_pct_recommended?: number | null;
+  client_purification_guidance?: string | null;
 
-  // Client Board Review Fields
-  client_board_review_needs_review?: boolean | null;
-  client_board_review_doubt_reason?: string | null;
-
-  // Client Data Quality Fields
-  client_data_quality_summary_display?: string | null;
-  client_data_quality_top_reasons_json?: string | null;
-
-  // Client References
-  client_references_json?: string | null;
-  
-  // Additional client fields
-  client_badges?: string | null;
-  client_website_summary_json?: string | null;
-
-  // Verdict (legacy format)
-  Final_Verdict?: 'COMPLIANT' | 'COMPLIANT_WITH_PURIFICATION' | 'NON_COMPLIANT' | 'DOUBTFUL_REVIEW' | string | null;
-  Shariah_Compliant?: 'YES' | 'NO' | 'DOUBTFUL' | null;
-  Numeric_Screening_Result?: 'PASS' | 'FAIL' | null;
-  Qualitative_Screening_Result?: 'PASS' | 'CAUTION' | 'FAIL' | null;
-  Compliance_Status?: string | null;
-  Verdict_Strength?: 'Strong' | 'Moderate' | 'Weak' | null;
-  Compliance_Risk_Level?: 'Low' | 'Medium' | 'High' | null;
-  Key_Risk_Factors?: string | null;
-  Purification_Required?: boolean | string | null;
-  Purification_Percentage?: number | null;
-  Board_Review_Needed?: boolean | string | null;
-  
-  // Auto-banned
-  auto_banned?: boolean | null;
-  auto_banned_status?: string | null;
-  auto_banned_reason_clean?: string | null;
-  auto_banned_summary?: string | null;
-  Auto_Banned?: boolean | null;
-  Auto_Banned_Reason?: string | null;
-
-  // Business Activity
-  business_status?: 'PASS' | 'FAIL' | 'CAUTION' | 'REVIEW' | string | null;
-  llm_has_fail_flag?: boolean | null;
-  llm_has_caution_flag?: boolean | null;
-  llm_primary_rationale?: string | null;
-
-  // Financial Ratios - New format (snake_case)
+  // ===== QUANTITATIVE SCREEN (RATIOS) =====
+  rule_result?: 'PASS' | 'FAIL' | string | null;
   debt_ratio_pct?: number | null;
-  debt_status?: 'PASS' | 'FAIL' | 'UNKNOWN' | string | null;
-  debt_threshold_pct?: number | null;
-  debt_ratio_formula?: string | null;
   cash_inv_ratio_pct?: number | null;
-  cash_inv_status?: 'PASS' | 'FAIL' | 'UNKNOWN' | string | null;
-  cash_inv_threshold_pct?: number | null;
-  cash_inv_ratio_formula?: string | null;
   npin_ratio_pct?: number | null;
+  debt_status?: 'PASS' | 'FAIL' | 'UNKNOWN' | string | null;
+  cash_inv_status?: 'PASS' | 'FAIL' | 'UNKNOWN' | string | null;
   npin_status?: 'PASS' | 'FAIL' | 'UNKNOWN' | string | null;
+  debt_threshold_pct?: number | null;
+  cash_inv_threshold_pct?: number | null;
   npin_threshold_pct?: number | null;
+  debt_ratio_formula?: string | null;
+  cash_inv_ratio_formula?: string | null;
   npin_ratio_formula?: string | null;
   npin_numerator_formula?: string | null;
   npin_adjustments_notes?: string | null;
+
+  // Client quantitative fields (legacy)
+  client_numbers_debt_ratio_pct?: number | string | null;
+  client_numbers_cashinv_ratio_pct?: number | string | null;
+  client_numbers_npin_ratio_pct?: number | string | null;
 
   // Dollar amounts
   denominator_max_usd_mn?: number | null;
@@ -201,7 +224,7 @@ export interface ScreeningRecord {
   lt_invest_conv_usd_mn?: number | null;
   revenue_total_usd_mn?: number | null;
 
-  // Financial Ratios - Legacy format (PascalCase)
+  // Legacy ratio fields
   Debt_Ratio?: number | null;
   Debt_Ratio_Percent?: number | null;
   CashInv_Ratio?: number | null;
@@ -215,50 +238,20 @@ export interface ScreeningRecord {
   NPIN_Numerator_Formula?: string | null;
   NPIN_Adjustments_Notes?: string | null;
 
-  // Revenue Composition
-  haram_pct_point?: number | null;
-  haram_pct_lower?: number | null;
-  haram_pct_upper?: number | null;
-  halal_pct_point?: number | null;
-  haram_total_pct_display?: string | null;
-  haram_confidence?: string | null;
-  haram_limitations?: string | null;
-  haram_segments_json?: string | null;
-  haram_segments?: HaramSegment[];
-  haram_revenue_pct_for_screening?: number | null;
-  haram_reference_ids_used?: string | null;
-  haram_global_reasoning?: string | null;
-  haram_top_segments_names?: string | null;
-  haram_composition_json?: string | null;
-  haram_top_segments_label?: string | null;
-
-  // Evidence
-  evidence_items_json?: string | null;
-  evidence_items?: EvidenceItem[];
-  evidence_category?: string[];
-  evidence_severity?: string[];
-  evidence_rationale?: string[];
-  evidence_snippet?: string[];
-  evidence_source?: string[];
-
-  // Other JSON fields
-  key_drivers_json?: string | null;
-  red_flag_industries_json?: string | null;
-  shariah_references_json?: string | null;
-  non_compliant_revenue_pct_est_json?: string | null;
-
-  // QA (Staff-only) - New format
-  qa_needs_review?: boolean | null;
+  // ===== DATA QUALITY / QA (CLIENT-FACING + STRUCTURED) =====
+  qa_summary_display?: string | null;
   qa_status?: string | null;
   qa_issue_count?: number | null;
-  qa_summary_display?: string | null;
   qa_category_summary?: string | null;
   qa_reasons_summary?: string | null;
+  qa_timestamp?: string | null;
+  client_data_quality_note?: string | null;
+  client_data_quality_top_reasons_json?: string | null;
+
+  // Legacy QA fields
+  qa_needs_review?: boolean | null;
   qa_issues_json?: string | null;
   qa_issues_collapsed?: string | null;
-  qa_timestamp?: string | null;
-
-  // QA - Legacy format
   QA_Needs_Review?: boolean | null;
   QA_Status?: string | null;
   QA_Issue_Count?: number | null;
@@ -266,19 +259,98 @@ export interface ScreeningRecord {
   QA_Issues_CSV?: string | null;
   QA_Issues_Parsed?: QAIssue[] | string[];
 
-  // Memo & Report
-  shariah_memo_markdown?: string | null;
-  shariah_memo?: string | null;
+  // ===== EVIDENCE / MEMO / AUDIT =====
   memo_doc_url?: string | null;
   memo_doc_id?: string | null;
+  evidence_items_json?: string | null;
+  final_ticker_summary_json?: string | null;
+  final_ticker_summary_last_updated?: string | null;
 
-  // Notes
-  doubt_reason?: string | null;
+  // Legacy evidence fields
+  evidence_items?: EvidenceItem[];
+  evidence_category?: string[];
+  evidence_severity?: string[];
+  evidence_rationale?: string[];
+  evidence_snippet?: string[];
+  evidence_source?: string[];
+
+  // Memo content
+  shariah_memo_markdown?: string | null;
+  shariah_memo?: string | null;
+
+  // ===== EXPLAINABILITY (ENGINE OUTPUTS) =====
+  llm_primary_rationale?: string | null;
+  key_drivers_json?: string | null;
+  red_flag_industries_json?: string | null;
+  business_status?: 'PASS' | 'FAIL' | 'CAUTION' | 'REVIEW' | string | null;
+  llm_has_fail_flag?: boolean | null;
+  llm_has_caution_flag?: boolean | null;
+
+  // ===== REFERENCES / DISCLOSURE =====
+  client_references_json?: string | null;
+  website_references_json?: string | null;
+  haram_references_json?: string | null;
+  client_disclaimer_short?: string | null;
+  shariah_references_json?: string | null;
+
+  // ===== PORTFOLIO MANAGER NOTES =====
   notes_for_portfolio_manager?: string | null;
-  Doubt_Reason?: string | null;
   Portfolio_Manager_Notes?: string | null;
+  Doubt_Reason?: string | null;
+
+  // ===== LEGACY / OTHER FIELDS =====
+  Final_Verdict?: 'COMPLIANT' | 'COMPLIANT_WITH_PURIFICATION' | 'NON_COMPLIANT' | 'DOUBTFUL_REVIEW' | string | null;
+  Shariah_Compliant?: 'YES' | 'NO' | 'DOUBTFUL' | null;
+  Numeric_Screening_Result?: 'PASS' | 'FAIL' | null;
+  Qualitative_Screening_Result?: 'PASS' | 'CAUTION' | 'FAIL' | null;
+  Compliance_Status?: string | null;
+  Verdict_Strength?: 'Strong' | 'Moderate' | 'Weak' | null;
+  Compliance_Risk_Level?: 'Low' | 'Medium' | 'High' | null;
+  Key_Risk_Factors?: string | null;
+  Purification_Required?: boolean | string | null;
+  Purification_Percentage?: number | null;
+  Board_Review_Needed?: boolean | string | null;
+
+  // Auto-banned
+  auto_banned?: boolean | null;
+  auto_banned_status?: string | null;
+  auto_banned_reason_clean?: string | null;
+  auto_banned_summary?: string | null;
+  Auto_Banned?: boolean | null;
+  Auto_Banned_Reason?: string | null;
+
+  // Client identity fields (legacy)
+  client_identity_ticker?: string | null;
+  client_identity_company_name?: string | null;
+  client_identity_report_date?: string | null;
+  client_identity_security_type?: string | null;
+  client_identity_industry?: string | null;
+  client_identity_sector?: string | null;
+
+  // Client headline fields (legacy)
+  client_headline_final_classification?: string | null;
+  client_headline_screening_status?: string | null;
+  client_headline_one_line_summary?: string | null;
+  client_badges_json?: string | null;
+  client_key_points_json?: string | null;
+  client_shariah_summary?: string | null;
+  client_key_points?: string | null;
+  client_badges?: string | null;
+  client_website_summary_json?: string | null;
+
+  // Client board review fields
+  client_board_review_needs_review?: boolean | null;
+  client_board_review_doubt_reason?: string | null;
+
+  // Client data quality display
+  client_data_quality_summary_display?: string | null;
 
   // Other legacy fields
+  haram_revenue_pct_for_screening?: number | null;
+  haram_reference_ids_used?: string | null;
+  haram_global_reasoning?: string | null;
+  haram_top_segments_names?: string | null;
+  non_compliant_revenue_pct_est_json?: string | null;
   Dual_Use_Product?: 'YES' | 'NO' | null;
   Dual_Use_Comment?: string | null;
   Shariah_References?: string | null;
@@ -290,21 +362,7 @@ export interface ScreeningRecord {
   Purification_Amount_Estimated_USD_mn?: number | null;
   methodology?: string | null;
   inserted_at?: string | null;
-
-  // Debug payload (optional)
   payload_json?: string | null;
-}
-
-// Helper to safely parse JSON with fallback
-export function safeParseJSON<T>(value: string | null | undefined, fallback: T): T {
-  if (!value || value === '[]' || value === '{}' || value === '') {
-    return fallback;
-  }
-  try {
-    return JSON.parse(value) as T;
-  } catch {
-    return fallback;
-  }
 }
 
 // Helper to normalize haram segments from JSON string
