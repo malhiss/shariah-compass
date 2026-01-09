@@ -141,6 +141,8 @@ export interface NumericOnlyRecord {
 }
 
 // ==================== Query/Filter Types ====================
+export type Universe = "global" | "gcc";
+
 export interface ScreeningFilters {
   search?: string;
   ticker?: string;
@@ -154,6 +156,7 @@ export interface ScreeningFilters {
   zakatStatus?: string;
   zakatableAssetsMin?: number;
   zakatMethodology?: string;
+  universe?: Universe;
   page?: number;
   pageSize?: number;
   sortBy?: string;

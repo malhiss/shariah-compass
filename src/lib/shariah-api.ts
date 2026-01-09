@@ -19,6 +19,7 @@ export async function getClientFacingRecords(
     finalClassification: filters?.finalVerdict,
     industry: filters?.industry,
     autoBanned: filters?.autoBanned,
+    universe: filters?.universe,
     page: filters?.page || 1,
     pageSize: filters?.pageSize || 50,
   });

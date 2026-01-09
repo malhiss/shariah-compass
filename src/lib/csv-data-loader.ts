@@ -411,17 +411,37 @@ export async function findByUpsertKey(upsertKey: string): Promise<ScreeningRecor
   return data.find(r => r.upsert_key === upsertKey);
 }
 
+// GCC countries list
+const GCC_COUNTRIES = [
+  'saudi arabia',
+  'united arab emirates',
+  'uae',
+  'kuwait',
+  'bahrain',
+  'oman',
+  'qatar',
+];
+
 // Get all records with filtering and pagination
 export async function getAllRecords(filters?: {
   search?: string;
   finalClassification?: string;
   autoBanned?: boolean | string;
   industry?: string;
+  universe?: 'global' | 'gcc';
   page?: number;
   pageSize?: number;
 }): Promise<{ records: ScreeningRecord[]; total: number }> {
   const data = await loadScreeningData();
   let result = [...data];
+  
+  // Filter by universe (GCC countries)
+  if (filters?.universe === 'gcc') {
+    result = result.filter(r => {
+      const country = (r.country || '').toLowerCase().trim();
+      return GCC_COUNTRIES.some(gcc => country.includes(gcc));
+    });
+  }
   
   if (filters?.search) {
     const searchLower = filters.search.toLowerCase();
