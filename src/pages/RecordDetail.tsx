@@ -14,8 +14,10 @@ import { ClientSummaryTab } from '@/components/record-detail/ClientSummaryTab';
 import { StructuredMemoSection } from '@/components/record-detail/StructuredMemoSection';
 import { QuantitativeScreenSection } from '@/components/record-detail/QuantitativeScreenSection';
 import { DataQualitySection } from '@/components/record-detail/DataQualitySection';
+import { ExplainabilitySection } from '@/components/record-detail/ExplainabilitySection';
+import { EvidenceMemoSection } from '@/components/record-detail/EvidenceMemoSection';
 import { AppSidebar } from '@/components/AppSidebar';
-import { ArrowLeft, RefreshCw, AlertTriangle, FileText, MessageSquare, PieChart, BookOpen, Calculator } from 'lucide-react';
+import { ArrowLeft, RefreshCw, AlertTriangle, FileText, MessageSquare, PieChart, BookOpen, Brain } from 'lucide-react';
 
 export default function RecordDetail() {
   const { upsertKey } = useParams<{ upsertKey: string }>();
@@ -130,8 +132,16 @@ export default function RecordDetail() {
                 className="flex-1 sm:flex-none rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-3 sm:px-6 text-xs sm:text-sm"
               >
                 <PieChart className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                <span className="hidden xs:inline">Revenue Analysis</span>
-                <span className="xs:hidden">Revenue</span>
+                <span className="hidden xs:inline">Revenue</span>
+                <span className="xs:hidden">Rev</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="analysis"
+                className="flex-1 sm:flex-none rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-3 sm:px-6 text-xs sm:text-sm"
+              >
+                <Brain className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                <span className="hidden xs:inline">Analysis</span>
+                <span className="xs:hidden">AI</span>
               </TabsTrigger>
               <TabsTrigger
                 value="references"
@@ -158,6 +168,11 @@ export default function RecordDetail() {
               <TabsContent value="revenue" className="mt-0 space-y-4 sm:space-y-6">
                 <HaramRevenueSection record={record} />
                 <QuantitativeScreenSection record={record} />
+              </TabsContent>
+
+              <TabsContent value="analysis" className="mt-0 space-y-4 sm:space-y-6">
+                <ExplainabilitySection record={record} />
+                <EvidenceMemoSection record={record} />
                 <DataQualitySection record={record} />
               </TabsContent>
 
