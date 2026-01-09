@@ -74,8 +74,9 @@ export default function ShariahDashboard() {
           </p>
         </div>
 
-        {/* Universe Toggle */}
-        <div className="mb-4 sm:mb-6">
+        {/* Toggles Row */}
+        <div className="flex flex-wrap items-center gap-4 mb-4 sm:mb-6">
+          {/* Universe Toggle */}
           <Tabs value={universe} onValueChange={(v) => handleUniverseChange(v as Universe)}>
             <TabsList className="bg-muted/30">
               <TabsTrigger
@@ -94,10 +95,8 @@ export default function ShariahDashboard() {
               </TabsTrigger>
             </TabsList>
           </Tabs>
-        </div>
 
-        {/* View Toggle */}
-        <div className="mb-4 sm:mb-6">
+          {/* View Toggle */}
           <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
             <TabsList className="bg-muted/30">
               <TabsTrigger
