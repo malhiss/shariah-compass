@@ -1,78 +1,145 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { safeParseJSON } from '@/types/screening-record';
-import type { ScreeningRecord } from '@/types/screening-record';
-import { MessageSquare, CheckCircle2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { safeParseJSON, type ScreeningRecord, type ShariahBulletItem } from '@/types/screening-record';
+import { MessageSquare, CheckCircle2, Lightbulb, DollarSign, AlertTriangle } from 'lucide-react';
 import { CompanyProfileSection } from './CompanyProfileSection';
 
 interface ClientSummaryTabProps {
   record: ScreeningRecord;
 }
 
-// Key point item from client_key_points_json
-interface KeyPointItem {
-  point?: string;
-  text?: string;
-}
-
 export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
-  // Key points - parse JSON
-  const keyPointsRaw = safeParseJSON<KeyPointItem[] | string[]>(record.client_key_points_json, []);
-  const keyPoints: string[] = keyPointsRaw
-    .map(item => typeof item === 'string' ? item : (item.point || item.text || ''))
+  // Shariah Summary with fallback chain
+  const shariahSummary = record.shariah_summary || record.client_summary || record.llm_primary_rationale || null;
+  
+  // Shariah key bullets
+  const bulletItems = safeParseJSON<ShariahBulletItem[] | string[]>(record.shariah_key_bullets_json, []);
+  const bullets: string[] = bulletItems
+    .map(item => typeof item === 'string' ? item : (item.bullet || item.text || item.point || ''))
     .filter(p => p.length > 0)
     .slice(0, 6);
+
+  // What it means for investors
+  const whatItMeans = record.client_what_it_means_for_investors;
+
+  // Purification guidance
+  const purificationRequired = record.purification_required;
+  const purificationPct = record.purification_pct_recommended;
+  const purificationGuidance = record.client_purification_guidance;
 
   // Disclaimer
   const disclaimer = record.client_disclaimer_short;
 
-  // Check if we have any company profile data
-  const hasProfileData = record.exchange || record.country || record.reporting_period || 
-    record.company_description || (record.business_segments_summary && record.business_segments_summary.length > 0);
+  // Portfolio manager notes
+  const pmNotes = record.notes_for_portfolio_manager || record.Portfolio_Manager_Notes;
 
-  const hasContent = keyPoints.length > 0 || hasProfileData;
-
-  if (!hasContent) {
-    return (
-      <Card className="premium-card">
-        <CardContent className="py-12 text-center">
-          <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium mb-2">No Summary Available</h3>
-          <p className="text-muted-foreground">
-            A detailed summary has not been generated for this screening.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
+  const hasSummaryContent = shariahSummary || bullets.length > 0 || whatItMeans;
 
   return (
     <div className="space-y-6">
-      {/* Company Profile Section - displayed first */}
+      {/* Company Profile Section */}
       <CompanyProfileSection record={record} />
 
-      {/* Findings (Bullets) */}
-      {keyPoints.length > 0 && (
+      {/* Shariah Summary Section */}
+      {hasSummaryContent && (
         <Card className="premium-card">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-compliant/10">
-                <CheckCircle2 className="w-5 h-5 text-compliant" />
+              <div className="p-2 rounded-lg bg-primary/10">
+                <MessageSquare className="w-5 h-5 text-primary" />
               </div>
-              <CardTitle className="text-lg">Findings</CardTitle>
+              <CardTitle className="text-lg">Shariah Summary</CardTitle>
             </div>
           </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {keyPoints.map((point, idx) => (
-                <li key={idx} className="flex items-start gap-2">
-                  <span className="text-primary mt-1.5">•</span>
-                  <span className="text-foreground leading-relaxed">{point}</span>
-                </li>
-              ))}
-            </ul>
+          <CardContent className="space-y-4">
+            {/* Main summary paragraph */}
+            {shariahSummary && (
+              <p className="text-foreground leading-relaxed">{shariahSummary}</p>
+            )}
+
+            {/* Key bullets */}
+            {bullets.length > 0 && (
+              <div className="pt-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <CheckCircle2 className="w-4 h-4 text-compliant" />
+                  <span className="text-sm font-medium text-muted-foreground">Key Findings</span>
+                </div>
+                <ul className="space-y-2">
+                  {bullets.map((point, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <span className="text-primary mt-1.5">•</span>
+                      <span className="text-foreground leading-relaxed">{point}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* What it means for investors */}
+            {whatItMeans && (
+              <div className="pt-4 border-t border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <Lightbulb className="w-4 h-4 text-warning" />
+                  <span className="text-sm font-medium text-muted-foreground">What It Means for Investors</span>
+                </div>
+                <p className="text-foreground leading-relaxed">{whatItMeans}</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
+
+      {/* Purification Section */}
+      <Card className="premium-card">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-warning/10">
+              <DollarSign className="w-5 h-5 text-warning" />
+            </div>
+            <CardTitle className="text-lg">Purification</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {purificationRequired ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Badge className="bg-warning/15 text-warning border-warning/30">
+                  <AlertTriangle className="w-3 h-3 mr-1" />
+                  Purification Required
+                </Badge>
+                {purificationPct !== null && purificationPct !== undefined && (
+                  <span className="text-lg font-bold text-warning">{purificationPct.toFixed(2)}%</span>
+                )}
+              </div>
+              {purificationGuidance && (
+                <p className="text-foreground leading-relaxed">{purificationGuidance}</p>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-compliant">
+              <CheckCircle2 className="w-5 h-5" />
+              <span className="font-medium">Purification not required.</span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Portfolio Manager Notes */}
+      <Card className="premium-card">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-muted/50">
+              <MessageSquare className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <CardTitle className="text-lg">Portfolio Manager Notes</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="text-foreground leading-relaxed">
+            {pmNotes || 'No portfolio notes available.'}
+          </p>
+        </CardContent>
+      </Card>
 
       {/* Disclaimer (Footer) */}
       {disclaimer && (
