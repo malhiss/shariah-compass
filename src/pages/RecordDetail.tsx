@@ -13,11 +13,8 @@ import { ReferencesSection } from '@/components/record-detail/ReferencesSection'
 import { ClientSummaryTab } from '@/components/record-detail/ClientSummaryTab';
 import { StructuredMemoSection } from '@/components/record-detail/StructuredMemoSection';
 
-import { DataQualitySection } from '@/components/record-detail/DataQualitySection';
-import { ExplainabilitySection } from '@/components/record-detail/ExplainabilitySection';
-import { EvidenceMemoSection } from '@/components/record-detail/EvidenceMemoSection';
 import { AppSidebar } from '@/components/AppSidebar';
-import { ArrowLeft, RefreshCw, AlertTriangle, FileText, MessageSquare, PieChart, BookOpen, Brain } from 'lucide-react';
+import { ArrowLeft, RefreshCw, AlertTriangle, FileText, MessageSquare, PieChart, BookOpen } from 'lucide-react';
 
 export default function RecordDetail() {
   const { upsertKey } = useParams<{ upsertKey: string }>();
@@ -136,14 +133,6 @@ export default function RecordDetail() {
                 <span className="xs:hidden">Rev</span>
               </TabsTrigger>
               <TabsTrigger
-                value="analysis"
-                className="flex-1 sm:flex-none rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-3 sm:px-6 text-xs sm:text-sm"
-              >
-                <Brain className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                <span className="hidden xs:inline">Analysis</span>
-                <span className="xs:hidden">AI</span>
-              </TabsTrigger>
-              <TabsTrigger
                 value="references"
                 className="flex-1 sm:flex-none rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-3 sm:px-6 text-xs sm:text-sm"
               >
@@ -169,11 +158,6 @@ export default function RecordDetail() {
                 <HaramRevenueSection record={record} />
               </TabsContent>
 
-              <TabsContent value="analysis" className="mt-0 space-y-4 sm:space-y-6">
-                <ExplainabilitySection record={record} />
-                <EvidenceMemoSection record={record} />
-                <DataQualitySection record={record} />
-              </TabsContent>
 
               <TabsContent value="references" className="mt-0 space-y-4 sm:space-y-6">
                 <ReferencesSection record={record} />
