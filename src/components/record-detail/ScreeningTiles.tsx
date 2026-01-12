@@ -40,42 +40,54 @@ function getStatusIndicator(status: TileStatus) {
   }
 }
 
-function determineStatus(value: string, thresholdPct: number): TileStatus {
+function determineStatus(value: string, thresholdPct: number | null | undefined): TileStatus {
   if (value === 'N/A') return 'na';
   const numVal = parseFloat(value.replace('%', ''));
   if (isNaN(numVal)) return 'na';
-  return numVal <= thresholdPct ? 'pass' : 'fail';
+  const threshold = thresholdPct ?? 33;
+  return numVal <= threshold ? 'pass' : 'fail';
 }
 
 export function ScreeningTiles({ record }: ScreeningTilesProps) {
-  const debtRatioDisplay = parseClientRatio(record.client_numbers_debt_ratio_pct);
-  const cashInvRatioDisplay = parseClientRatio(record.client_numbers_cashinv_ratio_pct);
-  const npinRatioDisplay = parseClientRatio(record.client_numbers_npin_ratio_pct);
+  // Use new data contract fields with fallbacks to legacy fields
+  const debtRatioDisplay = parseClientRatio(record.debt_ratio_pct ?? record.client_numbers_debt_ratio_pct);
+  const cashInvRatioDisplay = parseClientRatio(record.cash_inv_ratio_pct ?? record.client_numbers_cashinv_ratio_pct);
+  const npinRatioDisplay = parseClientRatio(record.npin_ratio_pct ?? record.client_numbers_npin_ratio_pct);
+
+  // Use status fields from data contract if available
+  const debtStatus = record.debt_status === 'PASS' ? 'pass' : record.debt_status === 'FAIL' ? 'fail' : determineStatus(debtRatioDisplay, record.debt_threshold_pct ?? 33);
+  const cashStatus = record.cash_inv_status === 'PASS' ? 'pass' : record.cash_inv_status === 'FAIL' ? 'fail' : determineStatus(cashInvRatioDisplay, record.cash_inv_threshold_pct ?? 33);
+  const npinStatus = record.npin_status === 'PASS' ? 'pass' : record.npin_status === 'FAIL' ? 'fail' : determineStatus(npinRatioDisplay, record.npin_threshold_pct ?? 5);
+
+  // Use thresholds from data contract or defaults
+  const debtThreshold = record.debt_threshold_pct ?? 33;
+  const cashThreshold = record.cash_inv_threshold_pct ?? 33;
+  const npinThreshold = record.npin_threshold_pct ?? 5;
 
   const tiles: TileData[] = [
     {
       label: 'Debt Ratio',
       shortLabel: 'Debt',
       icon: <Scale className="w-4 h-4" />,
-      status: determineStatus(debtRatioDisplay, 33),
+      status: debtStatus,
       value: debtRatioDisplay,
-      threshold: '≤33%',
+      threshold: `≤${debtThreshold}%`,
     },
     {
       label: 'Cash & Investments',
       shortLabel: 'Cash/Inv',
       icon: <DollarSign className="w-4 h-4" />,
-      status: determineStatus(cashInvRatioDisplay, 33),
+      status: cashStatus,
       value: cashInvRatioDisplay,
-      threshold: '≤33%',
+      threshold: `≤${cashThreshold}%`,
     },
     {
       label: 'Non-Permissible Income',
       shortLabel: 'NPIN',
       icon: <TrendingDown className="w-4 h-4" />,
-      status: determineStatus(npinRatioDisplay, 5),
+      status: npinStatus,
       value: npinRatioDisplay,
-      threshold: '≤5%',
+      threshold: `≤${npinThreshold}%`,
     },
   ];
 
