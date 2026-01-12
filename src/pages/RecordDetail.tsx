@@ -12,7 +12,7 @@ import { HaramRevenueSection } from '@/components/record-detail/HaramRevenueSect
 import { ReferencesSection } from '@/components/record-detail/ReferencesSection';
 import { ClientSummaryTab } from '@/components/record-detail/ClientSummaryTab';
 import { StructuredMemoSection } from '@/components/record-detail/StructuredMemoSection';
-import { QuantitativeScreenSection } from '@/components/record-detail/QuantitativeScreenSection';
+
 import { DataQualitySection } from '@/components/record-detail/DataQualitySection';
 import { ExplainabilitySection } from '@/components/record-detail/ExplainabilitySection';
 import { EvidenceMemoSection } from '@/components/record-detail/EvidenceMemoSection';
@@ -167,7 +167,6 @@ export default function RecordDetail() {
 
               <TabsContent value="revenue" className="mt-0 space-y-4 sm:space-y-6">
                 <HaramRevenueSection record={record} />
-                <QuantitativeScreenSection record={record} />
               </TabsContent>
 
               <TabsContent value="analysis" className="mt-0 space-y-4 sm:space-y-6">
