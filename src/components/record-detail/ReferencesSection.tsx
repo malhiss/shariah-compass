@@ -70,7 +70,7 @@ export function ReferencesSection({ record }: ReferencesSectionProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Quote className="w-5 h-5 text-primary" />
-              Transcript Story / Evidence
+              Transcript Findings
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
