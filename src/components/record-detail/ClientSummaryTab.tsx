@@ -33,9 +33,6 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
   // Disclaimer
   const disclaimer = record.client_disclaimer_short;
 
-  // Portfolio manager notes
-  const pmNotes = record.notes_for_portfolio_manager || record.Portfolio_Manager_Notes;
-
   const hasSummaryContent = shariahSummary || estimatedSummary || bullets.length > 0 || whatItMeans;
 
   return (
@@ -138,22 +135,6 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
         </CardContent>
       </Card>
 
-      {/* Portfolio Manager Notes */}
-      <Card className="premium-card">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-muted/50">
-              <MessageSquare className="w-5 h-5 text-muted-foreground" />
-            </div>
-            <CardTitle className="text-lg">Portfolio Manager Notes</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <p className="text-foreground leading-relaxed">
-            {pmNotes || 'No portfolio notes available.'}
-          </p>
-        </CardContent>
-      </Card>
 
       {/* Disclaimer (Footer) */}
       {disclaimer && (

@@ -105,17 +105,11 @@ export function VerdictBar({ record }: VerdictBarProps) {
           <Badge 
             variant="outline" 
             className="bg-doubtful/10 text-doubtful border-doubtful/30 gap-1 text-xs py-0.5 px-2"
-            title={doubtReason || 'Board review required'}
+            title="Board review required"
           >
             <Users className="w-3 h-3" />
             Board Review
           </Badge>
-        )}
-
-        {doubtReason && (
-          <span className="text-xs text-muted-foreground italic ml-2">
-            {doubtReason}
-          </span>
         )}
       </div>
     </div>

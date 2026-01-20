@@ -178,6 +178,7 @@ export interface ScreeningRecord {
   estimated_npin_purification_required?: boolean | null;
   estimated_npin_purification_pct_recommended?: number | null;
   estimated_npin_final_shariah_summary?: string | null; // NEW: Estimated logic summary
+  est_purification_pct_recommended?: number | null; // From CSV: estimated purification percentage
 
   // ===== HARAM EXPOSURE (CLIENT + WEBSITE CHARTS) =====
   client_haram_total_pct_display?: string | null;

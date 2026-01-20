@@ -54,20 +54,22 @@ export function ScreeningTiles({ record }: ScreeningTilesProps) {
   const cashInvRatioDisplay = parseClientRatio(record.cash_inv_ratio_pct ?? record.client_numbers_cashinv_ratio_pct);
   const npinRatioDisplay = parseClientRatio(record.npin_ratio_pct ?? record.client_numbers_npin_ratio_pct);
 
-  // Estimated NPIN - format value properly (handle 0-1 or 0-100 range)
+  // Estimated NPIN - use est_purification_pct_recommended field
   const getEstimatedNpinDisplay = (): string => {
-    const pointValue = record.estimated_npin_value_used_point;
-    const purificationPct = record.estimated_npin_purification_pct_recommended;
+    // Primary: use est_purification_pct_recommended from CSV
+    const estPurificationPct = record.est_purification_pct_recommended;
     
-    if (pointValue !== null && pointValue !== undefined) {
-      // If value is between 0-1, multiply by 100
-      const displayValue = pointValue <= 1 ? pointValue * 100 : pointValue;
-      return `${displayValue.toFixed(2)}%`;
+    if (estPurificationPct !== null && estPurificationPct !== undefined) {
+      // Values in CSV are already percentages (e.g., 0.5 means 0.5%)
+      return `${estPurificationPct.toFixed(2)}%`;
     }
+    
+    // Fallback to estimated_npin_purification_pct_recommended
+    const purificationPct = record.estimated_npin_purification_pct_recommended;
     if (purificationPct !== null && purificationPct !== undefined) {
-      const displayValue = purificationPct <= 1 ? purificationPct * 100 : purificationPct;
-      return `${displayValue.toFixed(2)}%`;
+      return `${purificationPct.toFixed(2)}%`;
     }
+    
     return 'N/A';
   };
 
