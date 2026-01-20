@@ -387,6 +387,14 @@ export interface ScreeningRecord {
   inserted_at?: string | null;
   payload_json?: string | null;
   screening_run_at?: string | null; // For deriving screening_date if not present
+
+  // Zakat fields (for Zakat view mode)
+  Zakat_Status?: 'ZAKATABLE' | 'NON_ZAKATABLE' | 'MIXED' | 'UNKNOWN' | null;
+  Zakatable_Assets_Ratio_Percent?: number | null;
+  Zakat_Per_Share_USD?: number | null;
+  Zakat_Per_100_Units_USD?: number | null;
+  Zakat_Methodology?: string | null;
+  Zakat_Notes?: string | null;
 }
 
 // Helper to normalize haram segments from JSON string

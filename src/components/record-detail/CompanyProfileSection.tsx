@@ -11,7 +11,8 @@ export function CompanyProfileSection({ record }: CompanyProfileSectionProps) {
   const exchange = record.exchange || null;
   const country = record.country || null;
   const reportingPeriod = record.reporting_period || null;
-  const companyDescription = record.company_description || null;
+  // Prefer business_description, fallback to company_description
+  const companyDescription = record.business_description || record.company_description || null;
   const businessSegments = record.business_segments_summary || null;
 
   // Check if we have any profile data to display
