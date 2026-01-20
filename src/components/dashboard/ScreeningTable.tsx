@@ -252,8 +252,8 @@ export function ScreeningTable({
               <TableHead className="text-muted-foreground">Sector</TableHead>
               <TableHead className="text-muted-foreground">Industry</TableHead>
               <TableHead className="text-center text-muted-foreground">Classification</TableHead>
-              <TableHead className="text-right text-muted-foreground">Mkt Cap</TableHead>
-              <TableHead className="text-right text-muted-foreground">Revenue</TableHead>
+              <TableHead className="text-right text-muted-foreground">Market Cap Mm</TableHead>
+              <TableHead className="text-right text-muted-foreground">Revenue Mm</TableHead>
               <TableHead className="text-right text-muted-foreground">Debt %</TableHead>
               <TableHead className="text-right text-muted-foreground">Cash %</TableHead>
               <TableHead className="text-right text-muted-foreground">NPIN %</TableHead>
