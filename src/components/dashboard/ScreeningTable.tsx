@@ -257,7 +257,6 @@ export function ScreeningTable({
               <TableHead className="text-right text-foreground font-bold">Debt %</TableHead>
               <TableHead className="text-right text-foreground font-bold">Cash %</TableHead>
               <TableHead className="text-right text-foreground font-bold">NPIN %</TableHead>
-              <TableHead className="text-center text-foreground font-bold">Risk</TableHead>
               <TableHead className="text-foreground font-bold">Screening Date</TableHead>
             </TableRow>
           </TableHeader>
@@ -303,9 +302,6 @@ export function ScreeningTable({
                   <span className={record.npin_status === 'FAIL' ? 'text-non-compliant' : ''}>
                     {formatPercent(record.npin_ratio_pct)}
                   </span>
-                </TableCell>
-                <TableCell className="text-center">
-                  <RiskBadge level={record.client_risk_level || record.Compliance_Risk_Level} />
                 </TableCell>
                 <TableCell className="text-muted-foreground text-sm font-mono">
                   {formatScreeningDate(record)}

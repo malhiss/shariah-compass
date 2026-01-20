@@ -45,8 +45,6 @@ export function DashboardFilters({
   const hasActiveFilters =
     filters.search ||
     filters.finalVerdict ||
-    filters.riskLevel ||
-    filters.boardReviewNeeded ||
     filters.zakatStatus;
 
   return (
@@ -99,42 +97,6 @@ export function DashboardFilters({
               </Select>
             </div>
 
-            {/* Risk Level Filter */}
-            <div className="space-y-1 sm:space-y-1.5">
-              <Label className="text-[10px] sm:text-xs text-muted-foreground">Risk Level</Label>
-              <Select
-                value={filters.riskLevel || 'all'}
-                onValueChange={(v) => handleFilterChange('riskLevel', v)}
-              >
-                <SelectTrigger className="w-full sm:w-[140px] bg-background border-border text-xs sm:text-sm h-9">
-                  <SelectValue placeholder="All" />
-                </SelectTrigger>
-                <SelectContent className="bg-card border-border z-50">
-                  <SelectItem value="all">All Risks</SelectItem>
-                  <SelectItem value="Low">Low Risk</SelectItem>
-                  <SelectItem value="Medium">Medium Risk</SelectItem>
-                  <SelectItem value="High">High Risk</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Board Review Filter */}
-            <div className="space-y-1 sm:space-y-1.5 col-span-2 sm:col-span-1">
-              <Label className="text-[10px] sm:text-xs text-muted-foreground">Board Review</Label>
-              <Select
-                value={filters.boardReviewNeeded || 'all'}
-                onValueChange={(v) => handleFilterChange('boardReviewNeeded', v)}
-              >
-                <SelectTrigger className="w-full sm:w-[160px] bg-background border-border text-xs sm:text-sm h-9">
-                  <SelectValue placeholder="All" />
-                </SelectTrigger>
-                <SelectContent className="bg-card border-border z-50">
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="YES">Review Required</SelectItem>
-                  <SelectItem value="NO">No Review Needed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </>
         )}
 
