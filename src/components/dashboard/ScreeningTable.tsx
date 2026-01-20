@@ -247,18 +247,18 @@ export function ScreeningTable({
         <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent">
-              <TableHead className="text-muted-foreground">Ticker</TableHead>
-              <TableHead className="text-muted-foreground">Company</TableHead>
-              <TableHead className="text-muted-foreground">Sector</TableHead>
-              <TableHead className="text-muted-foreground">Industry</TableHead>
-              <TableHead className="text-center text-muted-foreground">Classification</TableHead>
-              <TableHead className="text-right text-muted-foreground">Market Cap Mm</TableHead>
-              <TableHead className="text-right text-muted-foreground">Revenue Mm</TableHead>
-              <TableHead className="text-right text-muted-foreground">Debt %</TableHead>
-              <TableHead className="text-right text-muted-foreground">Cash %</TableHead>
-              <TableHead className="text-right text-muted-foreground">NPIN %</TableHead>
-              <TableHead className="text-center text-muted-foreground">Risk</TableHead>
-              <TableHead className="text-muted-foreground">Screening Date</TableHead>
+              <TableHead className="text-foreground font-bold">Ticker</TableHead>
+              <TableHead className="text-foreground font-bold">Company</TableHead>
+              <TableHead className="text-foreground font-bold">Sector</TableHead>
+              <TableHead className="text-foreground font-bold">Industry</TableHead>
+              <TableHead className="text-center text-foreground font-bold">Classification</TableHead>
+              <TableHead className="text-right text-foreground font-bold">Market Cap Mm</TableHead>
+              <TableHead className="text-right text-foreground font-bold">Revenue Mm</TableHead>
+              <TableHead className="text-right text-foreground font-bold">Debt %</TableHead>
+              <TableHead className="text-right text-foreground font-bold">Cash %</TableHead>
+              <TableHead className="text-right text-foreground font-bold">NPIN %</TableHead>
+              <TableHead className="text-center text-foreground font-bold">Risk</TableHead>
+              <TableHead className="text-foreground font-bold">Screening Date</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
