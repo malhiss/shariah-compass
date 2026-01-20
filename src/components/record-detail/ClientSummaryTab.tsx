@@ -9,8 +9,11 @@ interface ClientSummaryTabProps {
 }
 
 export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
-  // Shariah Summary with fallback chain
-  const shariahSummary = record.shariah_summary || record.client_summary || record.llm_primary_rationale || null;
+  // Primary Shariah Summary with fallback chain
+  const shariahSummary = record.final_shariah_summary || record.shariah_summary || record.client_summary || record.llm_primary_rationale || null;
+  
+  // Estimated logic summary (new field)
+  const estimatedSummary = record.estimated_npin_final_shariah_summary || null;
   
   // Shariah key bullets
   const bulletItems = safeParseJSON<ShariahBulletItem[] | string[]>(record.shariah_key_bullets_json, []);
@@ -33,7 +36,7 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
   // Portfolio manager notes
   const pmNotes = record.notes_for_portfolio_manager || record.Portfolio_Manager_Notes;
 
-  const hasSummaryContent = shariahSummary || bullets.length > 0 || whatItMeans;
+  const hasSummaryContent = shariahSummary || estimatedSummary || bullets.length > 0 || whatItMeans;
 
   return (
     <div className="space-y-6">
@@ -48,7 +51,7 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
               <div className="p-2 rounded-lg bg-primary/10">
                 <MessageSquare className="w-5 h-5 text-primary" />
               </div>
-              <CardTitle className="text-lg">Shariah Summary</CardTitle>
+              <CardTitle className="text-lg">Summary</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -57,9 +60,20 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
               <p className="text-foreground leading-relaxed">{shariahSummary}</p>
             )}
 
+            {/* Estimated Logic Summary (new) */}
+            {estimatedSummary && (
+              <div className="pt-4 border-t border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <Lightbulb className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium text-muted-foreground">Estimated Logic Summary</span>
+                </div>
+                <p className="text-foreground leading-relaxed">{estimatedSummary}</p>
+              </div>
+            )}
+
             {/* Key bullets */}
             {bullets.length > 0 && (
-              <div className="pt-2">
+              <div className="pt-4 border-t border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <CheckCircle2 className="w-4 h-4 text-compliant" />
                   <span className="text-sm font-medium text-muted-foreground">Key Findings</span>

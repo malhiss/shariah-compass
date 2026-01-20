@@ -1,15 +1,19 @@
 // References Section - Non-collapsible grid display with fallback chain
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ExternalLink, BookOpen, Calendar } from 'lucide-react';
-import { safeParseJSON, type ScreeningRecord, type ReferenceItem } from '@/types/screening-record';
+import { ExternalLink, BookOpen, Calendar, FileText, Quote } from 'lucide-react';
+import { safeParseJSON, type ScreeningRecord, type ReferenceItem, type EvidenceItem } from '@/types/screening-record';
 
 interface ReferencesSectionProps {
   record: ScreeningRecord;
 }
 
-// Get references with fallback chain: client_references_json → website_references_json → haram_references_json
+// Get references with fallback chain: references_json → client_references_json → website_references_json → haram_references_json
 function getReferencesWithFallback(record: ScreeningRecord): ReferenceItem[] {
-  // Try client_references_json first
+  // Try references_json first (primary)
+  const primaryRefs = safeParseJSON<ReferenceItem[]>(record.references_json, []);
+  if (primaryRefs.length > 0) return primaryRefs;
+
+  // Try client_references_json
   const clientRefs = safeParseJSON<ReferenceItem[]>(record.client_references_json, []);
   if (clientRefs.length > 0) return clientRefs;
 
@@ -24,12 +28,30 @@ function getReferencesWithFallback(record: ScreeningRecord): ReferenceItem[] {
   return [];
 }
 
+// Get evidence items with fallback
+function getEvidenceItems(record: ScreeningRecord): EvidenceItem[] {
+  // Try verdict_evidence_items_json first
+  const verdictEvidence = safeParseJSON<EvidenceItem[]>(record.verdict_evidence_items_json, []);
+  if (verdictEvidence.length > 0) return verdictEvidence;
+
+  // Fallback to evidence_items_json
+  const evidence = safeParseJSON<EvidenceItem[]>(record.evidence_items_json, []);
+  return evidence;
+}
+
 export function ReferencesSection({ record }: ReferencesSectionProps) {
   const references = getReferencesWithFallback(record);
+  const evidenceItems = getEvidenceItems(record);
+  const websiteStory = record.website_story;
   const disclaimer = record.client_disclaimer_short;
+  const haramRefs = safeParseJSON<ReferenceItem[]>(record.haram_references_json, []);
 
-  // Hide section if no references
-  if (references.length === 0) {
+  // Check if we have haram references that are different from main references
+  const hasHaramRefs = haramRefs.length > 0 && references !== haramRefs;
+
+  const hasContent = references.length > 0 || evidenceItems.length > 0 || websiteStory;
+
+  if (!hasContent) {
     return (
       <Card className="premium-card">
         <CardContent className="py-12 text-center">
@@ -42,65 +64,96 @@ export function ReferencesSection({ record }: ReferencesSectionProps) {
 
   return (
     <div className="space-y-4">
-      <Card className="premium-card">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <BookOpen className="w-5 h-5 text-primary" />
-            References ({references.length})
-          </CardTitle>
-        </CardHeader>
-        
-        <CardContent className="pt-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {references.map((ref, idx) => {
-              const sourceName = ref.source_name || ref.source;
-              const supports = ref.what_it_supports || ref.supports;
-              const asOf = ref.as_of || ref.asOf;
-              const url = ref.url;
+      {/* Evidence / Website Story Section */}
+      {(websiteStory || evidenceItems.length > 0) && (
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Quote className="w-5 h-5 text-primary" />
+              Transcript Story / Evidence
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Website Story */}
+            {websiteStory && (
+              <div className="p-4 rounded-lg bg-muted/10 border border-border">
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{websiteStory}</p>
+              </div>
+            )}
 
-              // If no URL, just show as a non-clickable card
-              if (!url) {
-                return (
+            {/* Evidence Items */}
+            {evidenceItems.length > 0 && (
+              <div className="space-y-2">
+                {evidenceItems.map((item, idx) => (
                   <div
                     key={idx}
-                    className="p-4 rounded-lg border border-border bg-muted/10"
+                    className="p-3 rounded-lg border border-border/50 bg-muted/5"
                   >
-                    {sourceName && (
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{sourceName}</p>
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        {item.category || item.source || 'Evidence'}
+                      </span>
+                      {item.ref && (
+                        <span className="text-xs text-primary font-mono">{item.ref}</span>
+                      )}
+                    </div>
+                    {item.rationale && (
+                      <p className="text-sm text-foreground leading-relaxed">{item.rationale}</p>
                     )}
-                    {supports && (
-                      <p className="text-sm font-medium text-foreground leading-relaxed">
-                        {supports}
-                      </p>
-                    )}
-                    {asOf && (
-                      <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground">
-                        <Calendar className="w-3 h-3" />
-                        {asOf}
-                      </div>
+                    {item.snippet && (
+                      <p className="text-xs text-muted-foreground mt-1 italic">"{item.snippet}"</p>
                     )}
                   </div>
-                );
-              }
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
-              // Clickable card that links to the URL
-              return (
-                <a
-                  key={idx}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group block p-4 rounded-lg border border-border bg-muted/10 hover:bg-primary/5 hover:border-primary/30 transition-all cursor-pointer"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      {sourceName && (
-                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{sourceName}</p>
-                      )}
+      {/* References Section */}
+      {references.length > 0 && (
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <BookOpen className="w-5 h-5 text-primary" />
+              References ({references.length})
+            </CardTitle>
+          </CardHeader>
+          
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {references.map((ref, idx) => {
+                const sourceName = ref.source_name || ref.source || ref.id;
+                const supports = ref.what_it_supports || ref.supports;
+                const asOf = ref.as_of || ref.asOf;
+                const url = ref.url;
+                const refType = ref.source_type;
+
+                // If no URL, just show as a non-clickable card
+                if (!url) {
+                  return (
+                    <div
+                      key={idx}
+                      className="p-4 rounded-lg border border-border bg-muted/10"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          {refType && (
+                            <span className="text-[10px] text-primary uppercase tracking-wide font-medium">{refType}</span>
+                          )}
+                          {sourceName && (
+                            <p className="text-sm font-medium text-foreground leading-relaxed mt-0.5">
+                              {sourceName}
+                            </p>
+                          )}
+                        </div>
+                        {ref.id && (
+                          <span className="text-xs font-mono text-muted-foreground shrink-0">{ref.id}</span>
+                        )}
+                      </div>
                       {supports && (
-                        <p className="text-sm font-medium text-foreground leading-relaxed group-hover:text-primary transition-colors">
-                          {supports}
-                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">{supports}</p>
                       )}
                       {asOf && (
                         <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground">
@@ -109,14 +162,84 @@ export function ReferencesSection({ record }: ReferencesSectionProps) {
                         </div>
                       )}
                     </div>
-                    <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-0.5" />
-                  </div>
-                </a>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+                  );
+                }
+
+                // Clickable card that links to the URL
+                return (
+                  <a
+                    key={idx}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group block p-4 rounded-lg border border-border bg-muted/10 hover:bg-primary/5 hover:border-primary/30 transition-all cursor-pointer"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        {refType && (
+                          <span className="text-[10px] text-primary uppercase tracking-wide font-medium">{refType}</span>
+                        )}
+                        {sourceName && (
+                          <p className="text-sm font-medium text-foreground leading-relaxed group-hover:text-primary transition-colors mt-0.5">
+                            {sourceName}
+                          </p>
+                        )}
+                        {supports && (
+                          <p className="text-xs text-muted-foreground mt-1">{supports}</p>
+                        )}
+                        {asOf && (
+                          <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground">
+                            <Calendar className="w-3 h-3" />
+                            {asOf}
+                          </div>
+                        )}
+                      </div>
+                      <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-0.5" />
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Haram References Sub-section */}
+      {hasHaramRefs && (
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <FileText className="w-5 h-5 text-non-compliant" />
+              Haram References ({haramRefs.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {haramRefs.map((ref, idx) => {
+                const sourceName = ref.source_name || ref.source || ref.id;
+                const url = ref.url;
+
+                return (
+                  <a
+                    key={idx}
+                    href={url || '#'}
+                    target={url ? '_blank' : undefined}
+                    rel={url ? 'noopener noreferrer' : undefined}
+                    className={`group block p-3 rounded-lg border border-non-compliant/20 bg-non-compliant/5 ${url ? 'hover:bg-non-compliant/10 cursor-pointer' : ''}`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium text-foreground leading-relaxed">
+                        {sourceName || `Reference ${idx + 1}`}
+                      </p>
+                      {url && <ExternalLink className="w-3.5 h-3.5 text-muted-foreground shrink-0" />}
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Disclaimer footer */}
       {disclaimer && (

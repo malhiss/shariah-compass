@@ -8,8 +8,9 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import { VerdictBadge, ZakatBadge, RiskBadge, BooleanBadge } from './VerdictBadge';
-import { formatPercent, formatDate } from '@/types/mongodb';
+import { formatPercent } from '@/types/mongodb';
 import type { ViewMode } from '@/types/mongodb';
 import type { ScreeningRecord } from '@/types/screening-record';
 import { ChevronRight } from 'lucide-react';
@@ -20,8 +21,41 @@ interface ScreeningTableProps {
   viewMode: ViewMode;
 }
 
+// Format currency in millions
+function formatCurrencyMn(value: number | null | undefined): string {
+  if (value === null || value === undefined) return '—';
+  if (value >= 1000) {
+    return `$${(value / 1000).toFixed(1)}B`;
+  }
+  return `$${value.toFixed(0)}M`;
+}
+
+// Format screening date (YYYY-MM-DD only, no time)
+function formatScreeningDate(record: ScreeningRecord): string {
+  const screeningDate = record.screening_date;
+  if (screeningDate) {
+    // Already in YYYY-MM-DD format
+    return screeningDate;
+  }
+  // Fallback to screening_run_at or report_date
+  const runAt = record.screening_run_at;
+  if (runAt) {
+    return runAt.slice(0, 10);
+  }
+  const reportDate = record.report_date || record.Report_Date;
+  if (reportDate) {
+    return reportDate.slice(0, 10);
+  }
+  return '—';
+}
+
+// Get methodology name constant
+function getMethodologyName(record: ScreeningRecord): string {
+  return record.methodology_name || 'Invesense Methodology';
+}
+
 // Mobile Card Component for Shariah view
-function ShariahMobileCard({ record, onClick }: { record: any; onClick: () => void }) {
+function ShariahMobileCard({ record, onClick }: { record: ScreeningRecord; onClick: () => void }) {
   return (
     <div
       onClick={onClick}
@@ -36,25 +70,29 @@ function ShariahMobileCard({ record, onClick }: { record: any; onClick: () => vo
             <RiskBadge level={record.client_risk_level || record.Compliance_Risk_Level} />
           </div>
           <p className="text-xs text-muted-foreground truncate">
-            {record.company_name || record.Company || 'N/A'}
+            {record.company_name || record.Company || '—'}
           </p>
         </div>
         <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 mt-1" />
       </div>
       
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-2 mb-2">
         <VerdictBadge verdict={record.final_classification || record.Final_Verdict} />
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
-          <span>NPIN: <span className="font-mono">{formatPercent(record.npin_ratio_pct ?? record.Non_Compliant_Revenue_Point_Estimate)}</span></span>
-          <span className="text-[10px]">{formatDate(record.report_date || record.Screening_Date)}</span>
+          <span>NPIN: <span className="font-mono">{formatPercent(record.npin_ratio_pct)}</span></span>
         </div>
+      </div>
+      
+      <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+        <span>{record.sector || record.Sector || '—'} • {record.industry || record.Industry || '—'}</span>
+        <span>{formatScreeningDate(record)}</span>
       </div>
     </div>
   );
 }
 
 // Mobile Card Component for Zakat view
-function ZakatMobileCard({ record, onClick }: { record: any; onClick: () => void }) {
+function ZakatMobileCard({ record, onClick }: { record: ScreeningRecord; onClick: () => void }) {
   return (
     <div
       onClick={onClick}
@@ -69,7 +107,7 @@ function ZakatMobileCard({ record, onClick }: { record: any; onClick: () => void
             <BooleanBadge value={record.Shariah_Compliant} />
           </div>
           <p className="text-xs text-muted-foreground truncate">
-            {record.company_name || record.Company || 'N/A'}
+            {record.company_name || record.Company || '—'}
           </p>
         </div>
         <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 mt-1" />
@@ -79,7 +117,7 @@ function ZakatMobileCard({ record, onClick }: { record: any; onClick: () => void
         <ZakatBadge status={record.Zakat_Status} />
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span className="font-mono">{formatPercent(record.Zakatable_Assets_Ratio_Percent)}</span>
-          <span className="text-[10px]">{formatDate(record.report_date || record.Screening_Date)}</span>
+          <span className="text-[10px]">{formatScreeningDate(record)}</span>
         </div>
       </div>
     </div>
@@ -120,7 +158,7 @@ export function ScreeningTable({
       <>
         {/* Mobile View */}
         <div className="md:hidden">
-          {data.map((record: any) => (
+          {data.map((record) => (
             <ZakatMobileCard
               key={record.upsert_key}
               record={record}
@@ -143,11 +181,11 @@ export function ScreeningTable({
                 <TableHead className="text-right text-muted-foreground">Zakat/100</TableHead>
                 <TableHead className="text-muted-foreground">Methodology</TableHead>
                 <TableHead className="text-center text-muted-foreground">Risk</TableHead>
-                <TableHead className="text-muted-foreground">Date</TableHead>
+                <TableHead className="text-muted-foreground">Screening Date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((record: any) => (
+              {data.map((record) => (
                 <TableRow
                   key={record.upsert_key}
                   className="cursor-pointer border-border hover:bg-primary/5"
@@ -157,7 +195,7 @@ export function ScreeningTable({
                     {record.ticker || record.Ticker}
                   </TableCell>
                   <TableCell className="text-muted-foreground max-w-[200px] truncate">
-                    {record.company_name || record.Company || 'N/A'}
+                    {record.company_name || record.Company || '—'}
                   </TableCell>
                   <TableCell className="text-center">
                     <BooleanBadge value={record.Shariah_Compliant} />
@@ -169,19 +207,19 @@ export function ScreeningTable({
                     {formatPercent(record.Zakatable_Assets_Ratio_Percent)}
                   </TableCell>
                   <TableCell className="text-right font-mono text-sm">
-                    {record.Zakat_Per_Share_USD?.toFixed(2) || 'N/A'}
+                    {record.Zakat_Per_Share_USD?.toFixed(2) || '—'}
                   </TableCell>
                   <TableCell className="text-right font-mono text-sm">
-                    {record.Zakat_Per_100_Units_USD?.toFixed(2) || 'N/A'}
+                    {record.Zakat_Per_100_Units_USD?.toFixed(2) || '—'}
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
-                    {record.Zakat_Methodology || 'N/A'}
+                    {getMethodologyName(record)}
                   </TableCell>
                   <TableCell className="text-center">
                     <RiskBadge level={record.client_risk_level || record.Compliance_Risk_Level} />
                   </TableCell>
-                  <TableCell className="text-muted-foreground text-sm">
-                    {formatDate(record.report_date || record.Screening_Date)}
+                  <TableCell className="text-muted-foreground text-sm font-mono">
+                    {formatScreeningDate(record)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -197,7 +235,7 @@ export function ScreeningTable({
     <>
       {/* Mobile View */}
       <div className="md:hidden">
-        {data.map((record: any) => (
+        {data.map((record) => (
           <ShariahMobileCard
             key={record.upsert_key}
             record={record}
@@ -213,17 +251,20 @@ export function ScreeningTable({
             <TableRow className="border-border hover:bg-transparent">
               <TableHead className="text-muted-foreground">Ticker</TableHead>
               <TableHead className="text-muted-foreground">Company</TableHead>
+              <TableHead className="text-muted-foreground">Sector</TableHead>
               <TableHead className="text-muted-foreground">Industry</TableHead>
               <TableHead className="text-center text-muted-foreground">Classification</TableHead>
+              <TableHead className="text-right text-muted-foreground">Mkt Cap</TableHead>
+              <TableHead className="text-right text-muted-foreground">Revenue</TableHead>
+              <TableHead className="text-right text-muted-foreground">Debt %</TableHead>
+              <TableHead className="text-right text-muted-foreground">Cash %</TableHead>
               <TableHead className="text-right text-muted-foreground">NPIN %</TableHead>
-              <TableHead className="text-right text-muted-foreground">Purification %</TableHead>
               <TableHead className="text-center text-muted-foreground">Risk</TableHead>
-              <TableHead className="text-center text-muted-foreground">Board Review</TableHead>
-              <TableHead className="text-muted-foreground">Date</TableHead>
+              <TableHead className="text-muted-foreground">Screening Date</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((record: any) => (
+            {data.map((record) => (
               <TableRow
                 key={record.upsert_key}
                 className="cursor-pointer border-border hover:bg-primary/5"
@@ -232,33 +273,44 @@ export function ScreeningTable({
                 <TableCell className="font-medium text-foreground">
                   {record.ticker || record.Ticker}
                 </TableCell>
-                <TableCell className="text-muted-foreground max-w-[200px] truncate">
-                  {record.company_name || record.Company || 'N/A'}
+                <TableCell className="text-muted-foreground max-w-[180px] truncate">
+                  {record.company_name || record.Company || '—'}
                 </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {record.industry || record.Industry || 'N/A'}
+                <TableCell className="text-muted-foreground text-sm max-w-[120px] truncate">
+                  {record.sector || record.Sector || '—'}
+                </TableCell>
+                <TableCell className="text-muted-foreground text-sm max-w-[140px] truncate">
+                  {record.industry || record.Industry || '—'}
                 </TableCell>
                 <TableCell className="text-center">
                   <VerdictBadge verdict={record.final_classification || record.Final_Verdict} />
                 </TableCell>
                 <TableCell className="text-right font-mono text-sm">
-                  {formatPercent(record.npin_ratio_pct ?? record.Non_Compliant_Revenue_Point_Estimate)}
+                  {formatCurrencyMn(record.marketcap_usd_mn)}
                 </TableCell>
                 <TableCell className="text-right font-mono text-sm">
-                  {formatPercent(record.purification_pct_recommended ?? record.Purification_Percentage)}
+                  {formatCurrencyMn(record.revenue_total_usd_mn)}
+                </TableCell>
+                <TableCell className="text-right font-mono text-sm">
+                  <span className={record.debt_status === 'FAIL' ? 'text-non-compliant' : ''}>
+                    {formatPercent(record.debt_ratio_pct)}
+                  </span>
+                </TableCell>
+                <TableCell className="text-right font-mono text-sm">
+                  <span className={record.cash_inv_status === 'FAIL' ? 'text-non-compliant' : ''}>
+                    {formatPercent(record.cash_inv_ratio_pct)}
+                  </span>
+                </TableCell>
+                <TableCell className="text-right font-mono text-sm">
+                  <span className={record.npin_status === 'FAIL' ? 'text-non-compliant' : ''}>
+                    {formatPercent(record.npin_ratio_pct)}
+                  </span>
                 </TableCell>
                 <TableCell className="text-center">
                   <RiskBadge level={record.client_risk_level || record.Compliance_Risk_Level} />
                 </TableCell>
-                <TableCell className="text-center">
-                  <BooleanBadge 
-                    value={record.client_board_review_needs_review || record.needs_board_review ? 'YES' : 'NO'} 
-                    trueLabel="Required"
-                    falseLabel="No"
-                  />
-                </TableCell>
-                <TableCell className="text-muted-foreground text-sm">
-                  {formatDate(record.report_date || record.Screening_Date)}
+                <TableCell className="text-muted-foreground text-sm font-mono">
+                  {formatScreeningDate(record)}
                 </TableCell>
               </TableRow>
             ))}
