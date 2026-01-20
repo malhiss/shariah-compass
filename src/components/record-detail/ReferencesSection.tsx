@@ -7,10 +7,47 @@ interface ReferencesSectionProps {
   record: ScreeningRecord;
 }
 
+// Parse pipe-delimited reference format: "[id=R1 | title=... | used_for=... | type=... | url=...]"
+function parsePipeDelimitedRefs(value: string | null | undefined): ReferenceItem[] {
+  if (!value || typeof value !== 'string') return [];
+  
+  const trimmed = value.trim();
+  
+  // Check if it's the pipe-delimited format
+  if (trimmed.startsWith('[') && trimmed.includes('id=') && trimmed.includes(' | ')) {
+    // Split by ", id=" to separate multiple references
+    const refStrings = trimmed.slice(1, -1).split(', id=').map((s, i) => i === 0 ? s : 'id=' + s);
+    
+    return refStrings.map(refStr => {
+      const parts = refStr.split(' | ');
+      const ref: ReferenceItem = {};
+      
+      for (const part of parts) {
+        const eqIdx = part.indexOf('=');
+        if (eqIdx > 0) {
+          const key = part.slice(0, eqIdx).trim();
+          const val = part.slice(eqIdx + 1).trim();
+          
+          if (key === 'id') ref.id = val;
+          else if (key === 'title') ref.source_name = val;
+          else if (key === 'used_for') ref.what_it_supports = val;
+          else if (key === 'type') ref.source_type = val;
+          else if (key === 'url') ref.url = val;
+        }
+      }
+      
+      return ref;
+    }).filter(r => r.id || r.source_name || r.url);
+  }
+  
+  // Fall back to standard JSON parsing
+  return safeParseJSON<ReferenceItem[]>(value, []);
+}
+
 // Get references with fallback chain: references_json → client_references_json → website_references_json → haram_references_json
 function getReferencesWithFallback(record: ScreeningRecord): ReferenceItem[] {
-  // Try references_json first (primary)
-  const primaryRefs = safeParseJSON<ReferenceItem[]>(record.references_json, []);
+  // Try references_json first (primary) - may be pipe-delimited
+  const primaryRefs = parsePipeDelimitedRefs(record.references_json);
   if (primaryRefs.length > 0) return primaryRefs;
 
   // Try client_references_json
