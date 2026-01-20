@@ -17,8 +17,13 @@ export function RecordHeader({ record }: RecordHeaderProps) {
   const ticker = record.client_identity_ticker || record.ticker || record.Ticker || 'N/A';
   const companyName = record.client_identity_company_name || record.company_name || record.Company || 'N/A';
   const reportDate = record.client_identity_report_date || record.report_date || record.Report_Date;
+  const screeningDate = record.screening_date || (record.screening_run_at ? record.screening_run_at.slice(0, 10) : null);
+  const methodologyName = record.methodology_name || 'Invesense Methodology';
   const securityType = record.client_identity_security_type || record.security_type || record.Security_Type;
   const industry = record.client_identity_industry || record.industry || record.Industry;
+  const sector = record.sector || record.Sector;
+  const exchange = record.exchange;
+  const country = record.country;
 
   return (
     <header className="space-y-4 sm:space-y-6">
@@ -49,19 +54,43 @@ export function RecordHeader({ record }: RecordHeaderProps) {
             </div>
             
             <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
-              {reportDate && (
+              {screeningDate && (
+                <span className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
+                  <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  {screeningDate}
+                </span>
+              )}
+              {!screeningDate && reportDate && (
                 <span className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
                   <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   {formatDate(reportDate)}
                 </span>
               )}
-              {securityType && (
+              <Badge variant="secondary" className="bg-primary/10 text-primary text-xs">
+                {methodologyName}
+              </Badge>
+              {exchange && (
                 <Badge variant="secondary" className="bg-muted/40 text-muted-foreground text-xs">
+                  {exchange}
+                </Badge>
+              )}
+              {country && (
+                <Badge variant="secondary" className="bg-muted/40 text-muted-foreground text-xs">
+                  {country}
+                </Badge>
+              )}
+              {securityType && (
+                <Badge variant="secondary" className="bg-muted/40 text-muted-foreground text-xs hidden sm:inline-flex">
                   {securityType}
                 </Badge>
               )}
+              {sector && (
+                <Badge variant="secondary" className="bg-muted/40 text-muted-foreground gap-1 text-xs hidden md:flex">
+                  {sector}
+                </Badge>
+              )}
               {industry && industry !== 'N/A' && (
-                <Badge variant="secondary" className="bg-muted/40 text-muted-foreground gap-1 text-xs hidden sm:flex">
+                <Badge variant="secondary" className="bg-muted/40 text-muted-foreground gap-1 text-xs hidden lg:flex">
                   <Factory className="w-3 h-3" />
                   {industry}
                 </Badge>

@@ -133,15 +133,17 @@ export interface ScreeningRecord {
   sector?: string;
   industry?: string;
   report_date?: string;
-  screening_date?: string;
+  screening_date?: string; // Format: YYYY-MM-DD
+  methodology_name?: string; // Always "Invesense Methodology"
   methodology_version?: string;
   security_type?: string;
-
-  // Company Profile (optional)
   exchange?: string | null;
   country?: string | null;
+
+  // Company Profile (optional)
   reporting_period?: string | null;
   company_description?: string | null;
+  business_description?: string | null; // NEW: Company business description
   business_segments_summary?: string[] | null;
 
   // Legacy identity fields (PascalCase - old format)
@@ -154,16 +156,28 @@ export interface ScreeningRecord {
 
   // ===== VERDICT & RISK (PRIMARY) =====
   final_classification?: 'COMPLIANT' | 'COMPLIANT_WITH_PURIFICATION' | 'NON_COMPLIANT' | 'DOUBTFUL_REVIEW' | string | null;
+  final_classification_based_on_estimate?: 'COMPLIANT' | 'COMPLIANT_WITH_PURIFICATION' | 'NON_COMPLIANT' | 'DOUBTFUL_REVIEW' | string | null; // NEW: Estimated verdict
   client_verdict_label?: string | null;
   client_risk_level?: string | null;
   needs_board_review?: boolean | null;
   doubt_reason?: string | null;
+  business_status?: 'PASS' | 'FAIL' | 'CAUTION' | 'REVIEW' | string | null;
 
   // ===== SHARIAH SUMMARY (CLIENT) =====
   shariah_summary?: string | null;
+  final_shariah_summary?: string | null; // NEW: Final shariah summary for display
   shariah_key_bullets_json?: string | null;
   client_summary?: string | null;
   client_what_it_means_for_investors?: string | null;
+
+  // ===== ESTIMATED NPIN (NEW SECTION) =====
+  estimated_npin_status?: 'PASS' | 'FAIL' | 'UNKNOWN' | string | null;
+  estimated_npin_threshold_pct?: number | null;
+  estimated_npin_value_used_point?: number | null;
+  estimated_npin_value_used_source?: string | null;
+  estimated_npin_purification_required?: boolean | null;
+  estimated_npin_purification_pct_recommended?: number | null;
+  estimated_npin_final_shariah_summary?: string | null; // NEW: Estimated logic summary
 
   // ===== HARAM EXPOSURE (CLIENT + WEBSITE CHARTS) =====
   client_haram_total_pct_display?: string | null;
@@ -178,6 +192,8 @@ export interface ScreeningRecord {
   haram_pct_lower?: number | null;
   haram_pct_upper?: number | null;
   halal_pct_point?: number | null;
+  halal_pct_display_conservative?: number | null;
+  haram_pct_display_conservative?: number | null;
   haram_total_pct_display?: string | null;
   haram_confidence?: string | null;
   haram_limitations?: string | null;
@@ -185,6 +201,7 @@ export interface ScreeningRecord {
   haram_segments?: HaramSegment[];
   haram_composition_json?: string | null;
   haram_top_segments_label?: string | null;
+  haram_top_composition_json?: string | null; // NEW: For composition donut fallback
   client_top_segments_json?: string | null;
   client_top_composition_json?: string | null;
 
@@ -215,7 +232,7 @@ export interface ScreeningRecord {
   client_numbers_cashinv_ratio_pct?: number | string | null;
   client_numbers_npin_ratio_pct?: number | string | null;
 
-  // Dollar amounts
+  // Dollar amounts (FMP fields)
   denominator_max_usd_mn?: number | null;
   marketcap_usd_mn?: number | null;
   totalassets_usd_mn?: number | null;
@@ -237,6 +254,10 @@ export interface ScreeningRecord {
   NPIN_Ratio_Formula?: string | null;
   NPIN_Numerator_Formula?: string | null;
   NPIN_Adjustments_Notes?: string | null;
+
+  // ===== DONUT CHARTS (ARRAYS) =====
+  donut_series_json?: number[] | string | null; // Parsed to array at load time
+  donut_segments_json?: string[] | { name: string; value: number }[] | string | null; // Parsed to array at load time
 
   // ===== DATA QUALITY / QA (CLIENT-FACING + STRUCTURED) =====
   qa_summary_display?: string | null;
@@ -263,8 +284,10 @@ export interface ScreeningRecord {
   memo_doc_url?: string | null;
   memo_doc_id?: string | null;
   evidence_items_json?: string | null;
+  verdict_evidence_items_json?: string | null; // NEW: Array of evidence items
   final_ticker_summary_json?: string | null;
   final_ticker_summary_last_updated?: string | null;
+  website_story?: string | null; // NEW: Transcript story / evidence text
 
   // Legacy evidence fields
   evidence_items?: EvidenceItem[];
@@ -282,7 +305,6 @@ export interface ScreeningRecord {
   llm_primary_rationale?: string | null;
   key_drivers_json?: string | null;
   red_flag_industries_json?: string | null;
-  business_status?: 'PASS' | 'FAIL' | 'CAUTION' | 'REVIEW' | string | null;
   llm_has_fail_flag?: boolean | null;
   llm_has_caution_flag?: boolean | null;
 
@@ -290,6 +312,7 @@ export interface ScreeningRecord {
   client_references_json?: string | null;
   website_references_json?: string | null;
   haram_references_json?: string | null;
+  references_json?: string | null; // NEW: Primary references array
   client_disclaimer_short?: string | null;
   shariah_references_json?: string | null;
 
@@ -363,6 +386,7 @@ export interface ScreeningRecord {
   methodology?: string | null;
   inserted_at?: string | null;
   payload_json?: string | null;
+  screening_run_at?: string | null; // For deriving screening_date if not present
 }
 
 // Helper to normalize haram segments from JSON string
