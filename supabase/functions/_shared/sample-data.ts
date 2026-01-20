@@ -1,131 +1,121 @@
-// Shared sample data parsed from the Shariah Screening CSV
-// This module provides consistent data across all edge functions
+// Shared data module for Edge Functions
+// Loads and parses the Shariah Screening CSV from the website dataset
 
+// ============ SCREENING RECORD INTERFACE ============
 export interface ScreeningRecord {
-  // Identity fields
+  // Identity
   upsert_key: string;
   ticker: string;
   company_name: string;
   report_date: string;
-  methodology_version: string;
-  security_type: string;
-  industry: string;
+  exchange?: string | null;
+  country?: string | null;
+  sector?: string | null;
+  industry?: string | null;
+  security_type?: string | null;
   
-  // Verdict & Classification
-  final_classification: string;
-  purification_required: boolean;
-  purification_pct_recommended: number | null;
-  needs_board_review: boolean;
-  doubt_reason: string | null;
-  notes_for_portfolio_manager: string | null;
-  shariah_summary: string;
+  // Financials
+  marketcap_usd_mn?: number | null;
+  revenue_total_usd_mn?: number | null;
+  totalassets_usd_mn?: number | null;
+  cash_st_conv_usd_mn?: number | null;
+  lt_invest_conv_usd_mn?: number | null;
+  debt_conventional_usd_mn?: number | null;
   
-  // Financial Ratios
-  debt_ratio_pct: number | null;
-  cash_inv_ratio_pct: number | null;
-  npin_ratio_pct: number | null;
-  debt_status: string | null;
-  cash_inv_status: string | null;
-  npin_status: string | null;
-  debt_threshold_pct: number | null;
-  cash_inv_threshold_pct: number | null;
-  npin_threshold_pct: number | null;
+  // Methodology
+  methodology_name: string;
+  screening_date?: string | null;
+  screening_run_at?: string | null;
   
-  // Formulas
-  debt_ratio_formula: string | null;
-  cash_inv_ratio_formula: string | null;
-  npin_ratio_formula: string | null;
-  npin_numerator_formula: string | null;
-  npin_adjustments_notes: string | null;
+  // Classification
+  final_classification?: string | null;
+  final_classification_based_on_estimate?: string | null;
+  business_status?: string | null;
+  doubt_reason?: string | null;
   
-  // Denominator values
-  denominator_max_usd_mn: number | null;
-  marketcap_usd_mn: number | null;
-  totalassets_usd_mn: number | null;
-  debt_conventional_usd_mn: number | null;
-  cash_st_conv_usd_mn: number | null;
-  lt_invest_conv_usd_mn: number | null;
-  revenue_total_usd_mn: number | null;
+  // Ratios
+  debt_ratio_pct?: number | null;
+  debt_status?: string | null;
+  debt_threshold_pct?: number | null;
+  cash_inv_ratio_pct?: number | null;
+  cash_inv_status?: string | null;
+  cash_inv_threshold_pct?: number | null;
+  npin_ratio_pct?: number | null;
+  npin_status?: string | null;
+  npin_threshold_pct?: number | null;
+  npin_numerator_usd_mn?: number | null;
+  interest_income_usd?: string | null;
+  nonop_unidentified_usd?: string | null;
   
-  // Business Activity
-  business_status: string;
-  llm_has_fail_flag: boolean;
-  llm_has_caution_flag: boolean;
-  llm_primary_rationale: string | null;
+  // Purification
+  purification_required?: boolean;
+  purification_pct_recommended?: number | null;
+  purification_pct_point?: number | null;
+  purification_pct_badge?: string | null;
   
-  // Evidence
-  evidence_items_json: string | null;
+  // Estimated NPIN
+  est_purification_pct_recommended?: number | null;
+  est_purification_pct_point?: number | null;
+  est_purification_pct_lower?: number | null;
+  est_purification_pct_upper?: number | null;
+  estimated_npin_status?: string | null;
+  estimated_npin_threshold_pct?: number | null;
+  estimated_npin_purification_required?: boolean;
   
-  // Revenue Composition
-  haram_pct_point: number | null;
-  haram_pct_lower: number | null;
-  haram_pct_upper: number | null;
-  haram_total_pct_display: string | null;
-  haram_top_segments_label: string | null;
-  haram_top_segments_names: string | null;
-  haram_composition_json: string | null;
-  halal_pct_point: number | null;
-  haram_segments_json: string | null;
-  haram_reference_ids_used: string | null;
-  haram_global_reasoning: string | null;
-  haram_limitations: string | null;
-  haram_confidence: string | null;
+  // Donuts (arrays)
+  donut_series_json?: unknown[];
+  donut_segments_json?: unknown[];
   
-  // Key drivers and references
-  key_drivers_json: string | null;
-  red_flag_industries_json: string | null;
-  shariah_references_json: string | null;
-  non_compliant_revenue_pct_est_json: string | null;
+  // Content
+  website_story?: string | null;
+  final_shariah_summary?: string | null;
+  estimated_npin_final_shariah_summary?: string | null;
+  findings_bullets?: unknown[];
+  references_json?: unknown[];
   
-  // QA fields
-  qa_needs_review: boolean;
-  qa_status: string | null;
-  qa_issue_count: number | null;
-  qa_summary_display: string | null;
-  qa_category_summary: string | null;
-  qa_reasons_summary: string | null;
-  qa_issues_json: string | null;
-  qa_timestamp: string | null;
-  
-  // Memo
-  shariah_memo_markdown: string | null;
-  memo_doc_url: string | null;
-  memo_doc_id: string | null;
-  
-  // Auto-ban
-  auto_banned: boolean;
-  auto_banned_status: string | null;
-  auto_banned_reason_clean: string | null;
-  auto_banned_summary: string | null;
+  // Legacy fields for compatibility
+  shariah_summary?: string | null;
+  needs_board_review?: boolean;
+  auto_banned?: boolean;
+  auto_banned_reason_clean?: string | null;
+  auto_banned_summary?: string | null;
+  haram_pct_point?: number | null;
+  qa_status?: string | null;
+  notes_for_portfolio_manager?: string | null;
+  llm_has_fail_flag?: boolean;
+  llm_has_caution_flag?: boolean;
+  llm_primary_rationale?: string | null;
 }
 
-// CSV column headers in order
-const CSV_HEADERS = [
-  'upsert_key', 'ticker', 'company_name', 'report_date', 'methodology_version',
-  'security_type', 'industry', 'final_classification', 'purification_required',
-  'purification_pct_recommended', 'needs_board_review', 'doubt_reason',
-  'notes_for_portfolio_manager', 'shariah_summary', 'debt_ratio_pct',
-  'cash_inv_ratio_pct', 'npin_ratio_pct', 'debt_status', 'cash_inv_status',
-  'npin_status', 'debt_threshold_pct', 'cash_inv_threshold_pct', 'npin_threshold_pct',
-  'debt_ratio_formula', 'cash_inv_ratio_formula', 'npin_ratio_formula',
-  'npin_numerator_formula', 'npin_adjustments_notes', 'denominator_max_usd_mn',
-  'marketcap_usd_mn', 'totalassets_usd_mn', 'debt_conventional_usd_mn',
-  'cash_st_conv_usd_mn', 'lt_invest_conv_usd_mn', 'revenue_total_usd_mn',
-  'business_status', 'llm_has_fail_flag', 'llm_has_caution_flag',
-  'llm_primary_rationale', 'evidence_items_json', 'haram_pct_point',
-  'haram_pct_lower', 'haram_pct_upper', 'haram_total_pct_display',
-  'haram_top_segments_label', 'haram_top_segments_names', 'haram_composition_json',
-  'halal_pct_point', 'haram_segments_json', 'haram_composition_json_2',
-  'haram_reference_ids_used', 'haram_global_reasoning', 'haram_limitations',
-  'haram_confidence', 'key_drivers_json', 'red_flag_industries_json',
-  'shariah_references_json', 'non_compliant_revenue_pct_est_json',
-  'qa_needs_review', 'qa_status', 'qa_issue_count', 'qa_summary_display',
-  'qa_category_summary', 'qa_reasons_summary', 'qa_issues_json', 'qa_timestamp',
-  'shariah_memo_markdown', 'memo_doc_url', 'memo_doc_id', 'auto_banned',
-  'auto_banned_status', 'auto_banned_reason_clean', 'auto_banned_summary'
-];
+// ============ SAFE PARSE UTILITY ============
+function safeParse<T>(value: unknown): T | null {
+  if (value === null || value === undefined) return null;
+  if (value === '' || value === '[]' || value === '{}') return null;
+  
+  if (typeof value === 'object') {
+    return value as T;
+  }
+  
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+      try {
+        return JSON.parse(trimmed) as T;
+      } catch {
+        return null;
+      }
+    }
+  }
+  
+  return null;
+}
 
-// Helper functions
+function safeParseArray<T>(value: unknown): T[] {
+  const parsed = safeParse<T[]>(value);
+  return Array.isArray(parsed) ? parsed : [];
+}
+
+// ============ PARSING HELPERS ============
 function parseBoolean(value: string | undefined): boolean {
   if (!value) return false;
   const lower = value.toLowerCase().trim();
@@ -134,7 +124,9 @@ function parseBoolean(value: string | undefined): boolean {
 
 function parseNumber(value: string | undefined): number | null {
   if (!value || value.trim() === '') return null;
-  const num = parseFloat(value);
+  // Remove currency formatting like "$404,487.0m" -> 404487.0
+  const cleaned = value.replace(/[$,m%]/gi, '').trim();
+  const num = parseFloat(cleaned);
   return isNaN(num) ? null : num;
 }
 
@@ -145,7 +137,7 @@ function parseString(value: string | undefined): string | null {
   return value.trim();
 }
 
-// Parse CSV content handling quoted fields with embedded newlines
+// ============ CSV PARSER ============
 function parseCSVContent(csvData: string): string[][] {
   const rows: string[][] = [];
   let currentRow: string[] = [];
@@ -160,19 +152,16 @@ function parseCSVContent(csvData: string): string[][] {
       if (!inQuotes) {
         inQuotes = true;
       } else if (nextChar === '"') {
-        // Escaped quote
         currentField += '"';
         i++;
       } else {
-        // End of quoted field
         inQuotes = false;
       }
     } else if (char === ',' && !inQuotes) {
       currentRow.push(currentField);
       currentField = '';
     } else if ((char === '\n' || (char === '\r' && nextChar === '\n')) && !inQuotes) {
-      // End of row
-      if (char === '\r') i++; // Skip \n in \r\n
+      if (char === '\r') i++;
       currentRow.push(currentField);
       if (currentRow.some(f => f.trim())) {
         rows.push(currentRow);
@@ -180,7 +169,6 @@ function parseCSVContent(csvData: string): string[][] {
       currentRow = [];
       currentField = '';
     } else if (char === '\r' && !inQuotes) {
-      // Solo \r as line ending
       currentRow.push(currentField);
       if (currentRow.some(f => f.trim())) {
         rows.push(currentRow);
@@ -192,7 +180,6 @@ function parseCSVContent(csvData: string): string[][] {
     }
   }
   
-  // Handle last field/row
   if (currentField || currentRow.length > 0) {
     currentRow.push(currentField);
     if (currentRow.some(f => f.trim())) {
@@ -203,7 +190,6 @@ function parseCSVContent(csvData: string): string[][] {
   return rows;
 }
 
-// Build header index map
 function buildHeaderMap(headers: string[]): Map<string, number> {
   const headerMap = new Map<string, number>();
   for (let i = 0; i < headers.length; i++) {
@@ -212,9 +198,8 @@ function buildHeaderMap(headers: string[]): Map<string, number> {
   return headerMap;
 }
 
-// Get value from header map
-function getValue(values: string[], headerMap: Map<string, number>, ...headerNames: string[]): string | undefined {
-  for (const name of headerNames) {
+function getValue(values: string[], headerMap: Map<string, number>, ...names: string[]): string | undefined {
+  for (const name of names) {
     const idx = headerMap.get(name);
     if (idx !== undefined && values[idx] !== undefined) {
       return values[idx];
@@ -223,98 +208,103 @@ function getValue(values: string[], headerMap: Map<string, number>, ...headerNam
   return undefined;
 }
 
-// Parse CSV data into records using header-based mapping
-function parseCSV(csvData: string): ScreeningRecord[] {
+// ============ PARSE CSV TO RECORDS ============
+export function parseCSV(csvData: string): ScreeningRecord[] {
   const rows = parseCSVContent(csvData);
   if (rows.length < 2) return [];
   
-  // First row is headers
-  const headerRow = rows[0];
-  const headerMap = buildHeaderMap(headerRow);
-  
-  console.log('CSV Headers found:', Array.from(headerMap.keys()).slice(0, 20), '...');
-  
+  const headerMap = buildHeaderMap(rows[0]);
   const dataRows = rows.slice(1);
   const records: ScreeningRecord[] = [];
   
   for (const values of dataRows) {
-    if (values.length < 10) continue;
+    if (values.length < 5) continue;
     
     const get = (...names: string[]) => getValue(values, headerMap, ...names);
     
     const record: ScreeningRecord = {
+      // Identity
       upsert_key: get('upsert_key') || '',
       ticker: get('ticker') || '',
       company_name: get('company_name') || '',
       report_date: get('report_date') || '',
-      methodology_version: get('methodology_version') || '',
-      security_type: get('security_type') || '',
-      industry: get('industry') || '',
-      final_classification: get('final_classification') || '',
-      purification_required: parseBoolean(get('purification_required')),
-      purification_pct_recommended: parseNumber(get('purification_pct_recommended')),
-      needs_board_review: parseBoolean(get('needs_board_review')),
-      doubt_reason: parseString(get('doubt_reason')),
-      notes_for_portfolio_manager: parseString(get('notes_for_portfolio_manager')),
-      shariah_summary: get('shariah_summary') || '',
-      debt_ratio_pct: parseNumber(get('debt_ratio_pct')),
-      cash_inv_ratio_pct: parseNumber(get('cash_inv_ratio_pct')),
-      npin_ratio_pct: parseNumber(get('npin_ratio_pct')),
-      debt_status: parseString(get('debt_status')),
-      cash_inv_status: parseString(get('cash_inv_status')),
-      npin_status: parseString(get('npin_status')),
-      debt_threshold_pct: parseNumber(get('debt_threshold_pct')),
-      cash_inv_threshold_pct: parseNumber(get('cash_inv_threshold_pct')),
-      npin_threshold_pct: parseNumber(get('npin_threshold_pct')),
-      debt_ratio_formula: parseString(get('debt_ratio_formula')),
-      cash_inv_ratio_formula: parseString(get('cash_inv_ratio_formula')),
-      npin_ratio_formula: parseString(get('npin_ratio_formula')),
-      npin_numerator_formula: parseString(get('npin_numerator_formula')),
-      npin_adjustments_notes: parseString(get('npin_adjustments_notes')),
-      denominator_max_usd_mn: parseNumber(get('denominator_max_usd_mn')),
+      exchange: parseString(get('exchange')),
+      country: parseString(get('country')),
+      sector: parseString(get('sector')),
+      industry: parseString(get('industry')),
+      security_type: parseString(get('security_type')),
+      
+      // Financials
       marketcap_usd_mn: parseNumber(get('marketcap_usd_mn')),
+      revenue_total_usd_mn: parseNumber(get('revenue_total_usd_mn')),
       totalassets_usd_mn: parseNumber(get('totalassets_usd_mn')),
-      debt_conventional_usd_mn: parseNumber(get('debt_conventional_usd_mn')),
       cash_st_conv_usd_mn: parseNumber(get('cash_st_conv_usd_mn')),
       lt_invest_conv_usd_mn: parseNumber(get('lt_invest_conv_usd_mn')),
-      revenue_total_usd_mn: parseNumber(get('revenue_total_usd_mn')),
-      business_status: get('business_status') || 'UNKNOWN',
-      llm_has_fail_flag: parseBoolean(get('llm_has_fail_flag')),
-      llm_has_caution_flag: parseBoolean(get('llm_has_caution_flag')),
-      llm_primary_rationale: parseString(get('llm_primary_rationale')),
-      evidence_items_json: parseString(get('evidence_items_json')),
-      haram_pct_point: parseNumber(get('haram_pct_point')),
-      haram_pct_lower: parseNumber(get('haram_pct_lower')),
-      haram_pct_upper: parseNumber(get('haram_pct_upper')),
-      haram_total_pct_display: parseString(get('haram_total_pct_display')),
-      haram_top_segments_label: parseString(get('haram_top_segments_label')),
-      haram_top_segments_names: parseString(get('haram_top_segments_names')),
-      haram_composition_json: parseString(get('haram_composition_json')),
-      halal_pct_point: parseNumber(get('halal_pct_point')),
-      haram_segments_json: parseString(get('haram_segments_json')),
-      haram_reference_ids_used: parseString(get('haram_reference_ids_used')),
-      haram_global_reasoning: parseString(get('haram_global_reasoning')),
-      haram_limitations: parseString(get('haram_limitations')),
-      haram_confidence: parseString(get('haram_confidence')),
-      key_drivers_json: parseString(get('key_drivers_json')),
-      red_flag_industries_json: parseString(get('red_flag_industries_json')),
-      shariah_references_json: parseString(get('shariah_references_json')),
-      non_compliant_revenue_pct_est_json: parseString(get('non_compliant_revenue_pct_est_json')),
-      qa_needs_review: parseBoolean(get('qa_needs_review')),
-      qa_status: parseString(get('qa_status')),
-      qa_issue_count: parseNumber(get('qa_issue_count')) ? Math.floor(parseNumber(get('qa_issue_count'))!) : null,
-      qa_summary_display: parseString(get('qa_summary_display')),
-      qa_category_summary: parseString(get('qa_category_summary')),
-      qa_reasons_summary: parseString(get('qa_reasons_summary')),
-      qa_issues_json: parseString(get('qa_issues_json')),
-      qa_timestamp: parseString(get('qa_timestamp')),
-      shariah_memo_markdown: parseString(get('shariah_memo_markdown')),
-      memo_doc_url: parseString(get('memo_doc_url')),
-      memo_doc_id: parseString(get('memo_doc_id')),
-      auto_banned: parseBoolean(get('auto_banned')),
-      auto_banned_status: parseString(get('auto_banned_status')),
-      auto_banned_reason_clean: parseString(get('auto_banned_reason_clean')),
-      auto_banned_summary: parseString(get('auto_banned_summary')),
+      debt_conventional_usd_mn: parseNumber(get('debt_conventional_usd_mn')),
+      
+      // Methodology - always use constant
+      methodology_name: 'Invesense Methodology',
+      screening_date: parseString(get('screening_date')) || (get('screening_run_at')?.slice(0, 10)) || null,
+      screening_run_at: parseString(get('screening_run_at')),
+      
+      // Classification
+      final_classification: parseString(get('final_classification')),
+      final_classification_based_on_estimate: parseString(get('final_classification_based_on_estimate')),
+      business_status: parseString(get('business_status')),
+      doubt_reason: parseString(get('doubt_reason')),
+      
+      // Ratios
+      debt_ratio_pct: parseNumber(get('debt_ratio_pct')),
+      debt_status: parseString(get('debt_status')),
+      debt_threshold_pct: parseNumber(get('debt_threshold_pct')),
+      cash_inv_ratio_pct: parseNumber(get('cash_inv_ratio_pct')),
+      cash_inv_status: parseString(get('cash_inv_status')),
+      cash_inv_threshold_pct: parseNumber(get('cash_inv_threshold_pct')),
+      npin_ratio_pct: parseNumber(get('npin_ratio_pct')),
+      npin_status: parseString(get('npin_status')),
+      npin_threshold_pct: parseNumber(get('npin_threshold_pct')),
+      npin_numerator_usd_mn: parseNumber(get('npin_numerator_usd_mn')),
+      interest_income_usd: parseString(get('interest_income_usd')),
+      nonop_unidentified_usd: parseString(get('nonop_unidentified_usd')),
+      
+      // Purification
+      purification_required: parseBoolean(get('purification_required')),
+      purification_pct_recommended: parseNumber(get('purification_pct_recommended')),
+      purification_pct_point: parseNumber(get('purification_pct_point')),
+      purification_pct_badge: parseString(get('purification_pct_badge')),
+      
+      // Estimated NPIN
+      est_purification_pct_recommended: parseNumber(get('est_purification_pct_recommended')),
+      est_purification_pct_point: parseNumber(get('est_purification_pct_point')),
+      est_purification_pct_lower: parseNumber(get('est_purification_pct_lower')),
+      est_purification_pct_upper: parseNumber(get('est_purification_pct_upper')),
+      estimated_npin_status: parseString(get('estimated_npin_status')),
+      estimated_npin_threshold_pct: parseNumber(get('estimated_npin_threshold_pct')),
+      estimated_npin_purification_required: parseBoolean(get('estimated_npin_purification_required')),
+      
+      // Donuts (parse to arrays)
+      donut_series_json: safeParseArray(get('donut_series_json')),
+      donut_segments_json: safeParseArray(get('donut_segments_json')),
+      
+      // Content
+      website_story: parseString(get('website_story')),
+      final_shariah_summary: parseString(get('final_shariah_summary')),
+      estimated_npin_final_shariah_summary: parseString(get('estimated_npin_final_shariah_summary')),
+      findings_bullets: safeParseArray(get('findings_bullets')),
+      references_json: safeParseArray(get('references_json')),
+      
+      // Compatibility fields
+      shariah_summary: parseString(get('final_shariah_summary')),
+      needs_board_review: false,
+      auto_banned: false,
+      auto_banned_reason_clean: null,
+      auto_banned_summary: null,
+      haram_pct_point: null,
+      qa_status: 'OK',
+      notes_for_portfolio_manager: null,
+      llm_has_fail_flag: false,
+      llm_has_caution_flag: false,
+      llm_primary_rationale: null,
     };
     
     if (record.ticker && record.upsert_key) {
@@ -325,61 +315,60 @@ function parseCSV(csvData: string): ScreeningRecord[] {
   return records;
 }
 
-// Store for loaded data
+// ============ DATA LOADING ============
 let cachedData: ScreeningRecord[] | null = null;
 
-// Load data from CSV URL
+// CSV URL - points to the public CSV file hosted on the site
+const CSV_URL = 'https://id-preview--73838879-ccbf-490f-9817-cc6ef8a95fa1.lovable.app/data/shariah-screening.csv';
+
 export async function loadData(): Promise<ScreeningRecord[]> {
   if (cachedData) return cachedData;
   
   try {
-    // Try to fetch from the public URL (works in both dev and prod)
-    const projectId = Deno.env.get('SUPABASE_PROJECT_REF') || 'tiybjipvwexmjdslgudf';
-    const baseUrl = `https://${projectId}.lovableproject.com`;
+    console.log('Loading CSV from:', CSV_URL);
+    const response = await fetch(CSV_URL, {
+      headers: { 'Accept': 'text/csv' }
+    });
     
-    const response = await fetch(`${baseUrl}/data/shariah-screening.csv`);
     if (!response.ok) {
-      console.error(`Failed to fetch CSV: ${response.status}`);
-      return [];
+      throw new Error(`Failed to fetch CSV: ${response.status}`);
     }
     
     const csvData = await response.text();
     cachedData = parseCSV(csvData);
-    console.log(`Loaded ${cachedData.length} screening records from CSV`);
+    console.log(`Loaded ${cachedData.length} screening records`);
     return cachedData;
   } catch (error) {
-    console.error('Error loading CSV data:', error);
+    console.error('Error loading CSV:', error);
     return [];
   }
 }
 
-// Sync accessor (for backward compatibility) - returns empty if not loaded
 export function getSampleData(): ScreeningRecord[] {
   return cachedData || [];
 }
 
-// Helper to find record by ticker
+// ============ QUERY FUNCTIONS ============
 export async function findByTicker(ticker: string): Promise<ScreeningRecord | undefined> {
   const data = await loadData();
-  const normalizedTicker = ticker.trim().toUpperCase();
-  return data.find(r => r.ticker.toUpperCase() === normalizedTicker);
+  const normalized = ticker.trim().toUpperCase();
+  return data.find(r => r.ticker.toUpperCase() === normalized);
 }
 
-// Helper to find record by upsert_key
 export async function findByUpsertKey(upsertKey: string): Promise<ScreeningRecord | undefined> {
   const data = await loadData();
   return data.find(r => r.upsert_key === upsertKey);
 }
 
-// Helper to find records by multiple tickers
 export async function findByTickers(tickers: string[]): Promise<Map<string, ScreeningRecord>> {
   const data = await loadData();
-  const normalizedTickers = tickers.map(t => t.trim().toUpperCase());
   const result = new Map<string, ScreeningRecord>();
+  
+  const normalizedTickers = new Set(tickers.map(t => t.trim().toUpperCase()));
   
   for (const record of data) {
     const upperTicker = record.ticker.toUpperCase();
-    if (normalizedTickers.includes(upperTicker)) {
+    if (normalizedTickers.has(upperTicker)) {
       result.set(upperTicker, record);
     }
   }
@@ -387,7 +376,6 @@ export async function findByTickers(tickers: string[]): Promise<Map<string, Scre
   return result;
 }
 
-// Helper to get all records with optional filtering
 export async function getAllRecords(filters?: {
   search?: string;
   finalClassification?: string;
@@ -421,7 +409,6 @@ export async function getAllRecords(filters?: {
   
   const total = result.length;
   
-  // Apply pagination
   if (filters?.page !== undefined && filters?.pageSize) {
     const start = (filters.page - 1) * filters.pageSize;
     result = result.slice(start, start + filters.pageSize);
@@ -430,7 +417,6 @@ export async function getAllRecords(filters?: {
   return { records: result, total };
 }
 
-// Helper to get distinct values for a field
 export async function getDistinctValues(field: keyof ScreeningRecord): Promise<string[]> {
   const data = await loadData();
   const values = new Set<string>();
@@ -444,6 +430,3 @@ export async function getDistinctValues(field: keyof ScreeningRecord): Promise<s
   
   return Array.from(values).sort();
 }
-
-// Export for legacy compatibility
-export const sampleData: ScreeningRecord[] = [];
