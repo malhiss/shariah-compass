@@ -3,6 +3,38 @@
 
 import type { ScreeningRecord } from '@/types/screening-record';
 
+// ============ SAFE PARSE UTILITY (REQUIRED) ============
+// Returns value if already array/object, parses JSON string, returns null on failure
+export function safeParse<T>(value: T | string | null | undefined): T | null {
+  if (value === null || value === undefined) return null;
+  if (value === '' || value === '[]' || value === '{}') return null;
+  
+  // If already an array or object, return it
+  if (typeof value === 'object') {
+    return value as T;
+  }
+  
+  // If string that looks like JSON, try to parse
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+      try {
+        return JSON.parse(trimmed) as T;
+      } catch {
+        return null;
+      }
+    }
+  }
+  
+  return null;
+}
+
+// Safe parse for arrays with fallback to empty array
+export function safeParseArray<T>(value: T[] | string | null | undefined): T[] {
+  const parsed = safeParse<T[]>(value);
+  return Array.isArray(parsed) ? parsed : [];
+}
+
 // Helper functions
 function parseBoolean(value: string | undefined): boolean {
   if (!value) return false;
@@ -23,25 +55,17 @@ function parseString(value: string | undefined): string | null {
   return value.trim();
 }
 
-// Safe JSON parsing helpers
+// Safe JSON parsing helpers - use safeParse internally
 function parseJsonArraySafe(value: string | undefined): unknown[] {
   if (!value || value.trim() === '' || value.trim() === '[]') return [];
-  try {
-    const parsed = JSON.parse(value);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  const parsed = safeParse<unknown[]>(value);
+  return Array.isArray(parsed) ? parsed : [];
 }
 
 function parseJsonObjectSafe(value: string | undefined): Record<string, unknown> {
   if (!value || value.trim() === '' || value.trim() === '{}') return {};
-  try {
-    const parsed = JSON.parse(value);
-    return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed) ? parsed : {};
-  } catch {
-    return {};
-  }
+  const parsed = safeParse<Record<string, unknown>>(value);
+  return (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) ? parsed : {};
 }
 
 // Parse business_segments_summary which can be JSON array or pipe-delimited string
@@ -50,17 +74,13 @@ function parseBusinessSegments(value: string | undefined): string[] | null {
   
   const trimmed = value.trim();
   
-  // Try JSON array first
+  // Try JSON array first using safeParse
   if (trimmed.startsWith('[')) {
-    try {
-      const parsed = JSON.parse(trimmed);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.map(s => String(s).trim()).filter(s => s.length > 0);
-      }
-      return null;
-    } catch {
-      // Fall through to pipe-delimited parsing
+    const parsed = safeParse<string[]>(trimmed);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed.map(s => String(s).trim()).filter(s => s.length > 0);
     }
+    return null;
   }
   
   // Try pipe-delimited
@@ -188,6 +208,8 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       ticker: get('ticker') || '',
       company_name: get('company_name') || '',
       report_date: get('report_date') || '',
+      screening_date: parseString(get('screening_date')) || (get('screening_run_at') ? get('screening_run_at')?.slice(0, 10) : null) || null,
+      methodology_name: 'Invesense Methodology', // Always use this constant
       methodology_version: get('methodology_version') || '',
       security_type: get('security_type') || '',
       industry: get('industry') || '',
@@ -198,16 +220,29 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       country: parseString(get('country')),
       reporting_period: parseString(get('reporting_period')),
       company_description: parseString(get('company_description')),
+      business_description: parseString(get('business_description', 'company_description')),
       business_segments_summary: parseBusinessSegments(get('business_segments_summary')),
       
       // Verdict
       final_classification: parseString(get('final_classification')) as ScreeningRecord['final_classification'],
+      final_classification_based_on_estimate: parseString(get('final_classification_based_on_estimate')) as ScreeningRecord['final_classification_based_on_estimate'],
       purification_required: parseBoolean(get('purification_required')),
       purification_pct_recommended: parseNumber(get('purification_pct_recommended')),
       needs_board_review: parseBoolean(get('needs_board_review')),
       doubt_reason: parseString(get('doubt_reason')),
       notes_for_portfolio_manager: parseString(get('notes_for_portfolio_manager')),
       shariah_summary: get('shariah_summary') || '',
+      final_shariah_summary: parseString(get('final_shariah_summary', 'shariah_summary')),
+      business_status: get('business_status') as ScreeningRecord['business_status'] || null,
+      
+      // Estimated NPIN fields (NEW)
+      estimated_npin_status: parseString(get('estimated_npin_status')) as ScreeningRecord['estimated_npin_status'],
+      estimated_npin_threshold_pct: parseNumber(get('estimated_npin_threshold_pct')),
+      estimated_npin_value_used_point: parseNumber(get('estimated_npin_value_used_point')),
+      estimated_npin_value_used_source: parseString(get('estimated_npin_value_used_source')),
+      estimated_npin_purification_required: parseBoolean(get('estimated_npin_purification_required')),
+      estimated_npin_purification_pct_recommended: parseNumber(get('estimated_npin_purification_pct_recommended')),
+      estimated_npin_final_shariah_summary: parseString(get('estimated_npin_final_shariah_summary')),
       
       // Client summaries
       client_summary: parseString(get('client_summary')),
@@ -281,7 +316,7 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       npin_numerator_formula: parseString(get('npin_numerator_formula')),
       npin_adjustments_notes: parseString(get('npin_adjustments_notes')),
       
-      // Dollar amounts
+      // Dollar amounts (FMP fields)
       denominator_max_usd_mn: parseNumber(get('denominator_max_usd_mn')),
       marketcap_usd_mn: parseNumber(get('marketcap_usd_mn')),
       totalassets_usd_mn: parseNumber(get('totalassets_usd_mn')),
@@ -290,29 +325,46 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       lt_invest_conv_usd_mn: parseNumber(get('lt_invest_conv_usd_mn')),
       revenue_total_usd_mn: parseNumber(get('revenue_total_usd_mn')),
       
-      // Business status
-      business_status: get('business_status') as ScreeningRecord['business_status'] || 'UNKNOWN',
+      // Explainability
       llm_has_fail_flag: parseBoolean(get('llm_has_fail_flag')),
       llm_has_caution_flag: parseBoolean(get('llm_has_caution_flag')),
       llm_primary_rationale: parseString(get('llm_primary_rationale')),
       
-      // Evidence
+      // Evidence (parse JSON arrays at load time)
       evidence_items_json: parseString(get('evidence_items_json')),
+      verdict_evidence_items_json: parseString(get('verdict_evidence_items_json', 'evidence_items_json')),
+      website_story: parseString(get('website_story')),
+      
+      // Donut charts (parse to arrays at load time using safeParse)
+      donut_series_json: safeParseArray<number>(get('donut_series_json')) as number[],
+      donut_segments_json: safeParseArray<{ name: string; value: number }>(get('donut_segments_json')) as { name: string; value: number }[],
       
       // Haram revenue composition
       haram_pct_point: parseNumber(get('haram_pct_point')),
       haram_pct_lower: parseNumber(get('haram_pct_lower')),
       haram_pct_upper: parseNumber(get('haram_pct_upper')),
+      halal_pct_point: parseNumber(get('halal_pct_point')),
+      halal_pct_display_conservative: parseNumber(get('halal_pct_display_conservative')),
+      haram_pct_display_conservative: parseNumber(get('haram_pct_display_conservative')),
       haram_total_pct_display: parseString(get('haram_total_pct_display')),
       haram_top_segments_label: parseString(get('haram_top_segments_label')),
       haram_top_segments_names: parseString(get('haram_top_segments_names')),
-      halal_pct_point: parseNumber(get('halal_pct_point')),
       haram_segments_json: parseString(get('haram_segments_json')),
       haram_composition_json: haramCompositionJson ? parseString(haramCompositionJson) : null,
+      haram_top_composition_json: parseString(get('haram_top_composition_json')),
       haram_reference_ids_used: parseString(get('haram_reference_ids_used')),
       haram_global_reasoning: parseString(get('haram_global_reasoning')),
       haram_limitations: parseString(get('haram_limitations')),
       haram_confidence: parseString(get('haram_confidence')),
+      haram_references_json: parseString(get('haram_references_json')),
+      
+      // Website fields for charts
+      website_haram_segments_json: parseString(get('website_haram_segments_json')),
+      website_haram_composition_json: parseString(get('website_haram_composition_json')),
+      website_references_json: parseString(get('website_references_json')),
+      
+      // References (primary)
+      references_json: parseString(get('references_json', 'client_references_json', 'website_references_json')),
       
       // Key drivers
       key_drivers_json: parseString(get('key_drivers_json')),
@@ -335,11 +387,18 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       memo_doc_url: parseString(get('memo_doc_url')),
       memo_doc_id: parseString(get('memo_doc_id')),
       
+      // Final ticker summary
+      final_ticker_summary_json: parseString(get('final_ticker_summary_json')),
+      final_ticker_summary_last_updated: parseString(get('final_ticker_summary_last_updated')),
+      
       // Auto-banned
       auto_banned: parseBoolean(get('auto_banned')),
       auto_banned_status: parseString(get('auto_banned_status')),
       auto_banned_reason_clean: parseString(get('auto_banned_reason_clean')),
       auto_banned_summary: parseString(get('auto_banned_summary')),
+      
+      // Legacy timestamp fields
+      screening_run_at: parseString(get('screening_run_at')),
     };
     
     if (record.ticker && record.upsert_key) {

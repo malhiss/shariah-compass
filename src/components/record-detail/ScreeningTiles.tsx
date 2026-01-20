@@ -54,15 +54,36 @@ export function ScreeningTiles({ record }: ScreeningTilesProps) {
   const cashInvRatioDisplay = parseClientRatio(record.cash_inv_ratio_pct ?? record.client_numbers_cashinv_ratio_pct);
   const npinRatioDisplay = parseClientRatio(record.npin_ratio_pct ?? record.client_numbers_npin_ratio_pct);
 
+  // Estimated NPIN - format value properly (handle 0-1 or 0-100 range)
+  const getEstimatedNpinDisplay = (): string => {
+    const pointValue = record.estimated_npin_value_used_point;
+    const purificationPct = record.estimated_npin_purification_pct_recommended;
+    
+    if (pointValue !== null && pointValue !== undefined) {
+      // If value is between 0-1, multiply by 100
+      const displayValue = pointValue <= 1 ? pointValue * 100 : pointValue;
+      return `${displayValue.toFixed(2)}%`;
+    }
+    if (purificationPct !== null && purificationPct !== undefined) {
+      const displayValue = purificationPct <= 1 ? purificationPct * 100 : purificationPct;
+      return `${displayValue.toFixed(2)}%`;
+    }
+    return 'N/A';
+  };
+
+  const estimatedNpinDisplay = getEstimatedNpinDisplay();
+
   // Use status fields from data contract if available
   const debtStatus = record.debt_status === 'PASS' ? 'pass' : record.debt_status === 'FAIL' ? 'fail' : determineStatus(debtRatioDisplay, record.debt_threshold_pct ?? 33);
   const cashStatus = record.cash_inv_status === 'PASS' ? 'pass' : record.cash_inv_status === 'FAIL' ? 'fail' : determineStatus(cashInvRatioDisplay, record.cash_inv_threshold_pct ?? 33);
   const npinStatus = record.npin_status === 'PASS' ? 'pass' : record.npin_status === 'FAIL' ? 'fail' : determineStatus(npinRatioDisplay, record.npin_threshold_pct ?? 5);
+  const estimatedNpinStatus = record.estimated_npin_status === 'PASS' ? 'pass' : record.estimated_npin_status === 'FAIL' ? 'fail' : determineStatus(estimatedNpinDisplay, record.estimated_npin_threshold_pct ?? 5);
 
   // Use thresholds from data contract or defaults
   const debtThreshold = record.debt_threshold_pct ?? 33;
   const cashThreshold = record.cash_inv_threshold_pct ?? 33;
   const npinThreshold = record.npin_threshold_pct ?? 5;
+  const estimatedNpinThreshold = record.estimated_npin_threshold_pct ?? 5;
 
   const tiles: TileData[] = [
     {
@@ -89,10 +110,18 @@ export function ScreeningTiles({ record }: ScreeningTilesProps) {
       value: npinRatioDisplay,
       threshold: `≤${npinThreshold}%`,
     },
+    {
+      label: 'Estimated NPIN',
+      shortLabel: 'Est. NPIN',
+      icon: <TrendingDown className="w-4 h-4" />,
+      status: estimatedNpinStatus,
+      value: estimatedNpinDisplay,
+      threshold: `≤${estimatedNpinThreshold}%`,
+    },
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-2 sm:gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
       {tiles.map((tile, idx) => (
         <div
           key={idx}
