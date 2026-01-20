@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Sector } from 'recharts';
+import { useState } from 'react';
 import { Info, AlertTriangle } from 'lucide-react';
 import type { ScreeningRecord } from '@/types/screening-record';
 
@@ -34,6 +35,7 @@ const SEGMENT_COLORS = [
 const HALAL_COLOR = 'hsl(var(--compliant))';
 
 export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
+  const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined);
   // Parse donut_series_json for halal/haram split
   // The loader parses this as an array, but we need to handle both array and string
   const rawDonutSeries = record.donut_series_json;
@@ -120,9 +122,39 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
                       animationBegin={0}
                       animationDuration={800}
                       animationEasing="ease-out"
+                      activeIndex={activeIndex}
+                      activeShape={(props: any) => {
+                        const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
+                        return (
+                          <g>
+                            <defs>
+                              <filter id="glow">
+                                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                                <feMerge>
+                                  <feMergeNode in="coloredBlur"/>
+                                  <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                              </filter>
+                            </defs>
+                            <Sector
+                              cx={cx}
+                              cy={cy}
+                              innerRadius={innerRadius - 3}
+                              outerRadius={outerRadius + 6}
+                              startAngle={startAngle}
+                              endAngle={endAngle}
+                              fill={fill}
+                              filter="url(#glow)"
+                              style={{ transition: 'all 0.2s ease-out' }}
+                            />
+                          </g>
+                        );
+                      }}
+                      onMouseEnter={(_, index) => setActiveIndex(index)}
+                      onMouseLeave={() => setActiveIndex(undefined)}
                     >
                       {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell key={`cell-${index}`} fill={entry.color} cursor="pointer" />
                       ))}
                     </Pie>
                     <Tooltip
