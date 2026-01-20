@@ -101,52 +101,6 @@ export function ReferencesSection({ record }: ReferencesSectionProps) {
 
   return (
     <div className="space-y-4">
-      {/* Evidence / Website Story Section */}
-      {(websiteStory || evidenceItems.length > 0) && (
-        <Card className="premium-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Quote className="w-5 h-5 text-primary" />
-              Transcript Findings
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Website Story */}
-            {websiteStory && (
-              <div className="p-4 rounded-lg bg-muted/10 border border-border">
-                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{websiteStory}</p>
-              </div>
-            )}
-
-            {/* Evidence Items */}
-            {evidenceItems.length > 0 && (
-              <div className="space-y-2">
-                {evidenceItems.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 rounded-lg border border-border/50 bg-muted/5"
-                  >
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        {item.category || item.source || 'Evidence'}
-                      </span>
-                      {item.ref && (
-                        <span className="text-xs text-primary font-mono">{item.ref}</span>
-                      )}
-                    </div>
-                    {item.rationale && (
-                      <p className="text-sm text-foreground leading-relaxed">{item.rationale}</p>
-                    )}
-                    {item.snippet && (
-                      <p className="text-xs text-muted-foreground mt-1 italic">"{item.snippet}"</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
 
       {/* References Section */}
       {references.length > 0 && (
