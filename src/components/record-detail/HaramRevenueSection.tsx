@@ -1,13 +1,27 @@
-import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Info, AlertTriangle } from 'lucide-react';
-import { safeParseJSON, type ScreeningRecord, type HaramSegment, type CompositionItem } from '@/types/screening-record';
+import type { ScreeningRecord } from '@/types/screening-record';
 
 interface HaramRevenueSectionProps {
   record: ScreeningRecord;
+}
+
+// Donut series item shape from CSV
+interface DonutSeriesItem {
+  label: string;
+  value: number;
+}
+
+// Donut segment item shape from CSV
+interface DonutSegmentItem {
+  name: string;
+  point: number;
+  lower?: number;
+  upper?: number;
+  confidence?: string;
 }
 
 const SEGMENT_COLORS = [
@@ -20,22 +34,31 @@ const SEGMENT_COLORS = [
 const HALAL_COLOR = 'hsl(var(--compliant))';
 
 export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
-  // Use website_haram_segments_json as primary source for charts
-  const haramSegments = safeParseJSON<HaramSegment[]>(record.website_haram_segments_json, []);
-  const haramComposition = safeParseJSON<CompositionItem[]>(record.website_haram_composition_json, []);
+  // Parse donut_series_json for halal/haram split
+  // The loader parses this as an array, but we need to handle both array and string
+  const rawDonutSeries = record.donut_series_json;
+  const donutSeries: DonutSeriesItem[] = Array.isArray(rawDonutSeries) 
+    ? rawDonutSeries as unknown as DonutSeriesItem[]
+    : [];
   
-  // Client-facing display fields
-  const clientHaramTotalDisplay = record.client_haram_total_pct_display;
-  const clientTopSegmentsLabel = record.client_top_haram_segments_label;
-  const clientTopCompositionLabel = record.client_top_haram_composition_label;
-  const clientHaramBreakdown = record.client_haram_breakdown;
+  // Parse donut_segments_json for haram segment breakdown
+  const rawDonutSegments = record.donut_segments_json;
+  const donutSegments: DonutSegmentItem[] = Array.isArray(rawDonutSegments)
+    ? rawDonutSegments as unknown as DonutSegmentItem[]
+    : [];
+  
+  // Extract halal/haram from donut_series_json
+  const halalEntry = donutSeries.find(item => item.label?.toLowerCase() === 'halal');
+  const haramEntry = donutSeries.find(item => item.label?.toLowerCase() === 'haram');
+  
+  const halalPct = halalEntry?.value ?? 0;
+  const haramPct = haramEntry?.value ?? 0;
   
   // Check if we have any data to display
-  const hasChartData = haramSegments.length > 0;
-  const hasCompositionData = haramComposition.length > 0;
-  const hasClientData = clientHaramTotalDisplay || clientTopSegmentsLabel || clientTopCompositionLabel || clientHaramBreakdown;
+  const hasDonutData = donutSeries.length > 0 && (halalPct > 0 || haramPct > 0);
+  const hasSegmentData = donutSegments.length > 0;
   
-  if (!hasChartData && !hasCompositionData && !hasClientData) {
+  if (!hasDonutData && !hasSegmentData) {
     return (
       <Card className="border-border">
         <CardContent className="py-12 text-center">
@@ -46,24 +69,20 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
     );
   }
 
-  // Calculate total haram percentage from segments
-  const totalHaramPct = haramSegments.reduce((sum, segment) => {
-    const pct = segment.haram_pct_of_total_revenue_point_estimate ?? segment.point ?? segment.pct_of_revenue ?? 0;
-    return sum + (typeof pct === 'number' ? pct : 0);
-  }, 0);
+  // Build chart data from donut_series_json
+  const chartData: { name: string; value: number; color: string }[] = [];
   
-  const halalPct = Math.max(0, 100 - totalHaramPct);
-
-  const chartData: { name: string; value: number; color: string }[] = [
-    { name: 'Halal', value: Number(halalPct.toFixed(2)), color: HALAL_COLOR },
-  ];
-
-  if (hasChartData) {
-    haramSegments.forEach((segment, idx) => {
-      const segmentName = segment.name || segment.segment_name || segment.description || `Segment ${idx + 1}`;
-      const segmentPct = segment.haram_pct_of_total_revenue_point_estimate ?? segment.point ?? segment.pct_of_revenue;
+  if (halalPct > 0) {
+    chartData.push({ name: 'Halal', value: Number(halalPct.toFixed(2)), color: HALAL_COLOR });
+  }
+  
+  // Add haram segments from donut_segments_json if available, otherwise use total haram
+  if (hasSegmentData) {
+    donutSegments.forEach((segment, idx) => {
+      const segmentName = segment.name || `Segment ${idx + 1}`;
+      const segmentPct = segment.point ?? 0;
       
-      if (segmentPct !== null && segmentPct !== undefined && typeof segmentPct === 'number') {
+      if (segmentPct > 0) {
         chartData.push({
           name: segmentName,
           value: Number(segmentPct.toFixed(2)),
@@ -71,46 +90,22 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
         });
       }
     });
-  } else if (totalHaramPct > 0) {
-    chartData.push({ name: 'Haram', value: Number(totalHaramPct.toFixed(2)), color: SEGMENT_COLORS[0] });
+  } else if (haramPct > 0) {
+    chartData.push({ name: 'Haram', value: Number(haramPct.toFixed(2)), color: SEGMENT_COLORS[0] });
   }
 
   return (
     <Card className="border-border overflow-hidden">
       <CardHeader className="pb-0">
-        <CardTitle className="text-lg font-semibold">Haram Revenue Exposure</CardTitle>
-        {clientHaramTotalDisplay && (
-          <p className="text-2xl font-bold text-non-compliant mt-2">{clientHaramTotalDisplay}</p>
+        <CardTitle className="text-lg font-semibold">Revenue Composition</CardTitle>
+        {haramPct > 0 && (
+          <p className="text-2xl font-bold text-non-compliant mt-2">{haramPct.toFixed(1)}% Haram Exposure</p>
         )}
       </CardHeader>
       <CardContent className="pt-6">
-        {/* Client labels */}
-        {(clientTopSegmentsLabel || clientTopCompositionLabel) && (
-          <div className="flex flex-wrap gap-2 mb-6">
-            {clientTopSegmentsLabel && (
-              <Badge variant="outline" className="bg-non-compliant/10 text-non-compliant border-non-compliant/30">
-                <AlertTriangle className="w-3 h-3 mr-1" />
-                {clientTopSegmentsLabel}
-              </Badge>
-            )}
-            {clientTopCompositionLabel && (
-              <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30">
-                {clientTopCompositionLabel}
-              </Badge>
-            )}
-          </div>
-        )}
-
-        {/* Client haram breakdown text */}
-        {clientHaramBreakdown && (
-          <div className="p-4 rounded-lg bg-muted/10 border border-border mb-6">
-            <p className="text-sm text-foreground leading-relaxed">{clientHaramBreakdown}</p>
-          </div>
-        )}
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Chart side */}
-          {hasChartData && (
+          {hasDonutData && (
             <div className="flex flex-col items-center">
               <div className="h-56 w-full max-w-[280px]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -154,7 +149,7 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-non-compliant" />
                   <div>
-                    <p className="text-lg font-bold text-non-compliant">{totalHaramPct.toFixed(1)}%</p>
+                    <p className="text-lg font-bold text-non-compliant">{haramPct.toFixed(1)}%</p>
                     <p className="text-xs text-muted-foreground">Haram</p>
                   </div>
                 </div>
@@ -164,19 +159,20 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
 
           {/* Segments breakdown */}
           <div>
-            <h4 className="text-sm font-medium text-muted-foreground mb-4">Segment Breakdown</h4>
+            <h4 className="text-sm font-medium text-muted-foreground mb-4">Haram Segment Breakdown</h4>
             
-            {haramSegments.length === 0 ? (
+            {donutSegments.length === 0 ? (
               <div className="p-4 rounded-lg bg-muted/10 border border-border text-center">
                 <p className="text-sm text-muted-foreground">No detailed segment data available</p>
               </div>
             ) : (
               <Accordion type="multiple" className="space-y-2">
-                {haramSegments.map((segment, idx) => {
-                  const segmentName = segment.name || segment.segment_name || segment.description || `Segment ${idx + 1}`;
-                  const segmentPct = segment.haram_pct_of_total_revenue_point_estimate ?? segment.point ?? segment.pct_of_revenue;
-                  const composition = segment.composition || [];
-                  const whyItMatters = segment.why_it_matters;
+                {donutSegments.map((segment, idx) => {
+                  const segmentName = segment.name || `Segment ${idx + 1}`;
+                  const segmentPct = segment.point ?? 0;
+                  const lowerPct = segment.lower;
+                  const upperPct = segment.upper;
+                  const confidence = segment.confidence;
 
                   return (
                     <AccordionItem 
@@ -186,55 +182,31 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
                     >
                       <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/10 text-sm">
                         <div className="flex items-center justify-between w-full pr-2">
-                          <span className="font-medium">{segmentName}</span>
-                          {segmentPct !== null && segmentPct !== undefined && (
-                            <Badge variant="outline" className="font-mono text-xs">
-                              {typeof segmentPct === 'number' ? segmentPct.toFixed(2) : segmentPct}%
-                            </Badge>
-                          )}
+                          <span className="font-medium text-left">{segmentName}</span>
+                          <Badge variant="outline" className="font-mono text-xs shrink-0 ml-2">
+                            {segmentPct.toFixed(2)}%
+                          </Badge>
                         </div>
                       </AccordionTrigger>
                       <AccordionContent className="px-4 pb-4">
-                        {whyItMatters && (
-                          <p className="text-xs text-muted-foreground mb-3 italic">{whyItMatters}</p>
-                        )}
-                        {composition.length > 0 ? (
-                          <div className="space-y-2 pt-2">
-                            {composition.map((item, itemIdx) => {
-                              const itemName = item.item_name || item.name || `Item ${itemIdx + 1}`;
-                              const itemPct = item.haram_pct_of_total_revenue_point_estimate ?? item.pct_of_revenue;
-                              const whyHaram = item.why_haram || item.why_it_matters;
-
-                              return (
-                                <div key={itemIdx} className="p-3 rounded-lg bg-muted/10 border border-border/50">
-                                  <div className="flex items-start justify-between gap-2">
-                                    <p className="text-sm font-medium">{itemName}</p>
-                                    {itemPct !== null && itemPct !== undefined && (
-                                      <span className="font-mono text-xs text-non-compliant shrink-0">
-                                        {typeof itemPct === 'number' ? itemPct.toFixed(2) : itemPct}%
-                                      </span>
-                                    )}
-                                  </div>
-                                  {whyHaram && (
-                                    <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                                      {whyHaram}
-                                    </p>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <p className="text-xs text-muted-foreground pt-2">
-                            No composition breakdown available
-                          </p>
-                        )}
-                        
-                        {segment.reasoning && (
-                          <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border/50">
-                            {segment.reasoning}
-                          </p>
-                        )}
+                        <div className="space-y-2">
+                          {(lowerPct !== undefined || upperPct !== undefined) && (
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <span>Range:</span>
+                              <span className="font-mono">
+                                {lowerPct?.toFixed(1) ?? '?'}% – {upperPct?.toFixed(1) ?? '?'}%
+                              </span>
+                            </div>
+                          )}
+                          {confidence && (
+                            <div className="flex items-center gap-2 text-xs">
+                              <span className="text-muted-foreground">Confidence:</span>
+                              <Badge variant="secondary" className="text-xs">
+                                {confidence}
+                              </Badge>
+                            </div>
+                          )}
+                        </div>
                       </AccordionContent>
                     </AccordionItem>
                   );
@@ -244,35 +216,6 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
           </div>
         </div>
 
-        {/* Composition table */}
-        {hasCompositionData && (
-          <div className="mt-6 pt-6 border-t border-border">
-            <h4 className="text-sm font-medium text-muted-foreground mb-4">Haram Composition</h4>
-            <div className="space-y-2">
-              {haramComposition.map((item, idx) => {
-                const itemName = item.item_name || item.name || `Item ${idx + 1}`;
-                const itemPct = item.haram_pct_of_total_revenue_point_estimate ?? item.pct_of_revenue;
-                const whyHaram = item.why_haram || item.why_it_matters;
-
-                return (
-                  <div key={idx} className="p-3 rounded-lg bg-muted/5 border border-border/50 flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-medium">{itemName}</p>
-                      {whyHaram && (
-                        <p className="text-xs text-muted-foreground mt-1">{whyHaram}</p>
-                      )}
-                    </div>
-                    {itemPct !== null && itemPct !== undefined && (
-                      <Badge variant="outline" className="font-mono text-xs shrink-0">
-                        {typeof itemPct === 'number' ? itemPct.toFixed(2) : itemPct}%
-                      </Badge>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
