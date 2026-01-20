@@ -98,9 +98,6 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
     <Card className="border-border overflow-hidden">
       <CardHeader className="pb-0">
         <CardTitle className="text-lg font-semibold">Revenue Composition</CardTitle>
-        {haramPct > 0 && (
-          <p className="text-2xl font-bold text-non-compliant mt-2">{haramPct.toFixed(1)}% Haram Exposure</p>
-        )}
       </CardHeader>
       <CardContent className="pt-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
