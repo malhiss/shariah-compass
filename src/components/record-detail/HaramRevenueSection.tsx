@@ -116,6 +116,10 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
                       paddingAngle={2}
                       dataKey="value"
                       stroke="none"
+                      isAnimationActive={true}
+                      animationBegin={0}
+                      animationDuration={800}
+                      animationEasing="ease-out"
                     >
                       {chartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
