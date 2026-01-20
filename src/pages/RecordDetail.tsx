@@ -8,7 +8,6 @@ import { RecordHeader } from '@/components/record-detail/RecordHeader';
 import { VerdictBar } from '@/components/record-detail/VerdictBar';
 import { ScreeningTiles } from '@/components/record-detail/ScreeningTiles';
 import { CompanyProfileSection } from '@/components/record-detail/CompanyProfileSection';
-import { HalalHaramDonut } from '@/components/record-detail/HalalHaramDonut';
 import { KeyInsightsSection } from '@/components/record-detail/KeyInsightsSection';
 import { HaramRevenueSection } from '@/components/record-detail/HaramRevenueSection';
 import { ReferencesSection } from '@/components/record-detail/ReferencesSection';
@@ -113,9 +112,6 @@ export default function RecordDetail() {
 
         {/* Company Profile - directly under ratios */}
         <CompanyProfileSection record={record} />
-
-        {/* Halal/Haram Donut - under company profile */}
-        <HalalHaramDonut record={record} />
 
         {/* Key Insights - Inline cards */}
         <KeyInsightsSection record={record} />
