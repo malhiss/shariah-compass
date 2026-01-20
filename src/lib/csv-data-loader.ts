@@ -418,43 +418,78 @@ function parseCSV(csvData: string): ScreeningRecord[] {
 let cachedData: ScreeningRecord[] | null = null;
 let loadingPromise: Promise<ScreeningRecord[]> | null = null;
 
+// Universe type
+export type DataUniverse = 'global' | 'gcc';
+
+// Separate caches for each universe
+const cachedDataByUniverse: Record<DataUniverse, ScreeningRecord[] | null> = {
+  global: null,
+  gcc: null,
+};
+const loadingPromiseByUniverse: Record<DataUniverse, Promise<ScreeningRecord[]> | null> = {
+  global: null,
+  gcc: null,
+};
+
+// CSV file paths for each universe
+const CSV_PATHS: Record<DataUniverse, string> = {
+  global: '/data/shariah-screening.csv',
+  gcc: '/data/gcc-screening.csv',
+};
+
 // Clear cache to force reload
-export function clearCache(): void {
+export function clearCache(universe?: DataUniverse): void {
+  if (universe) {
+    cachedDataByUniverse[universe] = null;
+    loadingPromiseByUniverse[universe] = null;
+  } else {
+    cachedDataByUniverse.global = null;
+    cachedDataByUniverse.gcc = null;
+    loadingPromiseByUniverse.global = null;
+    loadingPromiseByUniverse.gcc = null;
+  }
+  // Also clear legacy single cache
   cachedData = null;
   loadingPromise = null;
 }
 
-// Load data from CSV (singleton pattern)
-export async function loadScreeningData(): Promise<ScreeningRecord[]> {
+// Load data from CSV for a specific universe (singleton pattern)
+export async function loadScreeningDataForUniverse(universe: DataUniverse): Promise<ScreeningRecord[]> {
   // Return cached data if available
-  if (cachedData) return cachedData;
+  if (cachedDataByUniverse[universe]) return cachedDataByUniverse[universe]!;
   
   // Return existing promise if already loading
-  if (loadingPromise) return loadingPromise;
+  if (loadingPromiseByUniverse[universe]) return loadingPromiseByUniverse[universe]!;
   
   // Start loading
-  loadingPromise = (async () => {
+  loadingPromiseByUniverse[universe] = (async () => {
     try {
+      const csvPath = CSV_PATHS[universe];
       // Add cache-busting timestamp to prevent browser caching
-      const response = await fetch(`/data/shariah-screening.csv?t=${Date.now()}`);
+      const response = await fetch(`${csvPath}?t=${Date.now()}`);
       if (!response.ok) {
-        console.error(`Failed to fetch CSV: ${response.status}`);
+        console.error(`Failed to fetch ${universe} CSV: ${response.status}`);
         return [];
       }
       
       const csvData = await response.text();
-      cachedData = parseCSV(csvData);
-      console.log(`Loaded ${cachedData.length} screening records from CSV`);
-      return cachedData;
+      cachedDataByUniverse[universe] = parseCSV(csvData);
+      console.log(`Loaded ${cachedDataByUniverse[universe]!.length} ${universe} screening records from CSV`);
+      return cachedDataByUniverse[universe]!;
     } catch (error) {
-      console.error('Error loading CSV data:', error);
+      console.error(`Error loading ${universe} CSV data:`, error);
       return [];
     } finally {
-      loadingPromise = null;
+      loadingPromiseByUniverse[universe] = null;
     }
   })();
   
-  return loadingPromise;
+  return loadingPromiseByUniverse[universe]!;
+}
+
+// Legacy function - loads global data by default
+export async function loadScreeningData(): Promise<ScreeningRecord[]> {
+  return loadScreeningDataForUniverse('global');
 }
 
 // Get cached data (sync, returns empty if not loaded)
@@ -462,29 +497,37 @@ export function getCachedData(): ScreeningRecord[] {
   return cachedData || [];
 }
 
-// Find record by ticker
+// Find record by ticker (searches both universes)
 export async function findByTicker(ticker: string): Promise<ScreeningRecord | undefined> {
-  const data = await loadScreeningData();
   const normalizedTicker = ticker.trim().toUpperCase();
-  return data.find(r => (r.ticker || '').toUpperCase() === normalizedTicker);
+  
+  // Try global first
+  const globalData = await loadScreeningDataForUniverse('global');
+  let record = globalData.find(r => (r.ticker || '').toUpperCase() === normalizedTicker);
+  
+  // If not found, try GCC
+  if (!record) {
+    const gccData = await loadScreeningDataForUniverse('gcc');
+    record = gccData.find(r => (r.ticker || '').toUpperCase() === normalizedTicker);
+  }
+  
+  return record;
 }
 
-// Find record by upsert_key
+// Find record by upsert_key (searches both universes)
 export async function findByUpsertKey(upsertKey: string): Promise<ScreeningRecord | undefined> {
-  const data = await loadScreeningData();
-  return data.find(r => r.upsert_key === upsertKey);
+  // Try global first
+  const globalData = await loadScreeningDataForUniverse('global');
+  let record = globalData.find(r => r.upsert_key === upsertKey);
+  
+  // If not found, try GCC
+  if (!record) {
+    const gccData = await loadScreeningDataForUniverse('gcc');
+    record = gccData.find(r => r.upsert_key === upsertKey);
+  }
+  
+  return record;
 }
-
-// GCC countries list
-const GCC_COUNTRIES = [
-  'saudi arabia',
-  'united arab emirates',
-  'uae',
-  'kuwait',
-  'bahrain',
-  'oman',
-  'qatar',
-];
 
 // Get all records with filtering and pagination
 export async function getAllRecords(filters?: {
@@ -496,16 +539,10 @@ export async function getAllRecords(filters?: {
   page?: number;
   pageSize?: number;
 }): Promise<{ records: ScreeningRecord[]; total: number }> {
-  const data = await loadScreeningData();
+  // Load from the appropriate universe CSV
+  const universe: DataUniverse = filters?.universe || 'global';
+  const data = await loadScreeningDataForUniverse(universe);
   let result = [...data];
-  
-  // Filter by universe (GCC countries)
-  if (filters?.universe === 'gcc') {
-    result = result.filter(r => {
-      const country = (r.country || '').toLowerCase().trim();
-      return GCC_COUNTRIES.some(gcc => country.includes(gcc));
-    });
-  }
   
   if (filters?.search) {
     const searchLower = filters.search.toLowerCase();
