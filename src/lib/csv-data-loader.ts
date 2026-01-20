@@ -221,8 +221,9 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       exchange: parseString(get('exchange')),
       country: parseString(get('country')),
       reporting_period: parseString(get('reporting_period')),
-      company_description: parseString(get('company_description')),
-      business_description: parseString(get('business_description', 'company_description')),
+      // Use "company description " field (with space in CSV header) as primary source
+      company_description: parseString(get('company description ', 'company description', 'company_description')),
+      business_description: parseString(get('company description ', 'company description', 'business_description', 'company_description')),
       business_segments_summary: parseBusinessSegments(get('business_segments_summary')),
       
       // Verdict
@@ -245,6 +246,8 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       estimated_npin_purification_required: parseBoolean(get('estimated_npin_purification_required')),
       estimated_npin_purification_pct_recommended: parseNumber(get('estimated_npin_purification_pct_recommended')),
       estimated_npin_final_shariah_summary: parseString(get('estimated_npin_final_shariah_summary')),
+      // est_purification_pct_recommended for estimated NPIN display (as number, e.g. 0.5 = 0.5%)
+      est_purification_pct_recommended: parseNumber(get('est_purification_pct_recommended')),
       
       // Client summaries
       client_summary: parseString(get('client_summary')),

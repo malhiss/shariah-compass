@@ -69,32 +69,6 @@ export function RecordHeader({ record }: RecordHeaderProps) {
               <Badge variant="secondary" className="bg-primary/10 text-primary text-xs">
                 {methodologyName}
               </Badge>
-              {exchange && (
-                <Badge variant="secondary" className="bg-muted/40 text-muted-foreground text-xs">
-                  {exchange}
-                </Badge>
-              )}
-              {country && (
-                <Badge variant="secondary" className="bg-muted/40 text-muted-foreground text-xs">
-                  {country}
-                </Badge>
-              )}
-              {securityType && (
-                <Badge variant="secondary" className="bg-muted/40 text-muted-foreground text-xs hidden sm:inline-flex">
-                  {securityType}
-                </Badge>
-              )}
-              {sector && (
-                <Badge variant="secondary" className="bg-muted/40 text-muted-foreground gap-1 text-xs hidden md:flex">
-                  {sector}
-                </Badge>
-              )}
-              {industry && industry !== 'N/A' && (
-                <Badge variant="secondary" className="bg-muted/40 text-muted-foreground gap-1 text-xs hidden lg:flex">
-                  <Factory className="w-3 h-3" />
-                  {industry}
-                </Badge>
-              )}
             </div>
           </div>
         </div>
