@@ -122,12 +122,19 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(value: number) => `${value.toFixed(2)}%`}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--card))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px',
-                        color: 'hsl(var(--foreground))',
+                      content={({ active, payload }) => {
+                        if (!active || !payload?.length) return null;
+                        const data = payload[0].payload;
+                        return (
+                          <div className="bg-card border border-border rounded-lg shadow-lg p-3 max-w-[280px]">
+                            <p className="text-sm font-semibold text-foreground leading-snug mb-1">
+                              {data.name}
+                            </p>
+                            <p className="text-lg font-bold" style={{ color: data.color }}>
+                              {data.value.toFixed(2)}%
+                            </p>
+                          </div>
+                        );
                       }}
                     />
                   </PieChart>
