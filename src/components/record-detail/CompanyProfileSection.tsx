@@ -74,7 +74,7 @@ export function CompanyProfileSection({ record }: CompanyProfileSectionProps) {
               <FileText className="w-4 h-4 text-muted-foreground" />
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Company Description</p>
             </div>
-            <p className="text-sm text-foreground leading-relaxed line-clamp-4">
+            <p className="text-sm text-foreground leading-relaxed">
               {companyDescription}
             </p>
           </div>
