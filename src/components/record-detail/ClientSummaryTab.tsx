@@ -62,9 +62,11 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
             {/* Estimated Logic Summary (new) */}
             {estimatedSummary && (
               <div className="pt-4 border-t border-border">
-                <div className="flex items-center gap-2 mb-2">
-                  <Lightbulb className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium text-muted-foreground">Estimated Logic Summary</span>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Lightbulb className="w-5 h-5 text-primary" />
+                  </div>
+                  <span className="text-lg font-semibold">Estimated Logic Summary</span>
                 </div>
                 <p className="text-foreground leading-relaxed">{estimatedSummary}</p>
               </div>
