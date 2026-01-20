@@ -21,13 +21,11 @@ interface ScreeningTableProps {
   viewMode: ViewMode;
 }
 
-// Format currency in millions
+// Format currency in millions - display as-is since values are already in $M
 function formatCurrencyMn(value: number | null | undefined): string {
   if (value === null || value === undefined) return '—';
-  if (value >= 1000) {
-    return `$${(value / 1000).toFixed(1)}B`;
-  }
-  return `$${value.toFixed(0)}M`;
+  // Format with commas for readability, values are in millions
+  return `$${value.toLocaleString('en-US', { maximumFractionDigits: 1 })}M`;
 }
 
 // Format screening date (YYYY-MM-DD only, no time)
