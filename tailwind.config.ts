@@ -22,7 +22,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        sans: ['Tahoma', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
         serif: ['Spectral', 'Georgia', 'serif'],
       },
       fontSize: {
