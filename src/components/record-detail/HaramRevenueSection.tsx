@@ -159,7 +159,10 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
 
           {/* Segments breakdown */}
           <div>
-            <h4 className="text-sm font-medium text-muted-foreground mb-4">Haram Segment Breakdown</h4>
+            <h4 className="text-sm font-medium text-muted-foreground mb-2">Haram Segment Breakdown</h4>
+            {haramPct > 0 && (
+              <p className="text-lg font-semibold text-non-compliant mb-4">{haramPct.toFixed(1)}% Non-Permissible Income Exposure</p>
+            )}
             
             {donutSegments.length === 0 ? (
               <div className="p-4 rounded-lg bg-muted/10 border border-border text-center">
@@ -188,7 +191,7 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
                           </Badge>
                         </div>
                       </AccordionTrigger>
-                      <AccordionContent className="px-4 pb-4">
+                        <AccordionContent className="px-4 pb-4">
                         <div className="space-y-2">
                           {(lowerPct !== undefined || upperPct !== undefined) && (
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -196,14 +199,6 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
                               <span className="font-mono">
                                 {lowerPct?.toFixed(1) ?? '?'}% – {upperPct?.toFixed(1) ?? '?'}%
                               </span>
-                            </div>
-                          )}
-                          {confidence && (
-                            <div className="flex items-center gap-2 text-xs">
-                              <span className="text-muted-foreground">Confidence:</span>
-                              <Badge variant="secondary" className="text-xs">
-                                {confidence}
-                              </Badge>
                             </div>
                           )}
                         </div>

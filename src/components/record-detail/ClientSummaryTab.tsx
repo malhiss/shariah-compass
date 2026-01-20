@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { safeParseJSON, type ScreeningRecord, type ShariahBulletItem } from '@/types/screening-record';
-import { MessageSquare, CheckCircle2, Lightbulb, DollarSign, AlertTriangle } from 'lucide-react';
+import { safeParseJSON, type ScreeningRecord, type ShariahBulletItem, type EvidenceItem } from '@/types/screening-record';
+import { MessageSquare, CheckCircle2, Lightbulb, DollarSign, AlertTriangle, Quote } from 'lucide-react';
 
 interface ClientSummaryTabProps {
   record: ScreeningRecord;
@@ -31,6 +31,12 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
 
   // Disclaimer
   const disclaimer = record.client_disclaimer_short;
+
+  // Transcript findings - moved from References
+  const websiteStory = record.website_story;
+  const evidenceItems = safeParseJSON<EvidenceItem[]>(record.verdict_evidence_items_json, []).length > 0
+    ? safeParseJSON<EvidenceItem[]>(record.verdict_evidence_items_json, [])
+    : safeParseJSON<EvidenceItem[]>(record.evidence_items_json, []);
 
   const hasSummaryContent = shariahSummary || estimatedSummary || bullets.length > 0 || whatItMeans;
 
@@ -90,6 +96,55 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
                   <span className="text-sm font-medium text-muted-foreground">What It Means for Investors</span>
                 </div>
                 <p className="text-foreground leading-relaxed">{whatItMeans}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Transcript Findings Section - moved from References */}
+      {(websiteStory || evidenceItems.length > 0) && (
+        <Card className="premium-card">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Quote className="w-5 h-5 text-primary" />
+              </div>
+              <CardTitle className="text-lg">Transcript Findings</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Website Story */}
+            {websiteStory && (
+              <div className="p-4 rounded-lg bg-muted/10 border border-border">
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{websiteStory}</p>
+              </div>
+            )}
+
+            {/* Evidence Items */}
+            {evidenceItems.length > 0 && (
+              <div className="space-y-2">
+                {evidenceItems.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="p-3 rounded-lg border border-border/50 bg-muted/5"
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        {item.category || item.source || 'Evidence'}
+                      </span>
+                      {item.ref && (
+                        <span className="text-xs text-primary font-mono">{item.ref}</span>
+                      )}
+                    </div>
+                    {item.rationale && (
+                      <p className="text-sm text-foreground leading-relaxed">{item.rationale}</p>
+                    )}
+                    {item.snippet && (
+                      <p className="text-xs text-muted-foreground mt-1 italic">"{item.snippet}"</p>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </CardContent>
