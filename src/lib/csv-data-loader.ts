@@ -44,7 +44,9 @@ function parseBoolean(value: string | undefined): boolean {
 
 function parseNumber(value: string | undefined): number | null {
   if (!value || value.trim() === '') return null;
-  const num = parseFloat(value);
+  // Remove currency formatting like "$404,487.0m" -> 404487.0
+  const cleaned = value.replace(/[$,m%]/gi, '').replace(/\(.*?\)/g, '').trim();
+  const num = parseFloat(cleaned);
   return isNaN(num) ? null : num;
 }
 
