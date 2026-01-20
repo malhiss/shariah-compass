@@ -2,7 +2,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { safeParseJSON, type ScreeningRecord, type ShariahBulletItem } from '@/types/screening-record';
 import { MessageSquare, CheckCircle2, Lightbulb, DollarSign, AlertTriangle } from 'lucide-react';
-import { CompanyProfileSection } from './CompanyProfileSection';
 
 interface ClientSummaryTabProps {
   record: ScreeningRecord;
@@ -37,9 +36,6 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Company Profile Section */}
-      <CompanyProfileSection record={record} />
-
       {/* Shariah Summary Section */}
       {hasSummaryContent && (
         <Card className="premium-card">
