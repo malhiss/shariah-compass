@@ -92,7 +92,6 @@ export function DashboardFilters({
                   <SelectItem value="COMPLIANT">Compliant</SelectItem>
                   <SelectItem value="COMPLIANT_WITH_PURIFICATION">With Purification</SelectItem>
                   <SelectItem value="NON_COMPLIANT">Non-Compliant</SelectItem>
-                  <SelectItem value="DOUBTFUL_REVIEW">Doubtful / Review</SelectItem>
                 </SelectContent>
               </Select>
             </div>
