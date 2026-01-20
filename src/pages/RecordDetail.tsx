@@ -113,6 +113,9 @@ export default function RecordDetail() {
         {/* Company Profile - directly under ratios */}
         <CompanyProfileSection record={record} />
 
+        {/* Revenue Composition - directly under company profile */}
+        <HaramRevenueSection record={record} />
+
         {/* Key Insights - Inline cards */}
         <KeyInsightsSection record={record} />
 
@@ -127,14 +130,6 @@ export default function RecordDetail() {
                 <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                 <span className="hidden xs:inline">Overview</span>
                 <span className="xs:hidden">Info</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="revenue"
-                className="flex-1 sm:flex-none rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-3 sm:px-6 text-xs sm:text-sm"
-              >
-                <PieChart className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                <span className="hidden xs:inline">Revenue</span>
-                <span className="xs:hidden">Rev</span>
               </TabsTrigger>
               <TabsTrigger
                 value="references"
@@ -157,11 +152,6 @@ export default function RecordDetail() {
               <TabsContent value="overview" className="mt-0">
                 <ClientSummaryTab record={record} />
               </TabsContent>
-
-              <TabsContent value="revenue" className="mt-0 space-y-4 sm:space-y-6">
-                <HaramRevenueSection record={record} />
-              </TabsContent>
-
 
               <TabsContent value="references" className="mt-0 space-y-4 sm:space-y-6">
                 <ReferencesSection record={record} />
