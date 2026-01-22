@@ -204,7 +204,8 @@ export function formatDate(dateStr: string | null | undefined): string {
 export function getVerdictColor(verdict: string | null): string {
   if (!verdict) return "no-data";
   
-  const normalized = verdict.toLowerCase().replace(/[_\s]+/g, '');
+  // Normalize: lowercase and remove all spaces, underscores, and hyphens
+  const normalized = verdict.toLowerCase().replace(/[_\s-]+/g, '');
   
   if (normalized === 'compliant') {
     return "compliant";
