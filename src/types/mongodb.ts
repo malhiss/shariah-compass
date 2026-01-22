@@ -202,18 +202,24 @@ export function formatDate(dateStr: string | null | undefined): string {
 }
 
 export function getVerdictColor(verdict: string | null): string {
-  switch (verdict) {
-    case "COMPLIANT":
-      return "compliant";
-    case "COMPLIANT_WITH_PURIFICATION":
-      return "warning";
-    case "NON_COMPLIANT":
-      return "non-compliant";
-    case "DOUBTFUL_REVIEW":
-      return "doubtful";
-    default:
-      return "no-data";
+  if (!verdict) return "no-data";
+  
+  const normalized = verdict.toLowerCase().replace(/[_\s]+/g, '');
+  
+  if (normalized === 'compliant') {
+    return "compliant";
   }
+  if (normalized === 'compliantwithpurification') {
+    return "warning";
+  }
+  if (normalized === 'noncompliant') {
+    return "non-compliant";
+  }
+  if (normalized === 'doubtfulreview' || normalized === 'doubtful') {
+    return "doubtful";
+  }
+  
+  return "no-data";
 }
 
 export function getZakatStatusColor(status: string | null | undefined): string {
