@@ -19,7 +19,7 @@ export default function ShariahDashboard() {
   const [universe, setUniverse] = useState<Universe>(initialUniverse);
   const [filters, setFilters] = useState<ScreeningFilters>({
     page: 1,
-    pageSize: 50,
+    pageSize: 20,
   });
   const [data, setData] = useState<PaginatedResponse<ScreeningRecord> | null>(null);
   const [loading, setLoading] = useState(true);
@@ -46,7 +46,7 @@ export default function ShariahDashboard() {
       ...prev,
       ...newFilters,
       page: 1,
-      pageSize: prev.pageSize ?? 50,
+      pageSize: prev.pageSize ?? 20,
     }));
   };
 
