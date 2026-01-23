@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,8 +12,11 @@ import type { ScreeningFilters, ViewMode, PaginatedResponse, Universe } from "@/
 import type { ScreeningRecord } from "@/types/screening-record";
 
 export default function ShariahDashboard() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialUniverse = (searchParams.get('universe') as Universe) || 'global';
+  
   const [viewMode, setViewMode] = useState<ViewMode>("shariah");
-  const [universe, setUniverse] = useState<Universe>("global");
+  const [universe, setUniverse] = useState<Universe>(initialUniverse);
   const [filters, setFilters] = useState<ScreeningFilters>({
     page: 1,
     pageSize: 50,
@@ -55,6 +59,7 @@ export default function ShariahDashboard() {
 
   const handleUniverseChange = (newUniverse: Universe) => {
     setUniverse(newUniverse);
+    setSearchParams({ universe: newUniverse });
     setFilters((prev) => ({
       ...prev,
       page: 1,
@@ -145,6 +150,7 @@ export default function ShariahDashboard() {
               data={data?.data || []}
               loading={loading}
               viewMode={viewMode}
+              universe={universe}
             />
           </CardContent>
         </Card>

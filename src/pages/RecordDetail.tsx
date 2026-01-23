@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useScreeningRecord } from '@/hooks/useScreeningRecords';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,8 @@ import { ArrowLeft, RefreshCw, AlertTriangle, FileText, MessageSquare, PieChart,
 
 export default function RecordDetail() {
   const { upsertKey } = useParams<{ upsertKey: string }>();
+  const [searchParams] = useSearchParams();
+  const universe = searchParams.get('universe') || 'global';
   const { data: record, isLoading, isError, error, refetch } = useScreeningRecord(upsertKey);
 
   // Loading state
@@ -83,7 +85,7 @@ export default function RecordDetail() {
               <p className="text-muted-foreground mb-4">
                 The screening record you're looking for doesn't exist or has been removed.
               </p>
-              <Link to="/shariah-dashboard">
+              <Link to={`/dashboard?universe=${universe}`}>
                 <Button variant="outline" className="border-border">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Dashboard
@@ -100,7 +102,7 @@ export default function RecordDetail() {
     <AppSidebar>
       <div className="p-4 sm:p-6 lg:p-8">
       {/* Header Section */}
-      <RecordHeader record={record} />
+      <RecordHeader record={record} universe={universe} />
 
       {/* Main Content */}
       <div className="mt-6 sm:mt-8 space-y-6 sm:space-y-8">
