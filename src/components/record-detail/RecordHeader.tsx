@@ -8,10 +8,12 @@ import { ArrowLeft, ExternalLink, Calendar, Building2, Factory } from 'lucide-re
 
 interface RecordHeaderProps {
   record: ScreeningRecord;
+  universe?: string;
 }
 
-export function RecordHeader({ record }: RecordHeaderProps) {
+export function RecordHeader({ record, universe = 'global' }: RecordHeaderProps) {
   const memoUrl = getMemoUrl(record);
+  const dashboardUrl = `/dashboard?universe=${universe}`;
   
   // Use client_identity_* fields as canonical source
   const ticker = record.client_identity_ticker || record.ticker || record.Ticker || 'N/A';
@@ -28,7 +30,7 @@ export function RecordHeader({ record }: RecordHeaderProps) {
   return (
     <header className="space-y-4 sm:space-y-6">
       {/* Back navigation */}
-      <Link to="/shariah-dashboard" className="inline-block">
+      <Link to={dashboardUrl} className="inline-block">
         <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground gap-2 -ml-2">
           <ArrowLeft className="w-4 h-4" />
           <span className="hidden sm:inline">Dashboard</span>
