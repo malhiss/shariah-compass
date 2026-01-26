@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
+const SCROLL_STORAGE_KEY = 'dashboard-scroll-position';
+
 export function ScrollToTop() {
   const { pathname } = useLocation();
   const isFirstMount = useRef(true);
@@ -9,6 +11,11 @@ export function ScrollToTop() {
     // Skip on first mount to avoid scroll on initial page load
     if (isFirstMount.current) {
       isFirstMount.current = false;
+      return;
+    }
+
+    // Skip scroll-to-top if returning to dashboard with saved scroll position
+    if (pathname === '/dashboard' && sessionStorage.getItem(SCROLL_STORAGE_KEY)) {
       return;
     }
 
