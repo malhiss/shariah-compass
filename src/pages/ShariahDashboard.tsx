@@ -14,11 +14,12 @@ import type { ScreeningRecord } from "@/types/screening-record";
 export default function ShariahDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialUniverse = (searchParams.get('universe') as Universe) || 'global';
+  const initialPage = parseInt(searchParams.get('page') || '1', 10);
   
   const [viewMode, setViewMode] = useState<ViewMode>("shariah");
   const [universe, setUniverse] = useState<Universe>(initialUniverse);
   const [filters, setFilters] = useState<ScreeningFilters>({
-    page: 1,
+    page: initialPage,
     pageSize: 20,
   });
   const [data, setData] = useState<PaginatedResponse<ScreeningRecord> | null>(null);
@@ -55,11 +56,12 @@ export default function ShariahDashboard() {
       ...prev,
       page: newPage,
     }));
+    setSearchParams({ universe, page: String(newPage) });
   };
 
   const handleUniverseChange = (newUniverse: Universe) => {
     setUniverse(newUniverse);
-    setSearchParams({ universe: newUniverse });
+    setSearchParams({ universe: newUniverse, page: '1' });
     setFilters((prev) => ({
       ...prev,
       page: 1,
@@ -151,6 +153,7 @@ export default function ShariahDashboard() {
               loading={loading}
               viewMode={viewMode}
               universe={universe}
+              currentPage={filters.page}
             />
           </CardContent>
         </Card>

@@ -20,6 +20,7 @@ interface ScreeningTableProps {
   loading: boolean;
   viewMode: ViewMode;
   universe?: 'global' | 'gcc';
+  currentPage?: number;
 }
 
 // Format currency in millions - display as-is since values are already in $M
@@ -128,6 +129,7 @@ export function ScreeningTable({
   loading,
   viewMode,
   universe = 'global',
+  currentPage = 1,
 }: ScreeningTableProps) {
   const navigate = useNavigate();
   
@@ -150,7 +152,7 @@ export function ScreeningTable({
   }
 
   const handleRowClick = (upsertKey: string) => {
-    navigate(`/record/${encodeURIComponent(upsertKey)}?universe=${universe}`);
+    navigate(`/record/${encodeURIComponent(upsertKey)}?universe=${universe}&page=${currentPage}`);
   };
 
   if (viewMode === 'zakat') {
