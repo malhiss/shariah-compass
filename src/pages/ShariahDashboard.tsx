@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,8 +9,7 @@ import { ScreeningTable } from "@/components/dashboard/ScreeningTable";
 import { getClientFacingRecords } from "@/lib/shariah-api";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Scale, Coins, ChevronLeft, ChevronRight, Loader2, Globe, MapPin } from "lucide-react";
-import type { ScreeningFilters, ViewMode, PaginatedResponse, Universe } from "@/types/mongodb";
-import type { ScreeningRecord } from "@/types/screening-record";
+import type { ScreeningFilters, ViewMode, Universe } from "@/types/mongodb";
 
 const SCROLL_STORAGE_KEY = 'dashboard-scroll-position';
 
@@ -17,7 +17,6 @@ export default function ShariahDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialUniverse = (searchParams.get('universe') as Universe) || 'global';
   const initialPage = parseInt(searchParams.get('page') || '1', 10);
-  const containerRef = useRef<HTMLDivElement>(null);
   
   const [viewMode, setViewMode] = useState<ViewMode>("shariah");
   const [universe, setUniverse] = useState<Universe>(initialUniverse);
@@ -25,43 +24,33 @@ export default function ShariahDashboard() {
     page: initialPage,
     pageSize: 20,
   });
-  const [data, setData] = useState<PaginatedResponse<ScreeningRecord> | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  // Restore scroll position after data loads
+  // Use React Query with caching to prevent flash on navigation back
+  const { data, isLoading, isFetching } = useQuery({
+    queryKey: ['screening-records', universe, filters.page, filters.pageSize, filters.search, filters.finalVerdict, filters.sector],
+    queryFn: () => getClientFacingRecords({ ...filters, universe }),
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    placeholderData: (previousData) => previousData, // Keep previous data while fetching
+  });
+
+  // Restore scroll position after data loads (only on initial load, not refetches)
   useEffect(() => {
-    if (!loading && data) {
+    if (!isLoading && data) {
       const savedScroll = sessionStorage.getItem(SCROLL_STORAGE_KEY);
       if (savedScroll) {
         const scrollY = parseInt(savedScroll, 10);
         // Use setTimeout to ensure DOM is fully rendered
         const timer = setTimeout(() => {
           document.documentElement.scrollTop = scrollY;
-          document.body.scrollTop = scrollY; // Fallback for older browsers
+          document.body.scrollTop = scrollY;
           window.scrollTo({ top: scrollY, behavior: 'instant' });
           sessionStorage.removeItem(SCROLL_STORAGE_KEY);
-        }, 150);
+        }, 50);
         return () => clearTimeout(timer);
       }
     }
-  }, [loading, data]);
-
-  useEffect(() => {
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters, universe]);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const result = await getClientFacingRecords({ ...filters, universe });
-      setData(result);
-    } catch (error) {
-      console.error("Failed to fetch data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [isLoading, data]);
 
   const handleFiltersChange = (newFilters: ScreeningFilters) => {
     setFilters((prev) => ({
@@ -88,6 +77,9 @@ export default function ShariahDashboard() {
       page: 1,
     }));
   };
+
+  // Show loading only on initial load, not on background refetches
+  const showLoading = isLoading && !data;
 
   return (
     <AppSidebar>
@@ -155,7 +147,7 @@ export default function ShariahDashboard() {
         {/* Results Info */}
         <div className="flex items-center justify-between mb-4">
           <p className="text-sm text-muted-foreground">
-            {loading ? (
+            {showLoading ? (
               <span className="flex items-center gap-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 Loading...
@@ -171,7 +163,7 @@ export default function ShariahDashboard() {
           <CardContent className="p-0">
             <ScreeningTable
               data={data?.data || []}
-              loading={loading}
+              loading={showLoading}
               viewMode={viewMode}
               universe={universe}
               currentPage={filters.page}
