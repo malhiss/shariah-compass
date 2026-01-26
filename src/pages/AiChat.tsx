@@ -164,7 +164,7 @@ export default function AiChat() {
               )}
 
               {/* No Data Warning */}
-              {tickerInfo && !tickerInfo.invesense.available && !tickerInfo.autoBanned.available && !tickerInfo.numeric.available && (
+              {tickerInfo && !tickerInfo.invesense.available && (
                 <Card className="border-warning/50 bg-warning/5">
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-4">

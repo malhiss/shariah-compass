@@ -3,14 +3,14 @@ import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+
 import { MethodologyCard } from '@/components/MethodologyCard';
 import { RatioDisplay } from '@/components/RatioDisplay';
 import { AppSidebar } from '@/components/AppSidebar';
 import { screenTicker } from '@/lib/api';
 import { getStatusColor, getStatusLabel } from '@/types/screening';
 import type { TickerScreeningResponse } from '@/types/screening';
-import { Search, Loader2, Scale, AlertTriangle, Calculator, Building2, ArrowRight } from 'lucide-react';
+import { Search, Loader2, Building2, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { motion } from 'framer-motion';
@@ -133,171 +133,67 @@ export default function TickerScreening() {
                   </CardHeader>
                 </Card>
 
-                {/* Methodology Tabs */}
-                <Tabs defaultValue="invesense" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3 h-auto bg-muted/50">
-                    <TabsTrigger value="invesense" className="flex items-center gap-2 py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                      <Scale className="w-4 h-4" />
-                      <span className="hidden sm:inline">Invesense</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="autobanned" className="flex items-center gap-2 py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                      <AlertTriangle className="w-4 h-4" />
-                      <span className="hidden sm:inline">Auto-banned</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="numeric" className="flex items-center gap-2 py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                      <Calculator className="w-4 h-4" />
-                      <span className="hidden sm:inline">Numeric</span>
-                    </TabsTrigger>
-                  </TabsList>
+                {/* Invesense Methodology */}
+                <MethodologyCard
+                  title="Invesense Methodology"
+                  description="Comprehensive Shariah screening with qualitative and quantitative analysis"
+                  status={getStatusColor(result.invesense.classification, null, result.invesense.available)}
+                  statusLabel={getStatusLabel(result.invesense.classification, null, result.invesense.available)}
+                  available={result.invesense.available}
+                >
+                  <div className="space-y-6">
+                    {/* Ratios */}
+                    <div className="grid sm:grid-cols-3 gap-6">
+                      <RatioDisplay label="Debt Ratio" value={result.invesense.debtRatio} threshold={33} />
+                      <RatioDisplay label="Cash + Investments" value={result.invesense.cashInvRatio} threshold={33} />
+                      <RatioDisplay label="NPIN Ratio" value={result.invesense.npinRatio} threshold={5} />
+                    </div>
 
-                  {/* Invesense Tab */}
-                  <TabsContent value="invesense" className="mt-6">
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <MethodologyCard
-                        title="Invesense Methodology"
-                        description="Comprehensive Shariah screening with qualitative and quantitative analysis"
-                        status={getStatusColor(result.invesense.classification, null, result.invesense.available)}
-                        statusLabel={getStatusLabel(result.invesense.classification, null, result.invesense.available)}
-                        available={result.invesense.available}
-                      >
-                        <div className="space-y-6">
-                          {/* Ratios */}
-                          <div className="grid sm:grid-cols-3 gap-6">
-                            <RatioDisplay label="Debt Ratio" value={result.invesense.debtRatio} threshold={33} />
-                            <RatioDisplay label="Cash + Investments" value={result.invesense.cashInvRatio} threshold={33} />
-                            <RatioDisplay label="NPIN Ratio" value={result.invesense.npinRatio} threshold={5} />
-                          </div>
+                    {/* Purification */}
+                    {result.invesense.purificationRequired && (
+                      <div className="p-4 rounded-lg bg-warning/10 border border-warning/30">
+                        <p className="font-medium text-warning">
+                          Purification Required: {result.invesense.purificationPctRecommended?.toFixed(2)}%
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          This percentage of dividends/gains should be donated to charity
+                        </p>
+                      </div>
+                    )}
 
-                          {/* Purification */}
-                          {result.invesense.purificationRequired && (
-                            <div className="p-4 rounded-lg bg-warning/10 border border-warning/30">
-                              <p className="font-medium text-warning">
-                                Purification Required: {result.invesense.purificationPctRecommended?.toFixed(2)}%
-                              </p>
-                              <p className="text-sm text-muted-foreground mt-1">
-                                This percentage of dividends/gains should be donated to charity
-                              </p>
-                            </div>
-                          )}
+                    {/* Key Drivers */}
+                    {result.invesense.keyDrivers?.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold mb-2">Key Drivers</h4>
+                        <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                          {result.invesense.keyDrivers.map((driver, i) => (
+                            <li key={i}>{driver}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
 
-                          {/* Key Drivers */}
-                          {result.invesense.keyDrivers?.length > 0 && (
-                            <div>
-                              <h4 className="font-semibold mb-2">Key Drivers</h4>
-                              <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                                {result.invesense.keyDrivers.map((driver, i) => (
-                                  <li key={i}>{driver}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
+                    {/* Summary */}
+                    {result.invesense.shariahSummary && (
+                      <div>
+                        <h4 className="font-semibold mb-2">Summary</h4>
+                        <p className="text-sm text-muted-foreground">{result.invesense.shariahSummary}</p>
+                      </div>
+                    )}
 
-                          {/* Summary */}
-                          {result.invesense.shariahSummary && (
-                            <div>
-                              <h4 className="font-semibold mb-2">Summary</h4>
-                              <p className="text-sm text-muted-foreground">{result.invesense.shariahSummary}</p>
-                            </div>
-                          )}
-
-                          {/* QA Issues */}
-                          {result.invesense.qaIssues?.length > 0 && (
-                            <div className="p-4 rounded-lg bg-muted">
-                              <h4 className="font-semibold mb-2 text-sm">QA Notes</h4>
-                              <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground">
-                                {result.invesense.qaIssues.slice(0, 5).map((issue, i) => (
-                                  <li key={i}>{issue}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-                      </MethodologyCard>
-                    </motion.div>
-                  </TabsContent>
-
-                  {/* Auto-banned Tab */}
-                  <TabsContent value="autobanned" className="mt-6">
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <MethodologyCard
-                        title="Auto-banned Methodology"
-                        description="Security type and industry classification screening"
-                        status={getStatusColor(null, result.autoBanned.status, result.autoBanned.available)}
-                        statusLabel={getStatusLabel(null, result.autoBanned.status, result.autoBanned.available)}
-                        available={result.autoBanned.available}
-                      >
-                        <div className="space-y-4">
-                          <div className="grid sm:grid-cols-2 gap-4">
-                            <div className="p-4 rounded-lg bg-muted">
-                              <p className="text-sm text-muted-foreground mb-1">Industry</p>
-                              <p className="font-medium">{result.autoBanned.industry || 'N/A'}</p>
-                            </div>
-                            <div className="p-4 rounded-lg bg-muted">
-                              <p className="text-sm text-muted-foreground mb-1">Security Type</p>
-                              <p className="font-medium">{result.autoBanned.securityType || 'N/A'}</p>
-                            </div>
-                          </div>
-
-                          <div className="p-4 rounded-lg bg-muted">
-                            <p className="text-sm text-muted-foreground mb-1">Auto-banned Status</p>
-                            <p className="font-medium">
-                              {result.autoBanned.autoBanned ? 'Yes - Auto-banned' : 'No - Not auto-banned'}
-                            </p>
-                          </div>
-
-                          {result.autoBanned.autoBannedReason && (
-                            <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30">
-                              <p className="font-medium text-destructive">Reason:</p>
-                              <p className="text-sm mt-1">{result.autoBanned.autoBannedReason}</p>
-                            </div>
-                          )}
-                        </div>
-                      </MethodologyCard>
-                    </motion.div>
-                  </TabsContent>
-
-                  {/* Numeric Tab */}
-                  <TabsContent value="numeric" className="mt-6">
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <MethodologyCard
-                        title="Numeric Methodology"
-                        description="Pure financial ratio screening"
-                        status={getStatusColor(null, result.numeric.status, result.numeric.available)}
-                        statusLabel={getStatusLabel(null, result.numeric.status, result.numeric.available)}
-                        available={result.numeric.available}
-                      >
-                        <div className="space-y-6">
-                          {/* Ratios */}
-                          <div className="grid sm:grid-cols-3 gap-6">
-                            <RatioDisplay label="Debt Ratio" value={result.numeric.debtRatio} threshold={33} />
-                            <RatioDisplay label="Cash + Investments" value={result.numeric.cashInvRatio} threshold={33} />
-                            <RatioDisplay label="NPIN Ratio" value={result.numeric.npinRatio} threshold={5} />
-                          </div>
-
-                          {/* Fail Reason */}
-                          {result.numeric.failReason && (
-                            <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30">
-                              <p className="font-medium text-destructive">Fail Reason:</p>
-                              <p className="text-sm mt-1">{result.numeric.failReason}</p>
-                            </div>
-                          )}
-                        </div>
-                      </MethodologyCard>
-                    </motion.div>
-                  </TabsContent>
-                </Tabs>
+                    {/* QA Issues */}
+                    {result.invesense.qaIssues?.length > 0 && (
+                      <div className="p-4 rounded-lg bg-muted">
+                        <h4 className="font-semibold mb-2 text-sm">QA Notes</h4>
+                        <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground">
+                          {result.invesense.qaIssues.slice(0, 5).map((issue, i) => (
+                            <li key={i}>{issue}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </MethodologyCard>
               </motion.div>
             )}
         </div>
