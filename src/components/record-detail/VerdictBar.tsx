@@ -60,7 +60,7 @@ export function VerdictBar({ record }: VerdictBarProps) {
         isSecondary && 'opacity-80'
       )}>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide w-24 shrink-0">{label}</span>
+          {label && <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide w-24 shrink-0">{label}</span>}
           <div className={cn(
             'flex items-center gap-2 font-semibold',
             colorClass === 'compliant' && 'text-compliant',
@@ -79,8 +79,8 @@ export function VerdictBar({ record }: VerdictBarProps) {
 
   return (
     <div className="space-y-2">
-      {/* Primary Verdict */}
-      {renderVerdictBar('Primary', primaryVerdict)}
+      {/* Verdict */}
+      {renderVerdictBar('', primaryVerdict)}
       
       {/* Badges Row */}
       <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-1">
