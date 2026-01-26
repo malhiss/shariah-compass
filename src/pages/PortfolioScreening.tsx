@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
 
 import { VerdictBadge } from '@/components/dashboard/VerdictBadge';
 import { RatioDisplay } from '@/components/RatioDisplay';
@@ -13,6 +14,17 @@ import { screenPortfolio, parseCSVToHoldings } from '@/lib/api';
 import type { PortfolioHolding, PortfolioScreeningResponse, PortfolioHoldingResult, MethodologySummary } from '@/types/screening';
 import { Upload, Plus, Trash2, Loader2, PieChart, Briefcase, ArrowRight, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+const PURIFICATION_COLORS = [
+  'hsl(var(--warning))',
+  'hsl(38, 92%, 50%)',
+  'hsl(32, 95%, 44%)',
+  'hsl(25, 95%, 53%)',
+  'hsl(45, 93%, 47%)',
+  'hsl(43, 96%, 56%)',
+  'hsl(36, 100%, 50%)',
+  'hsl(30, 100%, 45%)',
+];
 
 interface SegmentData {
   label: string;
@@ -344,23 +356,84 @@ export default function PortfolioScreening() {
                     <SummaryCard summary={result.summary.invesense} holdings={result.holdings} />
                   </div>
                   
-                  {/* Total Purification Card */}
-                  <Card className="bg-warning/5 border-warning/20">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base font-medium text-warning">Total Purification Required</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-3xl font-bold text-warning">
-                        ${result.holdings.reduce((total, h) => {
-                          const pct = h.invesense.purificationPctRecommended ?? 0;
-                          return total + (h.value * pct / 100);
-                        }, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </p>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        {result.holdings.filter(h => (h.invesense.purificationPctRecommended ?? 0) > 0).length} of {result.holdings.length} holdings require purification
-                      </p>
-                    </CardContent>
-                  </Card>
+                  {/* Total Purification Card with Pie Chart */}
+                  {(() => {
+                    const purificationData = result.holdings
+                      .map(h => ({
+                        name: h.ticker,
+                        company: h.company || h.ticker,
+                        value: h.value * ((h.invesense.purificationPctRecommended ?? 0) / 100),
+                      }))
+                      .filter(d => d.value > 0)
+                      .sort((a, b) => b.value - a.value);
+                    
+                    const totalPurification = purificationData.reduce((sum, d) => sum + d.value, 0);
+                    
+                    return (
+                      <Card className="bg-warning/5 border-warning/20">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-base font-medium text-warning">Total Purification Required</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center gap-4">
+                            <div className="flex-1">
+                              <p className="text-3xl font-bold text-warning">
+                                ${totalPurification.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </p>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {purificationData.length} of {result.holdings.length} holdings
+                              </p>
+                            </div>
+                            {purificationData.length > 0 && (
+                              <div className="w-28 h-28">
+                                <ResponsiveContainer width="100%" height="100%">
+                                  <RechartsPieChart>
+                                    <Pie
+                                      data={purificationData}
+                                      dataKey="value"
+                                      nameKey="name"
+                                      cx="50%"
+                                      cy="50%"
+                                      innerRadius={25}
+                                      outerRadius={45}
+                                      paddingAngle={2}
+                                    >
+                                      {purificationData.map((_, index) => (
+                                        <Cell 
+                                          key={`cell-${index}`} 
+                                          fill={PURIFICATION_COLORS[index % PURIFICATION_COLORS.length]} 
+                                        />
+                                      ))}
+                                    </Pie>
+                                    <RechartsTooltip
+                                      content={({ active, payload }) => {
+                                        if (active && payload && payload.length) {
+                                          const data = payload[0].payload;
+                                          return (
+                                            <div className="bg-popover border border-border rounded-md px-3 py-2 shadow-md">
+                                              <p className="font-medium text-sm">{data.name}</p>
+                                              <p className="text-xs text-muted-foreground">{data.company}</p>
+                                              <p className="text-sm font-semibold text-warning">
+                                                ${data.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                              </p>
+                                              <p className="text-xs text-muted-foreground">
+                                                {((data.value / totalPurification) * 100).toFixed(1)}% of total
+                                              </p>
+                                            </div>
+                                          );
+                                        }
+                                        return null;
+                                      }}
+                                    />
+                                  </RechartsPieChart>
+                                </ResponsiveContainer>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })()}
                 </div>
               </div>
 
