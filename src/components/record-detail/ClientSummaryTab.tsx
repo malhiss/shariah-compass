@@ -56,8 +56,8 @@ export function ClientSummaryTab({ record, universe }: ClientSummaryTabProps) {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Main summary paragraph */}
-            {shariahSummary && (
+            {/* Main summary paragraph - hidden for GCC */}
+            {!isGcc && shariahSummary && (
               <p className="text-foreground leading-relaxed">{shariahSummary}</p>
             )}
 
