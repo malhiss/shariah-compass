@@ -1,11 +1,10 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip as RechartsTooltip } from 'recharts';
 
 import { VerdictBadge } from '@/components/dashboard/VerdictBadge';
 import { RatioDisplay } from '@/components/RatioDisplay';
@@ -22,15 +21,10 @@ interface SegmentData {
   count: number;
 }
 
-// HSL colors matching the design system
-const CHART_COLORS = {
-  compliant: 'hsl(158, 65%, 42%)',
-  withPurification: 'hsl(38, 95%, 55%)',
-  nonCompliant: 'hsl(0, 55%, 50%)',
-  noData: 'hsl(215, 25%, 40%)',
-};
-
-function getSegmentCounts(holdings: PortfolioHoldingResult[]) {
+function SummaryCard({ summary, holdings }: { summary: MethodologySummary; holdings: PortfolioHoldingResult[] }) {
+  const total = summary.totalValue || 1;
+  
+  // Count holdings per segment
   const counts = {
     compliant: 0,
     withPurification: 0,
@@ -54,84 +48,6 @@ function getSegmentCounts(holdings: PortfolioHoldingResult[]) {
       }
     }
   });
-  
-  return counts;
-}
-
-function CompliancePieChart({ summary, holdings }: { summary: MethodologySummary; holdings: PortfolioHoldingResult[] }) {
-  const counts = useMemo(() => getSegmentCounts(holdings), [holdings]);
-  
-  const data = useMemo(() => [
-    { name: 'Compliant', value: summary.compliantWeight, count: counts.compliant, color: CHART_COLORS.compliant },
-    { name: 'With Purification', value: summary.compliantWithPurificationWeight, count: counts.withPurification, color: CHART_COLORS.withPurification },
-    { name: 'Non-Compliant', value: summary.nonCompliantWeight, count: counts.nonCompliant, color: CHART_COLORS.nonCompliant },
-    { name: 'No Data', value: summary.noDataWeight, count: counts.noData, color: CHART_COLORS.noData },
-  ].filter(d => d.value > 0), [summary, counts]);
-
-  const total = summary.totalValue || 1;
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const item = payload[0].payload;
-      return (
-        <div className="bg-popover border border-border rounded-lg p-3 shadow-lg">
-          <p className="font-medium text-foreground">{item.name}</p>
-          <p className="text-sm text-muted-foreground">
-            {item.count} {item.count === 1 ? 'company' : 'companies'}
-          </p>
-          <p className="text-sm font-mono text-foreground">
-            ${item.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {((item.value / total) * 100).toFixed(1)}% of portfolio
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base font-medium">Compliance Breakdown</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[200px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <RechartsPieChart>
-              <Pie
-                data={data}
-                cx="50%"
-                cy="50%"
-                innerRadius={50}
-                outerRadius={80}
-                paddingAngle={2}
-                dataKey="value"
-              >
-                {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <RechartsTooltip content={<CustomTooltip />} />
-              <Legend 
-                verticalAlign="bottom"
-                height={36}
-                formatter={(value, entry: any) => (
-                  <span className="text-xs text-muted-foreground">{value}</span>
-                )}
-              />
-            </RechartsPieChart>
-          </ResponsiveContainer>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function SummaryCard({ summary, holdings }: { summary: MethodologySummary; holdings: PortfolioHoldingResult[] }) {
-  const total = summary.totalValue || 1;
-  const counts = useMemo(() => getSegmentCounts(holdings), [holdings]);
   
   const segments: SegmentData[] = [
     { label: 'Compliant', value: summary.compliantWeight, color: 'bg-compliant', count: counts.compliant },
@@ -169,7 +85,7 @@ function SummaryCard({ summary, holdings }: { summary: MethodologySummary; holdi
             })}
           </div>
         </TooltipProvider>
-        <div className="grid grid-cols-2 gap-2 text-sm">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
           {segments.map((seg, i) => (
             <div key={i} className="flex items-center gap-2">
               <div className={`w-2.5 h-2.5 rounded-full ${seg.color}`} />
@@ -423,14 +339,10 @@ export default function PortfolioScreening() {
                 </div>
                 
                 {/* Summary Cards Row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                  {/* Summary Bar */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
                   <div className="lg:col-span-2">
                     <SummaryCard summary={result.summary.invesense} holdings={result.holdings} />
                   </div>
-                  
-                  {/* Pie Chart */}
-                  <CompliancePieChart summary={result.summary.invesense} holdings={result.holdings} />
                   
                   {/* Total Purification Card */}
                   <Card className="bg-warning/5 border-warning/20">
