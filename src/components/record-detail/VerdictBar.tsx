@@ -82,9 +82,6 @@ export function VerdictBar({ record }: VerdictBarProps) {
       {/* Primary Verdict */}
       {renderVerdictBar('Primary', primaryVerdict)}
       
-      {/* Estimated Verdict */}
-      {estimatedVerdict && renderVerdictBar('Estimated', estimatedVerdict, true)}
-      
       {/* Badges Row */}
       <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-1">
         {riskLevel && (
