@@ -152,7 +152,7 @@ export default function RecordDetail() {
 
             <div className="mt-4 sm:mt-6">
               <TabsContent value="overview" className="mt-0">
-                <ClientSummaryTab record={record} />
+                <ClientSummaryTab record={record} universe={universe} />
               </TabsContent>
 
               <TabsContent value="references" className="mt-0 space-y-4 sm:space-y-6">

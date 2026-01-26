@@ -5,9 +5,11 @@ import { MessageSquare, CheckCircle2, Lightbulb, DollarSign, AlertTriangle, Quot
 
 interface ClientSummaryTabProps {
   record: ScreeningRecord;
+  universe?: string;
 }
 
-export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
+export function ClientSummaryTab({ record, universe }: ClientSummaryTabProps) {
+  const isGcc = universe === 'gcc';
   // Primary Shariah Summary with fallback chain
   const shariahSummary = record.final_shariah_summary || record.shariah_summary || record.client_summary || record.llm_primary_rationale || null;
   
@@ -104,8 +106,8 @@ export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
         </Card>
       )}
 
-      {/* Transcript Findings Section - moved from References */}
-      {(websiteStory || evidenceItems.length > 0) && (
+      {/* Transcript Findings Section - hidden for GCC universe */}
+      {!isGcc && (websiteStory || evidenceItems.length > 0) && (
         <Card className="premium-card">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-3">
