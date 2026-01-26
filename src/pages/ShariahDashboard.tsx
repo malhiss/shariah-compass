@@ -34,26 +34,17 @@ export default function ShariahDashboard() {
       const savedScroll = sessionStorage.getItem(SCROLL_STORAGE_KEY);
       if (savedScroll) {
         const scrollY = parseInt(savedScroll, 10);
-        // Small delay to ensure DOM is rendered
-        requestAnimationFrame(() => {
-          window.scrollTo(0, scrollY);
+        // Use setTimeout to ensure DOM is fully rendered
+        const timer = setTimeout(() => {
+          document.documentElement.scrollTop = scrollY;
+          document.body.scrollTop = scrollY; // Fallback for older browsers
+          window.scrollTo({ top: scrollY, behavior: 'instant' });
           sessionStorage.removeItem(SCROLL_STORAGE_KEY);
-        });
+        }, 150);
+        return () => clearTimeout(timer);
       }
     }
   }, [loading, data]);
-
-  // Save scroll position before unload
-  useEffect(() => {
-    const saveScroll = () => {
-      sessionStorage.setItem(SCROLL_STORAGE_KEY, String(window.scrollY));
-    };
-    
-    // Save on any navigation away
-    return () => {
-      saveScroll();
-    };
-  }, []);
 
   useEffect(() => {
     fetchData();
