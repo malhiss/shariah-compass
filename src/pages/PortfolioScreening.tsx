@@ -350,92 +350,112 @@ export default function PortfolioScreening() {
                   </div>
                 </div>
                 
-                {/* Summary Cards Row */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-                  <div className="lg:col-span-2">
-                    <SummaryCard summary={result.summary.invesense} holdings={result.holdings} />
-                  </div>
-                  
-                  {/* Total Purification Card with Pie Chart */}
-                  {(() => {
-                    const purificationData = result.holdings
-                      .map(h => ({
-                        name: h.ticker,
-                        company: h.company || h.ticker,
-                        value: h.value * ((h.invesense.purificationPctRecommended ?? 0) / 100),
-                      }))
-                      .filter(d => d.value > 0)
-                      .sort((a, b) => b.value - a.value);
-                    
-                    const totalPurification = purificationData.reduce((sum, d) => sum + d.value, 0);
-                    
-                    return (
-                      <Card className="bg-warning/5 border-warning/20">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-base font-medium text-warning">Total Purification Required</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex items-center gap-4">
-                            <div className="flex-1">
-                              <p className="text-3xl font-bold text-warning">
-                                ${totalPurification.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              </p>
-                              <p className="text-sm text-muted-foreground mt-1">
-                                {purificationData.length} of {result.holdings.length} holdings
-                              </p>
-                            </div>
-                            {purificationData.length > 0 && (
-                              <div className="w-28 h-28">
-                                <ResponsiveContainer width="100%" height="100%">
-                                  <RechartsPieChart>
-                                    <Pie
-                                      data={purificationData}
-                                      dataKey="value"
-                                      nameKey="name"
-                                      cx="50%"
-                                      cy="50%"
-                                      innerRadius={25}
-                                      outerRadius={45}
-                                      paddingAngle={2}
-                                    >
-                                      {purificationData.map((_, index) => (
-                                        <Cell 
-                                          key={`cell-${index}`} 
-                                          fill={PURIFICATION_COLORS[index % PURIFICATION_COLORS.length]} 
-                                        />
-                                      ))}
-                                    </Pie>
-                                    <RechartsTooltip
-                                      content={({ active, payload }) => {
-                                        if (active && payload && payload.length) {
-                                          const data = payload[0].payload;
-                                          return (
-                                            <div className="bg-popover border border-border rounded-md px-3 py-2 shadow-md">
-                                              <p className="font-medium text-sm">{data.name}</p>
-                                              <p className="text-xs text-muted-foreground">{data.company}</p>
-                                              <p className="text-sm font-semibold text-warning">
-                                                ${data.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                              </p>
-                                              <p className="text-xs text-muted-foreground">
-                                                {((data.value / totalPurification) * 100).toFixed(1)}% of total
-                                              </p>
-                                            </div>
-                                          );
-                                        }
-                                        return null;
-                                      }}
+                {/* Summary Card - Full Width */}
+                <SummaryCard summary={result.summary.invesense} holdings={result.holdings} />
+              </div>
+
+              {/* Total Purification Card - Full Width */}
+              {(() => {
+                const purificationData = result.holdings
+                  .map(h => ({
+                    name: h.ticker,
+                    company: h.company || h.ticker,
+                    value: h.value * ((h.invesense.purificationPctRecommended ?? 0) / 100),
+                  }))
+                  .filter(d => d.value > 0)
+                  .sort((a, b) => b.value - a.value);
+                
+                const totalPurification = purificationData.reduce((sum, d) => sum + d.value, 0);
+                
+                if (purificationData.length === 0) return null;
+                
+                return (
+                  <Card className="bg-warning/5 border-warning/20">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg font-medium text-warning">Total Purification Required</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6">
+                        <div className="flex-shrink-0">
+                          <p className="text-4xl font-bold text-warning">
+                            ${totalPurification.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-2">
+                            {purificationData.length} of {result.holdings.length} holdings require purification
+                          </p>
+                        </div>
+                        
+                        <div className="flex-1 flex items-center gap-6">
+                          <div className="w-40 h-40 flex-shrink-0">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <RechartsPieChart>
+                                <Pie
+                                  data={purificationData}
+                                  dataKey="value"
+                                  nameKey="name"
+                                  cx="50%"
+                                  cy="50%"
+                                  innerRadius={35}
+                                  outerRadius={65}
+                                  paddingAngle={2}
+                                >
+                                  {purificationData.map((_, index) => (
+                                    <Cell 
+                                      key={`cell-${index}`} 
+                                      fill={PURIFICATION_COLORS[index % PURIFICATION_COLORS.length]} 
                                     />
-                                  </RechartsPieChart>
-                                </ResponsiveContainer>
+                                  ))}
+                                </Pie>
+                                <RechartsTooltip
+                                  content={({ active, payload }) => {
+                                    if (active && payload && payload.length) {
+                                      const data = payload[0].payload;
+                                      return (
+                                        <div className="bg-popover border border-border rounded-md px-3 py-2 shadow-md">
+                                          <p className="font-medium text-sm">{data.name}</p>
+                                          <p className="text-xs text-muted-foreground">{data.company}</p>
+                                          <p className="text-sm font-semibold text-warning">
+                                            ${data.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                          </p>
+                                          <p className="text-xs text-muted-foreground">
+                                            {((data.value / totalPurification) * 100).toFixed(1)}% of total
+                                          </p>
+                                        </div>
+                                      );
+                                    }
+                                    return null;
+                                  }}
+                                />
+                              </RechartsPieChart>
+                            </ResponsiveContainer>
+                          </div>
+                          
+                          {/* Legend */}
+                          <div className="flex-1 grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-2">
+                            {purificationData.slice(0, 8).map((item, index) => (
+                              <div key={item.name} className="flex items-center gap-2 min-w-0">
+                                <div 
+                                  className="w-3 h-3 rounded-full flex-shrink-0" 
+                                  style={{ backgroundColor: PURIFICATION_COLORS[index % PURIFICATION_COLORS.length] }}
+                                />
+                                <span className="text-xs text-muted-foreground truncate">{item.name}</span>
+                                <span className="text-xs font-medium text-warning ml-auto">
+                                  ${item.value.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                </span>
+                              </div>
+                            ))}
+                            {purificationData.length > 8 && (
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                +{purificationData.length - 8} more
                               </div>
                             )}
                           </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })()}
-                </div>
-              </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })()}
 
               {/* Holdings Table */}
               <Card>
