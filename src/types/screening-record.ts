@@ -257,8 +257,8 @@ export interface ScreeningRecord {
   NPIN_Adjustments_Notes?: string | null;
 
   // ===== DONUT CHARTS (ARRAYS) =====
-  donut_series_json?: number[] | string | null; // Parsed to array at load time
-  donut_segments_json?: string[] | { name: string; value: number }[] | string | null; // Parsed to array at load time
+  donut_series_json?: { label: string; value: number }[] | string | null; // Parsed to array at load time
+  donut_segments_json?: { name: string; point?: number; value?: number; lower?: number; upper?: number; confidence?: string }[] | string | null; // Parsed to array at load time
 
   // ===== DATA QUALITY / QA (CLIENT-FACING + STRUCTURED) =====
   qa_summary_display?: string | null;
