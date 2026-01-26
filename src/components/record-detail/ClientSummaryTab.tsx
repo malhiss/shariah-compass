@@ -71,7 +71,7 @@ export function ClientSummaryTab({ record, universe }: ClientSummaryTabProps) {
                   <div className="p-2 rounded-lg bg-primary/10">
                     <Lightbulb className="w-5 h-5 text-primary" />
                   </div>
-                  <span className="text-lg font-semibold">Estimated Logic Summary</span>
+                  <span className="text-lg font-semibold">Shariah Summary</span>
                 </div>
                 <p className="text-foreground leading-relaxed">{estimatedSummary}</p>
               </div>
