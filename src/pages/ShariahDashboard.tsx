@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,10 +11,13 @@ import { Scale, Coins, ChevronLeft, ChevronRight, Loader2, Globe, MapPin } from 
 import type { ScreeningFilters, ViewMode, PaginatedResponse, Universe } from "@/types/mongodb";
 import type { ScreeningRecord } from "@/types/screening-record";
 
+const SCROLL_STORAGE_KEY = 'dashboard-scroll-position';
+
 export default function ShariahDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialUniverse = (searchParams.get('universe') as Universe) || 'global';
   const initialPage = parseInt(searchParams.get('page') || '1', 10);
+  const containerRef = useRef<HTMLDivElement>(null);
   
   const [viewMode, setViewMode] = useState<ViewMode>("shariah");
   const [universe, setUniverse] = useState<Universe>(initialUniverse);
@@ -24,6 +27,33 @@ export default function ShariahDashboard() {
   });
   const [data, setData] = useState<PaginatedResponse<ScreeningRecord> | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Restore scroll position after data loads
+  useEffect(() => {
+    if (!loading && data) {
+      const savedScroll = sessionStorage.getItem(SCROLL_STORAGE_KEY);
+      if (savedScroll) {
+        const scrollY = parseInt(savedScroll, 10);
+        // Small delay to ensure DOM is rendered
+        requestAnimationFrame(() => {
+          window.scrollTo(0, scrollY);
+          sessionStorage.removeItem(SCROLL_STORAGE_KEY);
+        });
+      }
+    }
+  }, [loading, data]);
+
+  // Save scroll position before unload
+  useEffect(() => {
+    const saveScroll = () => {
+      sessionStorage.setItem(SCROLL_STORAGE_KEY, String(window.scrollY));
+    };
+    
+    // Save on any navigation away
+    return () => {
+      saveScroll();
+    };
+  }, []);
 
   useEffect(() => {
     fetchData();

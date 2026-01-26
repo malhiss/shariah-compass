@@ -152,6 +152,8 @@ export function ScreeningTable({
   }
 
   const handleRowClick = (upsertKey: string) => {
+    // Save scroll position before navigating
+    sessionStorage.setItem('dashboard-scroll-position', String(window.scrollY));
     navigate(`/record/${encodeURIComponent(upsertKey)}?universe=${universe}&page=${currentPage}`);
   };
 
