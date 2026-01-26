@@ -3,17 +3,20 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
+import { Label } from '@/components/ui/label';
 
 import { VerdictBadge } from '@/components/dashboard/VerdictBadge';
 import { RatioDisplay } from '@/components/RatioDisplay';
 import { AppSidebar } from '@/components/AppSidebar';
 import { screenPortfolio, parseCSVToHoldings } from '@/lib/api';
 import type { PortfolioHolding, PortfolioScreeningResponse, PortfolioHoldingResult, MethodologySummary } from '@/types/screening';
-import { Upload, Plus, Trash2, Loader2, PieChart, Briefcase, ArrowRight, RotateCcw } from 'lucide-react';
+import { Upload, Plus, Trash2, Loader2, PieChart, Briefcase, ArrowRight, RotateCcw, Pencil, ArrowUpDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+type SortType = 'purification' | 'value';
 
 const PURIFICATION_COLORS = [
   'hsl(var(--warning))',
@@ -118,8 +121,79 @@ export default function PortfolioScreening() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<PortfolioScreeningResponse | null>(null);
   const [selectedHolding, setSelectedHolding] = useState<PortfolioHoldingResult | null>(null);
+  const [sortType, setSortType] = useState<SortType>('purification');
+  const [editingHolding, setEditingHolding] = useState<{ index: number; ticker: string; quantity: number; price: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  const handleEditHolding = (holding: PortfolioHoldingResult, index: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingHolding({
+      index,
+      ticker: holding.ticker,
+      quantity: holding.quantity,
+      price: holding.price,
+    });
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingHolding || !result) return;
+    
+    // Update the result holdings
+    const updatedHoldings = [...result.holdings];
+    const holdingToUpdate = updatedHoldings.find(h => h.ticker === editingHolding.ticker);
+    
+    if (holdingToUpdate) {
+      holdingToUpdate.quantity = editingHolding.quantity;
+      holdingToUpdate.price = editingHolding.price;
+      holdingToUpdate.value = editingHolding.quantity * editingHolding.price;
+      
+      // Recalculate totals
+      const newTotalValue = updatedHoldings.reduce((sum, h) => sum + h.value, 0);
+      
+      // Calculate new weights
+      const compliantWeight = updatedHoldings.filter(h => {
+        const c = (h.invesense.classification || '').toString().toLowerCase().replace(/[\s_-]/g, '');
+        return c.includes('compliant') && !c.includes('non') && !c.includes('purification');
+      }).reduce((sum, h) => sum + h.value, 0);
+      
+      const compliantWithPurificationWeight = updatedHoldings.filter(h => {
+        const c = (h.invesense.classification || '').toString().toLowerCase().replace(/[\s_-]/g, '');
+        return c.includes('purification') || c.includes('withpurification');
+      }).reduce((sum, h) => sum + h.value, 0);
+      
+      const nonCompliantWeight = updatedHoldings.filter(h => {
+        const c = (h.invesense.classification || '').toString().toLowerCase().replace(/[\s_-]/g, '');
+        return c.includes('non') || c.includes('fail');
+      }).reduce((sum, h) => sum + h.value, 0);
+      
+      const noDataWeight = newTotalValue - compliantWeight - compliantWithPurificationWeight - nonCompliantWeight;
+      
+      // Update methodology summary weights
+      const updatedResult: PortfolioScreeningResponse = {
+        ...result,
+        holdings: updatedHoldings,
+        totalValue: newTotalValue,
+        summary: {
+          invesense: {
+            totalValue: newTotalValue,
+            compliantWeight,
+            compliantWithPurificationWeight,
+            nonCompliantWeight,
+            noDataWeight,
+          },
+        },
+      };
+      
+      setResult(updatedResult);
+    }
+    
+    setEditingHolding(null);
+    toast({
+      title: 'Holding Updated',
+      description: `Updated ${editingHolding.ticker} quantity and price`,
+    });
+  };
 
   const handleAddRow = () => {
     setHoldings([...holdings, { ticker: '', quantity: 0, price: 0 }]);
@@ -460,11 +534,38 @@ export default function PortfolioScreening() {
               {/* Holdings Table */}
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">Holdings Breakdown</CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      {result.holdings.length} {result.holdings.length === 1 ? 'holding' : 'holdings'}
-                    </p>
+                  <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div className="flex items-center gap-4">
+                      <CardTitle className="text-lg">Holdings Breakdown</CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        {result.holdings.length} {result.holdings.length === 1 ? 'holding' : 'holdings'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">Sort by:</span>
+                      <div className="flex rounded-lg border border-border overflow-hidden">
+                        <button
+                          onClick={() => setSortType('purification')}
+                          className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                            sortType === 'purification'
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-background text-muted-foreground hover:bg-muted'
+                          }`}
+                        >
+                          Purification
+                        </button>
+                        <button
+                          onClick={() => setSortType('value')}
+                          className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                            sortType === 'value'
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-background text-muted-foreground hover:bg-muted'
+                          }`}
+                        >
+                          Value
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="p-0">
@@ -480,14 +581,19 @@ export default function PortfolioScreening() {
                           <TableHead className="text-center text-foreground font-bold">Status</TableHead>
                           <TableHead className="text-right text-foreground font-bold">Purification %</TableHead>
                           <TableHead className="text-right text-foreground font-bold">Purification Amount</TableHead>
+                          <TableHead className="text-center text-foreground font-bold w-16">Edit</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {[...result.holdings]
                           .sort((a, b) => {
-                            const purA = a.value * ((a.invesense.purificationPctRecommended ?? 0) / 100);
-                            const purB = b.value * ((b.invesense.purificationPctRecommended ?? 0) / 100);
-                            return purB - purA;
+                            if (sortType === 'purification') {
+                              const purA = a.value * ((a.invesense.purificationPctRecommended ?? 0) / 100);
+                              const purB = b.value * ((b.invesense.purificationPctRecommended ?? 0) / 100);
+                              return purB - purA;
+                            } else {
+                              return b.value - a.value;
+                            }
                           })
                           .map((holding, index) => {
                           const purificationPct = holding.invesense.purificationPctRecommended ?? 0;
@@ -524,6 +630,16 @@ export default function PortfolioScreening() {
                                 {purificationAmount > 0
                                   ? `$${purificationAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                                   : '—'}
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  onClick={(e) => handleEditHolding(holding, index, e)}
+                                  className="h-7 w-7"
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </Button>
                               </TableCell>
                             </TableRow>
                           );
@@ -583,6 +699,63 @@ export default function PortfolioScreening() {
               </div>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Holding Modal */}
+      <Dialog open={!!editingHolding} onOpenChange={() => setEditingHolding(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-serif">
+              Edit {editingHolding?.ticker}
+            </DialogTitle>
+          </DialogHeader>
+          {editingHolding && (
+            <div className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-quantity">Quantity</Label>
+                <Input
+                  id="edit-quantity"
+                  type="number"
+                  value={editingHolding.quantity}
+                  onChange={(e) => setEditingHolding({
+                    ...editingHolding,
+                    quantity: parseFloat(e.target.value) || 0
+                  })}
+                  min="0"
+                  step="1"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-price">Price ($)</Label>
+                <Input
+                  id="edit-price"
+                  type="number"
+                  value={editingHolding.price}
+                  onChange={(e) => setEditingHolding({
+                    ...editingHolding,
+                    price: parseFloat(e.target.value) || 0
+                  })}
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              <div className="pt-2 p-3 rounded-lg bg-muted/50">
+                <p className="text-sm text-muted-foreground">New Value</p>
+                <p className="text-lg font-mono font-semibold">
+                  ${(editingHolding.quantity * editingHolding.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
+              </div>
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setEditingHolding(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveEdit}>
+              Save Changes
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </AppSidebar>
