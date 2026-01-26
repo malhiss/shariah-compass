@@ -47,14 +47,17 @@ export function ClientSummaryTab({ record, universe }: ClientSummaryTabProps) {
       {/* Shariah Summary Section */}
       {hasSummaryContent && (
         <Card className="premium-card">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <MessageSquare className="w-5 h-5 text-primary" />
+          {/* Summary header - hidden for GCC */}
+          {!isGcc && (
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <MessageSquare className="w-5 h-5 text-primary" />
+                </div>
+                <CardTitle className="text-lg">Summary</CardTitle>
               </div>
-              <CardTitle className="text-lg">Summary</CardTitle>
-            </div>
-          </CardHeader>
+            </CardHeader>
+          )}
           <CardContent className="space-y-4">
             {/* Main summary paragraph - hidden for GCC */}
             {!isGcc && shariahSummary && (
