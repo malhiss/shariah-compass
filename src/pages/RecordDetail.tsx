@@ -21,6 +21,7 @@ export default function RecordDetail() {
   const { upsertKey } = useParams<{ upsertKey: string }>();
   const [searchParams] = useSearchParams();
   const universe = searchParams.get('universe') || 'global';
+  const page = parseInt(searchParams.get('page') || '1', 10);
   const { data: record, isLoading, isError, error, refetch } = useScreeningRecord(upsertKey);
 
   // Loading state
@@ -85,7 +86,7 @@ export default function RecordDetail() {
               <p className="text-muted-foreground mb-4">
                 The screening record you're looking for doesn't exist or has been removed.
               </p>
-              <Link to={`/dashboard?universe=${universe}`}>
+              <Link to={`/dashboard?universe=${universe}&page=${page}`}>
                 <Button variant="outline" className="border-border">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Dashboard
@@ -102,7 +103,7 @@ export default function RecordDetail() {
     <AppSidebar>
       <div className="p-4 sm:p-6 lg:p-8">
       {/* Header Section */}
-      <RecordHeader record={record} universe={universe} />
+      <RecordHeader record={record} universe={universe} page={page} />
 
       {/* Main Content */}
       <div className="mt-6 sm:mt-8 space-y-6 sm:space-y-8">

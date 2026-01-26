@@ -9,11 +9,12 @@ import { ArrowLeft, ExternalLink, Calendar, Building2, Factory } from 'lucide-re
 interface RecordHeaderProps {
   record: ScreeningRecord;
   universe?: string;
+  page?: number;
 }
 
-export function RecordHeader({ record, universe = 'global' }: RecordHeaderProps) {
+export function RecordHeader({ record, universe = 'global', page = 1 }: RecordHeaderProps) {
   const memoUrl = getMemoUrl(record);
-  const dashboardUrl = `/dashboard?universe=${universe}`;
+  const dashboardUrl = `/dashboard?universe=${universe}&page=${page}`;
   
   // Use client_identity_* fields as canonical source
   const ticker = record.client_identity_ticker || record.ticker || record.Ticker || 'N/A';
