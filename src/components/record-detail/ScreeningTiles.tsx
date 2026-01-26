@@ -105,14 +105,6 @@ export function ScreeningTiles({ record }: ScreeningTilesProps) {
       threshold: `≤${cashThreshold}%`,
     },
     {
-      label: 'Non-Permissible Income',
-      shortLabel: 'NPIN',
-      icon: <TrendingDown className="w-4 h-4" />,
-      status: npinStatus,
-      value: npinRatioDisplay,
-      threshold: `≤${npinThreshold}%`,
-    },
-    {
       label: 'Estimated NPIN',
       shortLabel: 'Est. NPIN',
       icon: <TrendingDown className="w-4 h-4" />,
@@ -123,7 +115,7 @@ export function ScreeningTiles({ record }: ScreeningTilesProps) {
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+    <div className="grid grid-cols-3 gap-2 sm:gap-3">
       {tiles.map((tile, idx) => (
         <div
           key={idx}
