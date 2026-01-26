@@ -66,12 +66,19 @@ export interface PortfolioHolding {
   price: number;
 }
 
+export interface PortfolioInvesenseResult {
+  available: boolean;
+  classification: InvesenseClassification | string | null;
+  purificationPctRecommended: number | null;
+  debtRatio: number | null;
+  cashInvRatio: number | null;
+  haramRevenuePercent: number | null;
+}
+
 export interface PortfolioHoldingResult extends PortfolioHolding {
   company: string | null;
   value: number;
-  invesense: InvesenseResult;
-  autoBanned: AutoBannedResult;
-  numeric: NumericResult;
+  invesense: PortfolioInvesenseResult;
 }
 
 export interface MethodologySummary {
@@ -85,8 +92,6 @@ export interface MethodologySummary {
 export interface PortfolioScreeningResponse {
   summary: {
     invesense: MethodologySummary;
-    autoBanned: MethodologySummary;
-    numeric: MethodologySummary;
   };
   holdings: PortfolioHoldingResult[];
   totalValue: number;
@@ -125,25 +130,19 @@ export interface AiChatResponse {
 export type StatusColor = 'compliant' | 'purification' | 'fail' | 'noData';
 
 export function getStatusColor(
-  classification: InvesenseClassification | null | undefined,
+  classification: InvesenseClassification | string | null | undefined,
   status: NumericStatus | AutoBannedStatus | null | undefined,
   available: boolean
 ): StatusColor {
   if (!available) return 'noData';
   
   if (classification) {
-    switch (classification) {
-      case 'COMPLIANT':
-        return 'compliant';
-      case 'COMPLIANT_WITH_PURIFICATION':
-        return 'purification';
-      case 'NON_COMPLIANT':
-        return 'fail';
-      case 'DOUBTFUL':
-        return 'noData';
-      default:
-        return 'noData';
-    }
+    const normalized = String(classification).toUpperCase().replace(/[\s_-]/g, '');
+    if (normalized === 'COMPLIANT') return 'compliant';
+    if (normalized.includes('PURIFICATION') || normalized === 'COMPLIANTWITHPURIFICATION') return 'purification';
+    if (normalized.includes('NON') || normalized === 'NONCOMPLIANT') return 'fail';
+    if (normalized === 'DOUBTFUL') return 'noData';
+    return 'noData';
   }
   
   if (status) {
@@ -154,25 +153,19 @@ export function getStatusColor(
 }
 
 export function getStatusLabel(
-  classification: InvesenseClassification | null | undefined,
+  classification: InvesenseClassification | string | null | undefined,
   status: NumericStatus | AutoBannedStatus | null | undefined,
   available: boolean
 ): string {
   if (!available) return 'No Data';
   
   if (classification) {
-    switch (classification) {
-      case 'COMPLIANT':
-        return 'Compliant';
-      case 'COMPLIANT_WITH_PURIFICATION':
-        return 'Compliant with Purification';
-      case 'NON_COMPLIANT':
-        return 'Non-Compliant';
-      case 'DOUBTFUL':
-        return 'Doubtful';
-      default:
-        return 'Unknown';
-    }
+    const normalized = String(classification).toUpperCase().replace(/[\s_-]/g, '');
+    if (normalized === 'COMPLIANT') return 'Compliant';
+    if (normalized.includes('PURIFICATION') || normalized === 'COMPLIANTWITHPURIFICATION') return 'Compliant with Purification';
+    if (normalized.includes('NON') || normalized === 'NONCOMPLIANT') return 'Non-Compliant';
+    if (normalized === 'DOUBTFUL') return 'Doubtful';
+    return 'Unknown';
   }
   
   if (status) {

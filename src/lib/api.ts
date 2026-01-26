@@ -1,8 +1,11 @@
 import { supabase } from '@/integrations/supabase/client';
+import { findByTicker } from '@/lib/csv-data-loader';
 import type {
   TickerScreeningResponse,
   PortfolioScreeningResponse,
   PortfolioHolding,
+  PortfolioHoldingResult,
+  MethodologySummary,
   ScreeningRequestInput,
   ScreeningRequestResponse,
   ChatMessage,
@@ -28,10 +31,77 @@ export async function screenTicker(ticker: string): Promise<TickerScreeningRespo
   return callEdgeFunction<TickerScreeningResponse>('ticker-screening', { ticker });
 }
 
+// Local portfolio screening using CSV data
 export async function screenPortfolio(
   holdings: PortfolioHolding[]
 ): Promise<PortfolioScreeningResponse> {
-  return callEdgeFunction<PortfolioScreeningResponse>('portfolio-screening', { holdings });
+  const results: PortfolioHoldingResult[] = [];
+  
+  // Initialize summary
+  const invesenseSummary: MethodologySummary = {
+    compliantWeight: 0,
+    compliantWithPurificationWeight: 0,
+    nonCompliantWeight: 0,
+    noDataWeight: 0,
+    totalValue: 0,
+  };
+  
+  let totalValue = 0;
+  
+  // Process each holding
+  for (const holding of holdings) {
+    const value = holding.quantity * holding.price;
+    totalValue += value;
+    
+    // Look up screening data from local CSV
+    const record = await findByTicker(holding.ticker);
+    
+    const holdingResult: PortfolioHoldingResult = {
+      ticker: holding.ticker,
+      company: record?.company_name || null,
+      quantity: holding.quantity,
+      price: holding.price,
+      value,
+      invesense: {
+        available: !!record,
+        classification: record?.final_classification || null,
+        purificationPctRecommended: record?.est_purification_pct_recommended ?? null,
+        debtRatio: record?.debt_ratio_pct ? record.debt_ratio_pct / 100 : null,
+        cashInvRatio: record?.cash_inv_ratio_pct ? record.cash_inv_ratio_pct / 100 : null,
+        haramRevenuePercent: record?.haram_pct_point ?? null,
+      },
+    };
+    
+    results.push(holdingResult);
+    
+    // Update summary based on classification
+    if (!record) {
+      invesenseSummary.noDataWeight += value;
+    } else {
+      const classification = (record.final_classification || '').toLowerCase().replace(/[\s_-]/g, '');
+      
+      if (classification.includes('compliant') && !classification.includes('non') && !classification.includes('purification')) {
+        invesenseSummary.compliantWeight += value;
+      } else if (classification.includes('purification') || classification.includes('withpurification')) {
+        invesenseSummary.compliantWithPurificationWeight += value;
+      } else if (classification.includes('non') || classification.includes('fail')) {
+        invesenseSummary.nonCompliantWeight += value;
+      } else {
+        invesenseSummary.noDataWeight += value;
+      }
+    }
+  }
+  
+  // Set total value
+  invesenseSummary.totalValue = totalValue;
+  
+  return {
+    holdings: results,
+    totalValue,
+    summary: {
+      invesense: invesenseSummary,
+    },
+  };
 }
 
 export async function submitScreeningRequest(
