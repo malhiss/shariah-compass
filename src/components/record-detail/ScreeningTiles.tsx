@@ -105,8 +105,8 @@ export function ScreeningTiles({ record }: ScreeningTilesProps) {
       threshold: `≤${cashThreshold}%`,
     },
     {
-      label: 'Estimated NPIN',
-      shortLabel: 'Est. NPIN',
+      label: 'Non-Permissible Income',
+      shortLabel: 'NPIN',
       icon: <TrendingDown className="w-4 h-4" />,
       status: estimatedNpinStatus,
       value: estimatedNpinDisplay,
