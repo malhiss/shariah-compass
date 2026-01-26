@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+
 import { AppSidebar } from '@/components/AppSidebar';
 import { submitScreeningRequest } from '@/lib/api';
 import type { ScreeningRequestInput, ScreeningRequestResponse } from '@/types/screening';
@@ -91,7 +91,7 @@ export default function ScreeningRequest() {
                 </div>
                 <div className="flex justify-between items-center py-2">
                   <span className="text-sm text-muted-foreground">Methodology</span>
-                  <span className="text-sm capitalize">{form.methodology.replace('_', '-')}</span>
+                  <span className="text-sm">Invesense</span>
                 </div>
               </CardContent>
             </Card>
@@ -190,23 +190,6 @@ export default function ScreeningRequest() {
                   </p>
                 </div>
 
-                {/* Methodology */}
-                <div className="space-y-2">
-                  <Label htmlFor="methodology">Preferred Methodology</Label>
-                  <Select
-                    value={form.methodology}
-                    onValueChange={(value) => handleChange('methodology', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="invesense">Invesense Methodology</SelectItem>
-                      <SelectItem value="numeric">Numeric Methodology</SelectItem>
-                      <SelectItem value="auto_banned">Auto-banned Methodology</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
 
                 {/* Use Case */}
                 <div className="space-y-2">

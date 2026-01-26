@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+
 import { StatusBadge } from '@/components/StatusBadge';
 import { RatioDisplay } from '@/components/RatioDisplay';
 import { AppSidebar } from '@/components/AppSidebar';
@@ -277,10 +277,8 @@ export default function PortfolioScreening() {
                     Total: <span className="font-semibold text-foreground">${result.totalValue.toLocaleString()}</span>
                   </p>
                 </div>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <SummaryCard title="Invesense" summary={result.summary.invesense} />
-                  <SummaryCard title="Auto-banned" summary={result.summary.autoBanned} />
-                  <SummaryCard title="Numeric" summary={result.summary.numeric} />
+                <div className="max-w-md">
+                  <SummaryCard title="Invesense Methodology" summary={result.summary.invesense} />
                 </div>
               </div>
 
@@ -296,9 +294,8 @@ export default function PortfolioScreening() {
                             <TableHead>Ticker</TableHead>
                             <TableHead>Company</TableHead>
                             <TableHead className="text-right">Value</TableHead>
-                            <TableHead className="text-center">Invesense</TableHead>
-                            <TableHead className="text-center">Auto-banned</TableHead>
-                            <TableHead className="text-center">Numeric</TableHead>
+                            <TableHead className="text-center">Status</TableHead>
+                            <TableHead className="text-center">Purification</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -320,19 +317,10 @@ export default function PortfolioScreening() {
                                   size="sm"
                                 />
                               </TableCell>
-                              <TableCell className="text-center">
-                                <StatusBadge
-                                  status={getStatusColor(null, holding.autoBanned.status, holding.autoBanned.available)}
-                                  label={getStatusLabel(null, holding.autoBanned.status, holding.autoBanned.available)}
-                                  size="sm"
-                                />
-                              </TableCell>
-                              <TableCell className="text-center">
-                                <StatusBadge
-                                  status={getStatusColor(null, holding.numeric.status, holding.numeric.available)}
-                                  label={getStatusLabel(null, holding.numeric.status, holding.numeric.available)}
-                                  size="sm"
-                                />
+                              <TableCell className="text-center text-sm">
+                                {holding.invesense.purificationPctRecommended !== null && holding.invesense.purificationPctRecommended !== undefined
+                                  ? `${holding.invesense.purificationPctRecommended.toFixed(2)}%`
+                                  : '—'}
                               </TableCell>
                             </TableRow>
                           ))}
@@ -357,67 +345,42 @@ export default function PortfolioScreening() {
                   {selectedHolding.ticker} — {selectedHolding.company || 'Unknown'}
                 </DialogTitle>
               </DialogHeader>
-              <Tabs defaultValue="invesense" className="mt-4">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="invesense">Invesense</TabsTrigger>
-                  <TabsTrigger value="autobanned">Auto-banned</TabsTrigger>
-                  <TabsTrigger value="numeric">Numeric</TabsTrigger>
-                </TabsList>
-                <TabsContent value="invesense" className="space-y-4 mt-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm text-muted-foreground">Status:</span>
-                    <StatusBadge
-                      status={getStatusColor(selectedHolding.invesense.classification, null, selectedHolding.invesense.available)}
-                      label={getStatusLabel(selectedHolding.invesense.classification, null, selectedHolding.invesense.available)}
+              <div className="mt-4 space-y-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-muted-foreground">Status:</span>
+                  <StatusBadge
+                    status={getStatusColor(selectedHolding.invesense.classification, null, selectedHolding.invesense.available)}
+                    label={getStatusLabel(selectedHolding.invesense.classification, null, selectedHolding.invesense.available)}
+                  />
+                </div>
+                {selectedHolding.invesense.purificationPctRecommended !== null && selectedHolding.invesense.purificationPctRecommended !== undefined && (
+                  <div className="p-4 rounded-lg bg-warning/10 border border-warning/30">
+                    <p className="text-sm text-muted-foreground mb-1">Purification Rate</p>
+                    <p className="text-2xl font-bold text-warning">
+                      {selectedHolding.invesense.purificationPctRecommended.toFixed(2)}%
+                    </p>
+                  </div>
+                )}
+                {(selectedHolding.invesense.debtRatio !== null || selectedHolding.invesense.cashInvRatio !== null) && (
+                  <div className="grid grid-cols-3 gap-4">
+                    <RatioDisplay
+                      label="Debt Ratio"
+                      value={selectedHolding.invesense.debtRatio}
+                      threshold={0.33}
+                    />
+                    <RatioDisplay
+                      label="Cash Ratio"
+                      value={selectedHolding.invesense.cashInvRatio}
+                      threshold={0.33}
+                    />
+                    <RatioDisplay
+                      label="Haram Revenue"
+                      value={selectedHolding.invesense.haramRevenuePercent ? selectedHolding.invesense.haramRevenuePercent / 100 : null}
+                      threshold={0.05}
                     />
                   </div>
-                  {selectedHolding.invesense.purificationPctRecommended !== null && selectedHolding.invesense.purificationPctRecommended !== undefined && (
-                    <div className="p-4 rounded-lg bg-warning/10 border border-warning/30">
-                      <p className="text-sm text-muted-foreground mb-1">Purification Rate</p>
-                      <p className="text-2xl font-bold text-warning">
-                        {selectedHolding.invesense.purificationPctRecommended.toFixed(2)}%
-                      </p>
-                    </div>
-                  )}
-                  {(selectedHolding.invesense.debtRatio !== null || selectedHolding.invesense.cashInvRatio !== null) && (
-                    <div className="grid grid-cols-3 gap-4">
-                      <RatioDisplay
-                        label="Debt Ratio"
-                        value={selectedHolding.invesense.debtRatio}
-                        threshold={0.33}
-                      />
-                      <RatioDisplay
-                        label="Cash Ratio"
-                        value={selectedHolding.invesense.cashInvRatio}
-                        threshold={0.33}
-                      />
-                      <RatioDisplay
-                        label="Haram Revenue"
-                        value={selectedHolding.invesense.haramRevenuePercent ? selectedHolding.invesense.haramRevenuePercent / 100 : null}
-                        threshold={0.05}
-                      />
-                    </div>
-                  )}
-                </TabsContent>
-                <TabsContent value="autobanned" className="mt-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm text-muted-foreground">Status:</span>
-                    <StatusBadge
-                      status={getStatusColor(null, selectedHolding.autoBanned.status, selectedHolding.autoBanned.available)}
-                      label={getStatusLabel(null, selectedHolding.autoBanned.status, selectedHolding.autoBanned.available)}
-                    />
-                  </div>
-                </TabsContent>
-                <TabsContent value="numeric" className="mt-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm text-muted-foreground">Status:</span>
-                    <StatusBadge
-                      status={getStatusColor(null, selectedHolding.numeric.status, selectedHolding.numeric.available)}
-                      label={getStatusLabel(null, selectedHolding.numeric.status, selectedHolding.numeric.available)}
-                    />
-                  </div>
-                </TabsContent>
-              </Tabs>
+                )}
+              </div>
             </>
           )}
         </DialogContent>
