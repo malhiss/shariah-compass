@@ -337,7 +337,31 @@ export default function PortfolioScreening() {
                     </Button>
                   </div>
                 </div>
-                <SummaryCard summary={result.summary.invesense} holdings={result.holdings} />
+                
+                {/* Summary Cards Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+                  <div className="lg:col-span-2">
+                    <SummaryCard summary={result.summary.invesense} holdings={result.holdings} />
+                  </div>
+                  
+                  {/* Total Purification Card */}
+                  <Card className="bg-warning/5 border-warning/20">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base font-medium text-warning">Total Purification Required</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-3xl font-bold text-warning">
+                        ${result.holdings.reduce((total, h) => {
+                          const pct = h.invesense.purificationPctRecommended ?? 0;
+                          return total + (h.value * pct / 100);
+                        }, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {result.holdings.filter(h => (h.invesense.purificationPctRecommended ?? 0) > 0).length} of {result.holdings.length} holdings require purification
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
 
               {/* Holdings Table */}
