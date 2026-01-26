@@ -254,6 +254,13 @@ export default function PortfolioScreening() {
       return;
     }
 
+    // Scroll to top of page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const mainElement = document.querySelector('main');
+    if (mainElement) {
+      mainElement.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     setLoading(true);
     setResult(null);
 
@@ -404,6 +411,36 @@ export default function PortfolioScreening() {
                 </div>
               </CardContent>
             </Card>
+          )}
+
+          {/* Loading State */}
+          {loading && !result && (
+            <div className="space-y-6 animate-fade-in">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">Screening Portfolio...</CardTitle>
+                      <CardDescription>Analyzing your holdings for Shariah compliance</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="h-3 rounded-full bg-muted animate-pulse" />
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                      {[...Array(4)].map((_, i) => (
+                        <div key={i} className="h-8 rounded bg-muted animate-pulse" />
+                      ))}
+                    </div>
+                    <div className="h-48 rounded-lg bg-muted animate-pulse" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           )}
 
           {/* Results */}
