@@ -483,7 +483,13 @@ export default function PortfolioScreening() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {result.holdings.map((holding, index) => {
+                        {[...result.holdings]
+                          .sort((a, b) => {
+                            const purA = a.value * ((a.invesense.purificationPctRecommended ?? 0) / 100);
+                            const purB = b.value * ((b.invesense.purificationPctRecommended ?? 0) / 100);
+                            return purB - purA;
+                          })
+                          .map((holding, index) => {
                           const purificationPct = holding.invesense.purificationPctRecommended ?? 0;
                           const purificationAmount = holding.value * (purificationPct / 100);
                           
