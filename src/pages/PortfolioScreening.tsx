@@ -361,39 +361,50 @@ export default function PortfolioScreening() {
                           <TableHead className="text-right text-foreground font-bold">Price</TableHead>
                           <TableHead className="text-right text-foreground font-bold">Value</TableHead>
                           <TableHead className="text-center text-foreground font-bold">Status</TableHead>
-                          <TableHead className="text-right text-foreground font-bold">Purification</TableHead>
+                          <TableHead className="text-right text-foreground font-bold">Purification %</TableHead>
+                          <TableHead className="text-right text-foreground font-bold">Purification Amount</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {result.holdings.map((holding, index) => (
-                          <TableRow
-                            key={index}
-                            className="cursor-pointer border-border hover:bg-primary/5"
-                            onClick={() => setSelectedHolding(holding)}
-                          >
-                            <TableCell className="font-medium text-foreground">{holding.ticker}</TableCell>
-                            <TableCell className="text-muted-foreground max-w-[200px] truncate">
-                              {holding.company || '—'}
-                            </TableCell>
-                            <TableCell className="text-right font-mono text-sm">
-                              {holding.quantity.toLocaleString()}
-                            </TableCell>
-                            <TableCell className="text-right font-mono text-sm">
-                              ${holding.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </TableCell>
-                            <TableCell className="text-right font-mono text-sm">
-                              ${holding.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <VerdictBadge verdict={holding.invesense.available ? holding.invesense.classification : null} />
-                            </TableCell>
-                            <TableCell className="text-right font-mono text-sm">
-                              {holding.invesense.purificationPctRecommended !== null && holding.invesense.purificationPctRecommended !== undefined
-                                ? `${holding.invesense.purificationPctRecommended.toFixed(2)}%`
-                                : '—'}
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                        {result.holdings.map((holding, index) => {
+                          const purificationPct = holding.invesense.purificationPctRecommended ?? 0;
+                          const purificationAmount = holding.value * (purificationPct / 100);
+                          
+                          return (
+                            <TableRow
+                              key={index}
+                              className="cursor-pointer border-border hover:bg-primary/5"
+                              onClick={() => setSelectedHolding(holding)}
+                            >
+                              <TableCell className="font-medium text-foreground">{holding.ticker}</TableCell>
+                              <TableCell className="text-muted-foreground max-w-[200px] truncate">
+                                {holding.company || '—'}
+                              </TableCell>
+                              <TableCell className="text-right font-mono text-sm">
+                                {holding.quantity.toLocaleString()}
+                              </TableCell>
+                              <TableCell className="text-right font-mono text-sm">
+                                ${holding.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </TableCell>
+                              <TableCell className="text-right font-mono text-sm">
+                                ${holding.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <VerdictBadge verdict={holding.invesense.available ? holding.invesense.classification : null} />
+                              </TableCell>
+                              <TableCell className="text-right font-mono text-sm">
+                                {holding.invesense.purificationPctRecommended !== null && holding.invesense.purificationPctRecommended !== undefined
+                                  ? `${holding.invesense.purificationPctRecommended.toFixed(2)}%`
+                                  : '—'}
+                              </TableCell>
+                              <TableCell className="text-right font-mono text-sm text-warning">
+                                {purificationAmount > 0
+                                  ? `$${purificationAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                                  : '—'}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
                       </TableBody>
                     </Table>
                   </div>
