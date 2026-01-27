@@ -192,7 +192,7 @@ export default function PortfolioScreening() {
     toast({
       title: 'Holding Updated',
       description: `Updated ${editingHolding.ticker} quantity and price`,
-    });
+  });
   };
 
   const handleAddRow = () => {
@@ -203,6 +203,68 @@ export default function PortfolioScreening() {
     if (holdings.length > 1) {
       setHoldings(holdings.filter((_, i) => i !== index));
     }
+  };
+
+  const handleDeleteHoldingFromResults = (holdingToDelete: PortfolioHoldingResult, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!result) return;
+
+    const updatedHoldings = result.holdings.filter(h => h.ticker !== holdingToDelete.ticker);
+    
+    if (updatedHoldings.length === 0) {
+      setResult(null);
+      toast({
+        title: 'Portfolio Cleared',
+        description: 'All holdings have been removed',
+      });
+      return;
+    }
+
+    // Recalculate totals
+    const newTotalValue = updatedHoldings.reduce((sum, h) => sum + h.value, 0);
+
+    // Recalculate summary weights
+    let compliantValue = 0;
+    let withPurificationValue = 0;
+    let nonCompliantValue = 0;
+    let noDataValue = 0;
+
+    updatedHoldings.forEach(h => {
+      if (!h.invesense.available) {
+        noDataValue += h.value;
+      } else {
+        const cls = (h.invesense.classification || '').toLowerCase().replace(/[\s_-]/g, '');
+        if (cls.includes('compliant') && !cls.includes('non') && !cls.includes('purification')) {
+          compliantValue += h.value;
+        } else if (cls.includes('purification')) {
+          withPurificationValue += h.value;
+        } else {
+          nonCompliantValue += h.value;
+        }
+      }
+    });
+
+    const updatedSummary: MethodologySummary = {
+      totalValue: newTotalValue,
+      compliantWeight: newTotalValue > 0 ? (compliantValue / newTotalValue) * 100 : 0,
+      compliantWithPurificationWeight: newTotalValue > 0 ? (withPurificationValue / newTotalValue) * 100 : 0,
+      nonCompliantWeight: newTotalValue > 0 ? (nonCompliantValue / newTotalValue) * 100 : 0,
+      noDataWeight: newTotalValue > 0 ? (noDataValue / newTotalValue) * 100 : 0,
+    };
+
+    setResult({
+      ...result,
+      holdings: updatedHoldings,
+      totalValue: newTotalValue,
+      summary: {
+        invesense: updatedSummary,
+      },
+    });
+
+    toast({
+      title: 'Holding Removed',
+      description: `${holdingToDelete.ticker} has been removed from the portfolio`,
+    });
   };
 
   const handleUpdateRow = (index: number, field: keyof PortfolioHolding, value: string) => {
@@ -622,7 +684,7 @@ export default function PortfolioScreening() {
                           <TableHead className="text-center text-foreground font-bold">Status</TableHead>
                           <TableHead className="text-right text-foreground font-bold">Purification %</TableHead>
                           <TableHead className="text-right text-foreground font-bold">Purification Amount</TableHead>
-                          <TableHead className="text-center text-foreground font-bold w-16">Edit</TableHead>
+                          <TableHead className="text-center text-foreground font-bold w-24">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -673,14 +735,24 @@ export default function PortfolioScreening() {
                                   : '—'}
                               </TableCell>
                               <TableCell className="text-center">
-                                <Button
-                                  variant="ghost"
-                                  size="icon-sm"
-                                  onClick={(e) => handleEditHolding(holding, index, e)}
-                                  className="h-7 w-7"
-                                >
-                                  <Pencil className="h-3.5 w-3.5" />
-                                </Button>
+                                <div className="flex items-center justify-center gap-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    onClick={(e) => handleEditHolding(holding, index, e)}
+                                    className="h-7 w-7"
+                                  >
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    onClick={(e) => handleDeleteHoldingFromResults(holding, e)}
+                                    className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </Button>
+                                </div>
                               </TableCell>
                             </TableRow>
                           );
