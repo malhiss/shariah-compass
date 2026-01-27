@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
 import { Label } from '@/components/ui/label';
@@ -123,6 +124,7 @@ export default function PortfolioScreening() {
   const [selectedHolding, setSelectedHolding] = useState<PortfolioHoldingResult | null>(null);
   const [sortType, setSortType] = useState<SortType>('purification');
   const [editingHolding, setEditingHolding] = useState<{ index: number; ticker: string; quantity: number; price: number } | null>(null);
+  const [holdingToDelete, setHoldingToDelete] = useState<PortfolioHoldingResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -205,14 +207,14 @@ export default function PortfolioScreening() {
     }
   };
 
-  const handleDeleteHoldingFromResults = (holdingToDelete: PortfolioHoldingResult, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!result) return;
+  const confirmDeleteHolding = () => {
+    if (!holdingToDelete || !result) return;
 
     const updatedHoldings = result.holdings.filter(h => h.ticker !== holdingToDelete.ticker);
     
     if (updatedHoldings.length === 0) {
       setResult(null);
+      setHoldingToDelete(null);
       toast({
         title: 'Portfolio Cleared',
         description: 'All holdings have been removed',
@@ -265,6 +267,8 @@ export default function PortfolioScreening() {
       title: 'Holding Removed',
       description: `${holdingToDelete.ticker} has been removed from the portfolio`,
     });
+
+    setHoldingToDelete(null);
   };
 
   const handleUpdateRow = (index: number, field: keyof PortfolioHolding, value: string) => {
@@ -746,7 +750,7 @@ export default function PortfolioScreening() {
                                   <Button
                                     variant="ghost"
                                     size="icon-sm"
-                                    onClick={(e) => handleDeleteHoldingFromResults(holding, e)}
+                                    onClick={(e) => { e.stopPropagation(); setHoldingToDelete(holding); }}
                                     className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
                                   >
                                     <Trash2 className="h-3.5 w-3.5" />
@@ -870,6 +874,24 @@ export default function PortfolioScreening() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!holdingToDelete} onOpenChange={(open) => !open && setHoldingToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Holding</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove <span className="font-semibold">{holdingToDelete?.ticker}</span> from your portfolio? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteHolding} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppSidebar>
   );
 }
