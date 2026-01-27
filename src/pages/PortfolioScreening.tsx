@@ -536,7 +536,7 @@ export default function PortfolioScreening() {
 
               {/* Total Purification Card - Full Width */}
               {(() => {
-                const purificationData = result.holdings
+                const rawPurificationData = result.holdings
                   .map(h => ({
                     name: h.ticker,
                     company: h.company || h.ticker,
@@ -545,9 +545,19 @@ export default function PortfolioScreening() {
                   .filter(d => d.value > 0)
                   .sort((a, b) => b.value - a.value);
                 
-                const totalPurification = purificationData.reduce((sum, d) => sum + d.value, 0);
+                const totalPurification = rawPurificationData.reduce((sum, d) => sum + d.value, 0);
                 
-                if (purificationData.length === 0) return null;
+                if (rawPurificationData.length === 0) return null;
+                
+                // Group amounts under 1000 into "Others"
+                const THRESHOLD = 1000;
+                const mainItems = rawPurificationData.filter(d => d.value >= THRESHOLD);
+                const smallItems = rawPurificationData.filter(d => d.value < THRESHOLD);
+                const othersTotal = smallItems.reduce((sum, d) => sum + d.value, 0);
+                
+                const purificationData = othersTotal > 0 
+                  ? [...mainItems, { name: 'Others', company: `${smallItems.length} holdings`, value: othersTotal }]
+                  : mainItems;
                 
                 return (
                   <Card className="bg-warning/5 border-warning/20">
