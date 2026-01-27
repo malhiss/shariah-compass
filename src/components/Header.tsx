@@ -97,27 +97,22 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80">
       <div className="flex h-16 lg:h-[72px] items-center justify-between px-4 sm:px-6">
         {/* Left side: Hamburger + Logo + Breadcrumb */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {/* Hamburger menu - opens navigation drawer */}
           <Sheet>
             <SheetTrigger asChild>
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-10 w-10 text-muted-foreground hover:text-foreground"
+                className="h-10 w-10 text-muted-foreground hover:text-foreground shrink-0"
               >
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-          
-          {/* Logo next to hamburger */}
-          <Link to="/" className="flex items-center transition-opacity hover:opacity-80">
-            <img src={dalilLogo} alt="Dalil" className="h-48 lg:h-52 w-auto" />
-          </Link>
             <SheetContent side="left" className="w-72 p-0">
               <SheetHeader className="p-6 border-b border-border">
                 <SheetTitle className="flex items-center gap-3">
-                  <img src={dalilLogo} alt="Dalil" className="h-48 w-auto" />
+                  <img src={dalilLogo} alt="Dalil" className="h-12 w-auto" />
                 </SheetTitle>
               </SheetHeader>
               <nav className="p-4">
@@ -171,6 +166,10 @@ export function Header() {
             </SheetContent>
           </Sheet>
           
+          {/* Logo next to hamburger */}
+          <Link to="/" className="flex items-center transition-opacity hover:opacity-80 shrink-0">
+            <img src={dalilLogo} alt="Dalil" className="h-10 lg:h-12 w-auto" />
+          </Link>
           
           {/* Breadcrumb / Page Title - only show on protected routes */}
           {isProtectedRoute && currentPageTitle && (
