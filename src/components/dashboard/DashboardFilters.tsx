@@ -61,7 +61,7 @@ export function DashboardFilters({
           />
         </div>
         <div className="flex gap-2">
-          <Button type="submit" className="btn-invesense flex-1 sm:flex-none text-sm">
+          <Button type="submit" className="btn-dalil flex-1 sm:flex-none text-sm">
             Search
           </Button>
           {hasActiveFilters && (

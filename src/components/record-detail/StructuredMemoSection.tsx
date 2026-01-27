@@ -210,7 +210,7 @@ export function StructuredMemoSection({ record }: StructuredMemoSectionProps) {
 
             {memoUrl && (
               <a href={memoUrl} target="_blank" rel="noopener noreferrer">
-                <Button className="btn-invesense" size="sm">
+                <Button className="btn-dalil" size="sm">
                   <ExternalLink className="w-4 h-4 mr-2" />
                   Open Full Memo Doc
                 </Button>

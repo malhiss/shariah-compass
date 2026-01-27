@@ -21,7 +21,7 @@ export function RecordHeader({ record, universe = 'global', page = 1 }: RecordHe
   const companyName = record.client_identity_company_name || record.company_name || record.Company || 'N/A';
   const reportDate = record.client_identity_report_date || record.report_date || record.Report_Date;
   const screeningDate = record.screening_date || (record.screening_run_at ? record.screening_run_at.slice(0, 10) : null);
-  const methodologyName = record.methodology_name || 'Invesense Methodology';
+  const methodologyName = record.methodology_name || 'Dalil Methodology';
   const securityType = record.client_identity_security_type || record.security_type || record.Security_Type;
   const industry = record.client_identity_industry || record.industry || record.Industry;
   const sector = record.sector || record.Sector;
@@ -79,7 +79,7 @@ export function RecordHeader({ record, universe = 'global', page = 1 }: RecordHe
         {/* Actions */}
         {memoUrl && (
           <a href={memoUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 w-full sm:w-auto">
-            <Button className="btn-invesense gap-2 w-full sm:w-auto text-sm">
+            <Button className="btn-dalil gap-2 w-full sm:w-auto text-sm">
               <ExternalLink className="w-4 h-4" />
               Open Memo Doc
             </Button>

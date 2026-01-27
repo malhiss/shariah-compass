@@ -179,7 +179,7 @@ export function HelpSupportDialog({ trigger }: HelpSupportDialogProps) {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="btn-invesense">
+            <Button type="submit" disabled={isSubmitting} className="btn-dalil">
               {isSubmitting ? (
                 "Sending..."
               ) : (

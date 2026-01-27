@@ -142,7 +142,7 @@ export default function StaffLogin() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="you@invesense.com"
+                    placeholder="you@dalil.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
@@ -171,7 +171,7 @@ export default function StaffLogin() {
                 )}
               </div>
               
-              <Button type="submit" className="w-full btn-invesense" disabled={isLoading}>
+              <Button type="submit" className="w-full btn-dalil" disabled={isLoading}>
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
                 ) : (

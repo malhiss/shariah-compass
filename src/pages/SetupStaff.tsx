@@ -99,7 +99,7 @@ export default function SetupStaff() {
               <p className="text-muted-foreground mb-6">
                 Your staff account has been created successfully.
               </p>
-              <Button className="btn-invesense" onClick={() => navigate('/staff-login')}>
+              <Button className="btn-dalil" onClick={() => navigate('/staff-login')}>
                 Go to Staff Login
               </Button>
             </CardContent>
@@ -172,7 +172,7 @@ export default function SetupStaff() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@invesense.com"
+                  placeholder="admin@dalil.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />

@@ -173,7 +173,7 @@ export default function ClientDashboard() {
                 New Screening
               </Link>
             </Button>
-            <Button size="sm" className="btn-invesense" asChild>
+            <Button size="sm" className="btn-dalil" asChild>
               <Link to="/request">
                 <FileText className="w-4 h-4 mr-2" />
                 Submit Request

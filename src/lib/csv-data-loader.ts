@@ -211,7 +211,7 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       company_name: get('company_name') || '',
       report_date: get('report_date') || '',
       screening_date: parseString(get('screening_date')) || (get('screening_run_at') ? get('screening_run_at')?.slice(0, 10) : null) || null,
-      methodology_name: 'Invesense Methodology', // Always use this constant
+      methodology_name: 'Dalil Methodology', // Always use this constant
       methodology_version: get('methodology_version') || '',
       security_type: get('security_type') || '',
       industry: get('industry') || '',

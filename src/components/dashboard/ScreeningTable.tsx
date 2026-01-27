@@ -51,7 +51,7 @@ function formatScreeningDate(record: ScreeningRecord): string {
 
 // Get methodology name constant
 function getMethodologyName(record: ScreeningRecord): string {
-  return record.methodology_name || 'Invesense Methodology';
+  return record.methodology_name || 'Dalil Methodology';
 }
 
 // Mobile Card Component for Shariah view

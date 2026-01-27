@@ -56,10 +56,10 @@ export default function About() {
           <AnimatedSection className="max-w-3xl mx-auto text-center">
             <p className="section-label">About Us</p>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold mb-6">
-              About <GradientText>Invesense</GradientText>
+              About <GradientText>Dalil</GradientText>
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Invesense is a global investment solution provider that achieves higher returns through a long-term, disciplined approach to Shariah-compliant investing.
+              Dalil is a global investment solution provider that achieves higher returns through a long-term, disciplined approach to Shariah-compliant investing.
             </p>
           </AnimatedSection>
         </div>
@@ -114,7 +114,7 @@ export default function About() {
                     <div className="flex-1">
                       <h3 className="text-2xl font-serif font-bold mb-3">DFSA Regulated</h3>
                       <p className="text-muted-foreground text-lg leading-relaxed mb-6">
-                        Invesense Asset Management Limited is a DIFC registered Company and an Authorized Firm regulated by the Dubai Financial Services Authority (DFSA) under a Category 3C license, with reference number F002331.
+                        Dalil Asset Management Limited is a DIFC registered Company and an Authorized Firm regulated by the Dubai Financial Services Authority (DFSA) under a Category 3C license, with reference number F002331.
                       </p>
                       <div className="flex flex-wrap gap-3">
                         <span className="px-4 py-2 rounded-full bg-background/50 border border-border text-sm font-medium">DIFC Registered</span>
