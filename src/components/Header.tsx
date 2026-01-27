@@ -166,8 +166,8 @@ export function Header() {
             </SheetContent>
           </Sheet>
           
-          <Link to="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
-            <img src={dalilLogo} alt="Dalil" className="h-48 lg:h-52 w-auto" />
+          <Link to="/" className="flex items-center transition-opacity hover:opacity-80">
+            <img src={dalilLogo} alt="Dalil" className="h-10 lg:h-12 w-auto" />
           </Link>
           
           {/* Breadcrumb / Page Title - only show on protected routes */}
