@@ -367,8 +367,8 @@ export default function PortfolioScreening() {
         </div>
 
         <div className="space-y-6">
-          {/* Input Section - Only show if no results */}
-          {!result && (
+          {/* Input Section - Only show if no results and not loading */}
+          {!result && !loading && (
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between flex-wrap gap-4">
