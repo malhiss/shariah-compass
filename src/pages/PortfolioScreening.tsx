@@ -628,7 +628,9 @@ export default function PortfolioScreening() {
                                   className="w-3 h-3 rounded-full flex-shrink-0" 
                                   style={{ backgroundColor: PURIFICATION_COLORS[index % PURIFICATION_COLORS.length] }}
                                 />
-                                <span className="text-xs text-muted-foreground truncate">{item.name}</span>
+                                <span className="text-xs text-muted-foreground truncate">
+                                  {item.name === 'Others' ? `Others (${item.company})` : item.name}
+                                </span>
                                 <span className="text-xs font-medium text-warning ml-auto">
                                   ${item.value.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                                 </span>
