@@ -36,7 +36,7 @@ export function Layout() {
             {/* Brand */}
             <div className="col-span-1 md:col-span-2">
               <Link to="/" className="inline-block mb-6">
-                <img src={dalilLogo} alt="Dalil" className="h-[101px] lg:h-[115px] w-auto" />
+                <img src={dalilLogo} alt="Dalil" className="h-[81px] lg:h-[92px] w-auto" />
               </Link>
               <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
                 Shariah-compliant investment screening powered by Dalil methodology. Make informed investment decisions aligned with Islamic principles.
