@@ -3,8 +3,8 @@ import { Progress } from '@/components/ui/progress';
 
 interface RatioDisplayProps {
   label: string;
-  value: number | null; // Value as decimal (e.g., 0.0369 = 3.69%)
-  threshold: number; // Threshold as decimal (e.g., 0.33 = 33%)
+  value: number | null; // Value as percentage (e.g., 3.69 = 3.69%)
+  threshold: number; // Threshold as percentage (e.g., 33 = 33%)
   unit?: string;
   className?: string;
 }
@@ -19,10 +19,6 @@ export function RatioDisplay({
   const hasValue = value !== null && value !== undefined;
   const isOverThreshold = hasValue && value > threshold;
   const percentage = hasValue ? Math.min((value / threshold) * 100, 150) : 0;
-  
-  // Display values as percentages (multiply by 100)
-  const displayValue = hasValue ? (value * 100).toFixed(2) : null;
-  const displayThreshold = (threshold * 100).toFixed(0);
 
   return (
     <div className={cn('space-y-2', className)}>
@@ -38,7 +34,7 @@ export function RatioDisplay({
               : 'text-muted-foreground'
           )}
         >
-          {displayValue !== null ? `${displayValue}${unit}` : 'N/A'}
+          {hasValue ? `${value.toFixed(2)}${unit}` : 'N/A'}
         </span>
       </div>
       <div className="relative">
@@ -52,11 +48,11 @@ export function RatioDisplay({
         <div
           className="absolute top-0 w-0.5 h-full bg-muted-foreground/50"
           style={{ left: `${(threshold / threshold) * 66.67}%` }}
-          title={`Threshold: ${displayThreshold}${unit}`}
+          title={`Threshold: ${threshold}${unit}`}
         />
       </div>
       <p className="text-xs text-muted-foreground">
-        Threshold: {displayThreshold}{unit}
+        Threshold: {threshold}{unit}
       </p>
     </div>
   );

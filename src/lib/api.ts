@@ -66,8 +66,8 @@ export async function screenPortfolio(
         available: !!record,
         classification: record?.final_classification || null,
         purificationPctRecommended: record?.est_purification_pct_recommended ?? null,
-        debtRatio: record?.debt_ratio_pct ? record.debt_ratio_pct / 100 : null,
-        cashInvRatio: record?.cash_inv_ratio_pct ? record.cash_inv_ratio_pct / 100 : null,
+        debtRatio: record?.debt_ratio_pct ?? null,
+        cashInvRatio: record?.cash_inv_ratio_pct ?? null,
         haramRevenuePercent: record?.haram_pct_point ?? null,
       },
     };

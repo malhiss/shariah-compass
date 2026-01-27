@@ -808,17 +808,17 @@ export default function PortfolioScreening() {
                     <RatioDisplay
                       label="Debt Ratio"
                       value={selectedHolding.invesense.debtRatio}
-                      threshold={0.33}
+                      threshold={33}
                     />
                     <RatioDisplay
                       label="Cash Ratio"
                       value={selectedHolding.invesense.cashInvRatio}
-                      threshold={0.33}
+                      threshold={33}
                     />
                     <RatioDisplay
                       label="Haram Revenue"
-                      value={selectedHolding.invesense.haramRevenuePercent ? selectedHolding.invesense.haramRevenuePercent / 100 : null}
-                      threshold={0.05}
+                      value={selectedHolding.invesense.haramRevenuePercent}
+                      threshold={5}
                     />
                   </div>
                 )}
