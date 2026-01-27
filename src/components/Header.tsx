@@ -109,6 +109,11 @@ export function Header() {
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
+          
+          {/* Logo next to hamburger */}
+          <Link to="/" className="flex items-center transition-opacity hover:opacity-80">
+            <img src={dalilLogo} alt="Dalil" className="h-48 lg:h-52 w-auto" />
+          </Link>
             <SheetContent side="left" className="w-72 p-0">
               <SheetHeader className="p-6 border-b border-border">
                 <SheetTitle className="flex items-center gap-3">
@@ -166,9 +171,6 @@ export function Header() {
             </SheetContent>
           </Sheet>
           
-          <Link to="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
-            <img src={dalilLogo} alt="Dalil" className="h-48 lg:h-52 w-auto" />
-          </Link>
           
           {/* Breadcrumb / Page Title - only show on protected routes */}
           {isProtectedRoute && currentPageTitle && (
