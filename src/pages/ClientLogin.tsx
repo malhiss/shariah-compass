@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { LogIn, Mail, Lock, ArrowLeft } from 'lucide-react';
-import invesenseLogo from '@/assets/invesense-logo.png';
+import dalilLogo from '@/assets/dalil-logo.png';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -116,7 +116,7 @@ export default function ClientLogin() {
       >
         <div className="text-center mb-8">
           <Link to="/" className="inline-block mb-6">
-            <img src={invesenseLogo} alt="Invesense" className="h-10 w-auto mx-auto" />
+            <img src={dalilLogo} alt="Dalil" className="h-10 w-auto mx-auto" />
           </Link>
           <h1 className="text-3xl font-serif font-bold text-foreground">Client Portal</h1>
           <p className="text-muted-foreground mt-2">Access your screening tools</p>

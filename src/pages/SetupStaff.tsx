@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 import { UserPlus, Shield, ArrowLeft, CheckCircle } from 'lucide-react';
-import invesenseLogo from '@/assets/invesense-logo.png';
+import dalilLogo from '@/assets/dalil-logo.png';
 import { z } from 'zod';
 
 const setupSchema = z.object({
@@ -134,7 +134,7 @@ export default function SetupStaff() {
       >
         <div className="text-center mb-8">
           <Link to="/" className="inline-block mb-6">
-            <img src={invesenseLogo} alt="Invesense" className="h-10 w-auto mx-auto" />
+            <img src={dalilLogo} alt="Dalil" className="h-10 w-auto mx-auto" />
           </Link>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-warning/30 bg-warning/5 text-warning text-sm mb-4">
             <Shield className="w-4 h-4" />

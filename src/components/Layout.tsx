@@ -3,7 +3,7 @@ import { Header } from './Header';
 import { PageTransition } from './PageTransition';
 import { ScrollToTop } from './ScrollToTop';
 import { AnimatePresence } from 'framer-motion';
-import invesenseLogo from '@/assets/invesense-logo.png';
+import dalilLogo from '@/assets/dalil-logo.png';
 
 const footerLinks = {
   screening: [
@@ -36,7 +36,7 @@ export function Layout() {
             {/* Brand */}
             <div className="col-span-1 md:col-span-2">
               <Link to="/" className="inline-block mb-6">
-                <img src={invesenseLogo} alt="Invesense" className="h-8 lg:h-10 w-auto" />
+                <img src={dalilLogo} alt="Dalil" className="h-8 lg:h-10 w-auto" />
               </Link>
               <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
                 Shariah-compliant investment screening powered by Invesense methodology. Make informed investment decisions aligned with Islamic principles.
