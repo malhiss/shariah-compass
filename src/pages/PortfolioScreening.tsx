@@ -550,7 +550,7 @@ export default function PortfolioScreening() {
                 if (rawPurificationData.length === 0) return null;
                 
                 // Group amounts under 1000 into "Others"
-                const THRESHOLD = 1000;
+                const THRESHOLD = 2000;
                 const mainItems = rawPurificationData.filter(d => d.value >= THRESHOLD);
                 const smallItems = rawPurificationData.filter(d => d.value < THRESHOLD);
                 const othersTotal = smallItems.reduce((sum, d) => sum + d.value, 0);
