@@ -112,7 +112,7 @@ export function Header() {
             <SheetContent side="left" className="w-72 p-0">
               <SheetHeader className="p-6 border-b border-border">
                 <SheetTitle className="flex items-center gap-3">
-                  <img src={dalilLogo} alt="Dalil" className="h-[75px] w-auto" />
+                  <img src={dalilLogo} alt="Dalil" className="h-[94px] w-auto" />
                 </SheetTitle>
               </SheetHeader>
               <nav className="p-4">
@@ -168,7 +168,7 @@ export function Header() {
           
           {/* Logo next to hamburger */}
           <Link to="/" className="flex items-center transition-opacity hover:opacity-80 shrink-0">
-            <img src={dalilLogo} alt="Dalil" className="h-[150px] lg:h-[180px] w-auto" />
+            <img src={dalilLogo} alt="Dalil" className="h-[188px] lg:h-[225px] w-auto" />
           </Link>
           
           {/* Breadcrumb / Page Title - only show on protected routes */}
