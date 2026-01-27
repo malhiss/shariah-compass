@@ -254,15 +254,19 @@ export default function PortfolioScreening() {
       return;
     }
 
-    // Scroll to top of page
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    const mainElement = document.querySelector('main');
-    if (mainElement) {
-      mainElement.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
     setLoading(true);
     setResult(null);
+
+    // Scroll to top of page after state updates
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      const mainElement = document.querySelector('main');
+      if (mainElement) {
+        mainElement.scrollTo({ top: 0, behavior: 'instant' });
+      }
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 0);
 
     try {
       const data = await screenPortfolio(validHoldings);
