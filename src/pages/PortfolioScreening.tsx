@@ -316,19 +316,18 @@ export default function PortfolioScreening() {
       return;
     }
 
-    setLoading(true);
-    setResult(null);
+    // First scroll to top immediately
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    const mainElement = document.querySelector('main');
+    if (mainElement) {
+      mainElement.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
 
-    // Scroll to top of page after state updates
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'instant' });
-      const mainElement = document.querySelector('main');
-      if (mainElement) {
-        mainElement.scrollTo({ top: 0, behavior: 'instant' });
-      }
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    }, 0);
+    // Then set loading state and clear results
+    setResult(null);
+    setLoading(true);
 
     try {
       const data = await screenPortfolio(validHoldings);
