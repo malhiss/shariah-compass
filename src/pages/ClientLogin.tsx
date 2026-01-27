@@ -116,7 +116,7 @@ export default function ClientLogin() {
       >
         <div className="text-center mb-8">
           <Link to="/" className="inline-block mb-6">
-            <img src={dalilLogo} alt="Dalil" className="h-14 w-auto mx-auto" />
+            <img src={dalilLogo} alt="Dalil" className="h-[101px] w-auto mx-auto" />
           </Link>
           <h1 className="text-3xl font-serif font-bold text-foreground">Client Portal</h1>
           <p className="text-muted-foreground mt-2">Access your screening tools</p>
