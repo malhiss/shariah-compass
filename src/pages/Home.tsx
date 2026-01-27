@@ -127,7 +127,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              Screen stocks against Invesense Shariah screening methodology with detailed analysis, 
+              Screen stocks against Dalil Shariah screening methodology with detailed analysis, 
               AI-powered insights, purification calculation, and Zakat calculation.
             </motion.p>
             
@@ -140,7 +140,7 @@ export default function Home() {
             >
               <Button 
                 size="lg" 
-                className="btn-invesense text-base md:text-lg h-14 px-8 group"
+                className="btn-dalil text-base md:text-lg h-14 px-8 group"
                 asChild
               >
                 <Link to="/client-login">

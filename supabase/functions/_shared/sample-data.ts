@@ -243,7 +243,7 @@ export function parseCSV(csvData: string): ScreeningRecord[] {
       debt_conventional_usd_mn: parseNumber(get('debt_conventional_usd_mn')),
       
       // Methodology - always use constant
-      methodology_name: 'Invesense Methodology',
+      methodology_name: 'Dalil Methodology',
       screening_date: parseString(get('screening_date')) || (get('screening_run_at')?.slice(0, 10)) || null,
       screening_run_at: parseString(get('screening_run_at')),
       

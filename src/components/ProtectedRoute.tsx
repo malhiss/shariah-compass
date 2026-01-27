@@ -34,7 +34,7 @@ export function ProtectedRoute({ children, requireRole = 'any' }: ProtectedRoute
               Please contact support to activate your account.
             </p>
             <a 
-              href="mailto:support@invesense.com" 
+              href="mailto:support@dalil.com" 
               className="text-primary hover:underline"
             >
               Contact Support

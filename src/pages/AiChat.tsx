@@ -117,7 +117,7 @@ export default function AiChat() {
                       disabled={loadingTicker}
                     />
                   </div>
-                  <Button type="submit" disabled={loadingTicker || !tickerInput.trim()} className="btn-invesense">
+                  <Button type="submit" disabled={loadingTicker || !tickerInput.trim()} className="btn-dalil">
                     {loadingTicker ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Load'}
                   </Button>
                 </form>
@@ -240,7 +240,7 @@ export default function AiChat() {
                     disabled={loading}
                     className="flex-1"
                   />
-                  <Button type="submit" disabled={loading || !input.trim()} className="btn-invesense">
+                  <Button type="submit" disabled={loading || !input.trim()} className="btn-dalil">
                     <Send className="w-4 h-4" />
                   </Button>
                 </form>

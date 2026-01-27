@@ -78,7 +78,7 @@ export default function TickerScreening() {
                   disabled={loading}
                 />
               </div>
-              <Button type="submit" size="lg" disabled={loading || !ticker.trim()} className="btn-invesense h-12 sm:h-14 px-6 sm:px-8 group">
+              <Button type="submit" size="lg" disabled={loading || !ticker.trim()} className="btn-dalil h-12 sm:h-14 px-6 sm:px-8 group">
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
@@ -133,9 +133,9 @@ export default function TickerScreening() {
                   </CardHeader>
                 </Card>
 
-                {/* Invesense Methodology */}
+                {/* Dalil Methodology */}
                 <MethodologyCard
-                  title="Invesense Methodology"
+                  title="Dalil Methodology"
                   description="Comprehensive Shariah screening with qualitative and quantitative analysis"
                   status={getStatusColor(result.invesense.classification, null, result.invesense.available)}
                   statusLabel={getStatusLabel(result.invesense.classification, null, result.invesense.available)}

@@ -75,7 +75,7 @@ function SummaryCard({ summary, holdings }: { summary: MethodologySummary; holdi
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base font-medium">Invesense Methodology</CardTitle>
+        <CardTitle className="text-base font-medium">Dalil Methodology</CardTitle>
       </CardHeader>
       <CardContent>
         <TooltipProvider>
@@ -482,7 +482,7 @@ export default function PortfolioScreening() {
                 </div>
 
                 <div className="mt-6 flex justify-end">
-                  <Button onClick={handleSubmit} disabled={loading} className="btn-invesense group">
+                  <Button onClick={handleSubmit} disabled={loading} className="btn-dalil group">
                     {loading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />

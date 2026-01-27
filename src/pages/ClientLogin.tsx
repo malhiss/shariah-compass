@@ -126,7 +126,7 @@ export default function ClientLogin() {
           <CardHeader className="text-center">
             <CardTitle className="text-xl font-serif">Welcome Back</CardTitle>
             <CardDescription>
-              Sign in with the credentials provided by Invesense
+              Sign in with the credentials provided by Dalil
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -167,7 +167,7 @@ export default function ClientLogin() {
                 )}
               </div>
               
-              <Button type="submit" className="w-full btn-invesense" disabled={isLoading}>
+              <Button type="submit" className="w-full btn-dalil" disabled={isLoading}>
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
                 ) : (
@@ -190,8 +190,8 @@ export default function ClientLogin() {
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Don't have credentials?{' '}
-          <a href="mailto:support@invesense.com" className="text-primary hover:underline">
-            Contact Invesense
+          <a href="mailto:support@dalil.com" className="text-primary hover:underline">
+            Contact Dalil
           </a>
         </p>
 

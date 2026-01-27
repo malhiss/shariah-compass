@@ -39,7 +39,7 @@ export function Layout() {
                 <img src={dalilLogo} alt="Dalil" className="h-52 lg:h-56 w-auto" />
               </Link>
               <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
-                Shariah-compliant investment screening powered by Invesense methodology. Make informed investment decisions aligned with Islamic principles.
+                Shariah-compliant investment screening powered by Dalil methodology. Make informed investment decisions aligned with Islamic principles.
               </p>
             </div>
             
@@ -65,7 +65,7 @@ export function Layout() {
           <div className="mt-12 pt-8 border-t border-border">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-sm text-muted-foreground">
-                © {new Date().getFullYear()} Invesense. All rights reserved.
+                © {new Date().getFullYear()} Dalil. All rights reserved.
               </p>
               <p className="text-sm text-muted-foreground text-center md:text-right">
                 For informational purposes only. Consult a qualified scholar for definitive rulings.
