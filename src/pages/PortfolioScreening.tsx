@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -115,18 +115,37 @@ function SummaryCard({ summary, holdings }: { summary: MethodologySummary; holdi
   );
 }
 
+const PORTFOLIO_SESSION_KEY = 'portfolio_screening_result';
+
 export default function PortfolioScreening() {
   const [holdings, setHoldings] = useState<PortfolioHolding[]>([
     { ticker: '', quantity: 0, price: 0 },
   ]);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<PortfolioScreeningResponse | null>(null);
+  const [result, setResult] = useState<PortfolioScreeningResponse | null>(() => {
+    // Load from sessionStorage on mount
+    try {
+      const saved = sessionStorage.getItem(PORTFOLIO_SESSION_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
   const [selectedHolding, setSelectedHolding] = useState<PortfolioHoldingResult | null>(null);
   const [sortType, setSortType] = useState<SortType>('purification');
   const [editingHolding, setEditingHolding] = useState<{ index: number; ticker: string; quantity: number; price: number } | null>(null);
   const [holdingToDelete, setHoldingToDelete] = useState<PortfolioHoldingResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Persist result to sessionStorage whenever it changes
+  useEffect(() => {
+    if (result) {
+      sessionStorage.setItem(PORTFOLIO_SESSION_KEY, JSON.stringify(result));
+    } else {
+      sessionStorage.removeItem(PORTFOLIO_SESSION_KEY);
+    }
+  }, [result]);
 
   const handleEditHolding = (holding: PortfolioHoldingResult, index: number, e: React.MouseEvent) => {
     e.stopPropagation();
