@@ -36,7 +36,7 @@ export function Layout() {
             {/* Brand */}
             <div className="col-span-1 md:col-span-2">
               <Link to="/" className="inline-block mb-6">
-                <img src={dalilLogo} alt="Dalil" className="h-[4.5rem] lg:h-20 w-auto" />
+                <img src={dalilLogo} alt="Dalil" className="h-[6.75rem] lg:h-[7.5rem] w-auto" />
               </Link>
               <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
                 Shariah-compliant investment screening powered by Invesense methodology. Make informed investment decisions aligned with Islamic principles.
