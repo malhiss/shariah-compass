@@ -134,7 +134,7 @@ export default function SetupStaff() {
       >
         <div className="text-center mb-8">
           <Link to="/" className="inline-block mb-6">
-            <img src={dalilLogo} alt="Dalil" className="h-16 w-auto mx-auto" />
+            <img src={dalilLogo} alt="Dalil" className="h-20 w-auto mx-auto" />
           </Link>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-warning/30 bg-warning/5 text-warning text-sm mb-4">
             <Shield className="w-4 h-4" />
