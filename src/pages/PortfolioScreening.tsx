@@ -539,9 +539,10 @@ export default function PortfolioScreening() {
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-semibold">Portfolio Summary</h2>
                   <div className="flex items-center gap-4">
-                    <p className="text-sm text-muted-foreground">
-                      Total: <span className="font-semibold text-foreground">${result.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                    </p>
+                    <div className="text-right">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Portfolio Value</p>
+                      <p className="text-2xl font-bold text-foreground">${result.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                    </div>
                     <Button variant="outline" size="sm" onClick={handleReset}>
                       <RotateCcw className="w-4 h-4 mr-2" />
                       New Screening
