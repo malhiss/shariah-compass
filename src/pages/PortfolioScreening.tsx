@@ -622,7 +622,7 @@ export default function PortfolioScreening() {
                           
                           {/* Legend */}
                           <div className="flex-1 grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-2">
-                            {purificationData.slice(0, 8).map((item, index) => (
+                            {purificationData.map((item, index) => (
                               <div key={item.name} className="flex items-center gap-2 min-w-0">
                                 <div 
                                   className="w-3 h-3 rounded-full flex-shrink-0" 
@@ -636,11 +636,6 @@ export default function PortfolioScreening() {
                                 </span>
                               </div>
                             ))}
-                            {purificationData.length > 8 && (
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                +{purificationData.length - 8} more
-                              </div>
-                            )}
                           </div>
                         </div>
                       </div>
