@@ -112,7 +112,7 @@ export function Header() {
             <SheetContent side="left" className="w-72 p-0">
               <SheetHeader className="p-6 border-b border-border">
                 <SheetTitle className="flex items-center gap-3">
-                  <img src={dalilLogo} alt="Dalil" className="h-36 w-auto" />
+                  <img src={dalilLogo} alt="Dalil" className="h-48 w-auto" />
                 </SheetTitle>
               </SheetHeader>
               <nav className="p-4">
@@ -167,7 +167,7 @@ export function Header() {
           </Sheet>
           
           <Link to="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
-            <img src={dalilLogo} alt="Dalil" className="h-36 lg:h-40 w-auto" />
+            <img src={dalilLogo} alt="Dalil" className="h-48 lg:h-52 w-auto" />
           </Link>
           
           {/* Breadcrumb / Page Title - only show on protected routes */}
