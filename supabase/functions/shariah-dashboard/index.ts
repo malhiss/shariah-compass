@@ -48,8 +48,7 @@ serve(async (req: Request) => {
     });
   } catch (error: unknown) {
     console.error("Shariah dashboard error:", error);
-    const message = error instanceof Error ? error.message : "Internal server error";
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify({ error: "Unable to process request. Please try again." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
