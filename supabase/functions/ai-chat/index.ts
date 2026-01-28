@@ -10,6 +10,42 @@ const corsHeaders = {
 // Use Lovable AI Gateway 
 const AI_GATEWAY_URL = 'https://ai.gateway.lovable.dev/v1/chat/completions';
 
+// Input validation
+const TICKER_REGEX = /^[A-Z0-9.]{1,20}$/;
+const MAX_MESSAGE_LENGTH = 4000;
+const MAX_MESSAGES = 50;
+
+function validateTicker(ticker: string): boolean {
+  if (typeof ticker !== 'string') return false;
+  const normalized = ticker.trim().toUpperCase();
+  return normalized.length >= 1 && normalized.length <= 20 && TICKER_REGEX.test(normalized);
+}
+
+interface ChatMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
+
+function validateMessages(messages: unknown): messages is ChatMessage[] {
+  if (!Array.isArray(messages)) return false;
+  if (messages.length === 0 || messages.length > MAX_MESSAGES) return false;
+  
+  return messages.every(msg => {
+    if (typeof msg !== 'object' || msg === null) return false;
+    const m = msg as Record<string, unknown>;
+    if (typeof m.role !== 'string' || !['user', 'assistant', 'system'].includes(m.role)) return false;
+    if (typeof m.content !== 'string' || m.content.length === 0 || m.content.length > MAX_MESSAGE_LENGTH) return false;
+    return true;
+  });
+}
+
+function sanitizeMessages(messages: ChatMessage[]): ChatMessage[] {
+  return messages.map(msg => ({
+    role: msg.role,
+    content: msg.content.substring(0, MAX_MESSAGE_LENGTH),
+  }));
+}
+
 // Helper to verify authenticated user
 async function verifyAuth(req: Request): Promise<{ userId: string; email: string | null } | null> {
   const authHeader = req.headers.get("Authorization");
@@ -37,29 +73,43 @@ serve(async (req) => {
     const authUser = await verifyAuth(req);
     if (!authUser) {
       return new Response(
-        JSON.stringify({ error: 'Unauthorized - Authentication required' }),
+        JSON.stringify({ error: 'Authentication required' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const { ticker, messages } = await req.json();
-    
-    if (!ticker || typeof ticker !== 'string') {
+    let body;
+    try {
+      body = await req.json();
+    } catch {
       return new Response(
-        JSON.stringify({ error: 'Ticker is required' }),
+        JSON.stringify({ error: 'Invalid request body' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    if (!messages || !Array.isArray(messages)) {
+    const { ticker, messages } = body;
+    
+    // Validate ticker
+    if (!ticker || !validateTicker(ticker)) {
       return new Response(
-        JSON.stringify({ error: 'Messages array is required' }),
+        JSON.stringify({ error: 'Invalid ticker format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate messages
+    if (!validateMessages(messages)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid messages format. Each message must have role and content (max 4000 chars). Maximum 50 messages allowed.' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const normalizedTicker = ticker.trim().toUpperCase();
-    console.log(`User: ${authUser.email}, AI Chat for ticker: ${normalizedTicker}`);
+    const sanitizedMessages = sanitizeMessages(messages);
+    
+    console.log(`AI Chat request for ticker: ${normalizedTicker}`);
 
     // Find the record in sample data (async now)
     const record = await findByTicker(normalizedTicker);
@@ -135,7 +185,11 @@ Guidelines for your responses:
     // Call AI Gateway
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
     if (!lovableApiKey) {
-      throw new Error('Lovable API key not configured');
+      console.error('Lovable API key not configured');
+      return new Response(
+        JSON.stringify({ error: 'AI service not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const aiResponse = await fetch(AI_GATEWAY_URL, {
@@ -148,16 +202,18 @@ Guidelines for your responses:
         model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: screeningContext },
-          ...messages,
+          ...sanitizedMessages,
         ],
         max_tokens: 1000,
       }),
     });
 
     if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error('AI Gateway error:', errorText);
-      throw new Error('Failed to get AI response');
+      console.error('AI Gateway error:', await aiResponse.text());
+      return new Response(
+        JSON.stringify({ error: 'AI service temporarily unavailable' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const aiData = await aiResponse.json();
@@ -176,10 +232,9 @@ Guidelines for your responses:
     );
 
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('AI Chat error:', error);
     return new Response(
-      JSON.stringify({ error: message }),
+      JSON.stringify({ error: 'Failed to process chat request. Please try again.' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
