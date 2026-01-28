@@ -23,6 +23,28 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Input validation
+const TICKER_REGEX = /^[A-Z0-9.]{1,20}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const VALID_METHODOLOGIES = ['invesense', 'aaoifi', 'custom'];
+
+function validateTicker(ticker: string): boolean {
+  if (typeof ticker !== 'string') return false;
+  const normalized = ticker.trim().toUpperCase();
+  return normalized.length >= 1 && normalized.length <= 20 && TICKER_REGEX.test(normalized);
+}
+
+function validateEmail(email: string): boolean {
+  return typeof email === 'string' && 
+         email.length <= 254 && 
+         EMAIL_REGEX.test(email.trim());
+}
+
+function sanitizeString(str: string, maxLength: number): string {
+  if (typeof str !== 'string') return '';
+  return str.trim().substring(0, maxLength);
+}
+
 // Helper to verify authenticated user
 async function verifyAuth(req: Request): Promise<{ userId: string; email: string | null } | null> {
   const authHeader = req.headers.get("Authorization");
@@ -51,26 +73,54 @@ serve(async (req) => {
     const authUser = await verifyAuth(req);
     if (!authUser) {
       return new Response(
-        JSON.stringify({ error: 'Unauthorized - Authentication required' }),
+        JSON.stringify({ error: 'Authentication required' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const { ticker, exchange, isin, email, methodology, useCase } = await req.json();
-    
-    if (!ticker || typeof ticker !== 'string') {
+    let body;
+    try {
+      body = await req.json();
+    } catch {
       return new Response(
-        JSON.stringify({ error: 'Ticker is required' }),
+        JSON.stringify({ error: 'Invalid request body' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    const { ticker, exchange, isin, email, methodology, useCase } = body;
+    
+    // Validate ticker
+    if (!ticker || !validateTicker(ticker)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid ticker format. Must be 1-20 alphanumeric characters.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate email if provided
+    if (email && !validateEmail(email)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid email format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate methodology if provided
+    const safeMethodology = methodology && typeof methodology === 'string' 
+      ? (VALID_METHODOLOGIES.includes(methodology.toLowerCase()) ? methodology.toLowerCase() : 'invesense')
+      : 'invesense';
+
     const normalizedTicker = ticker.trim().toUpperCase();
-    console.log(`User: ${authUser.email}, Submitting screening request for: ${normalizedTicker}`);
+    console.log(`User authenticated, submitting screening request for: ${normalizedTicker}`);
 
     const mongoUri = Deno.env.get('MONGODB_URI');
     if (!mongoUri) {
-      throw new Error('MongoDB URI not configured');
+      console.error('MongoDB URI not configured');
+      return new Response(
+        JSON.stringify({ error: 'Service configuration error' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const client = new MongoClient();
@@ -96,14 +146,14 @@ serve(async (req) => {
       );
     }
 
-    // Insert new request
+    // Insert new request with sanitized inputs
     const newRequest = {
       Ticker: normalizedTicker,
-      exchange: exchange || null,
-      isin: isin || null,
-      email: email || authUser.email,
-      methodology: methodology || 'invesense',
-      useCase: useCase || null,
+      exchange: exchange ? sanitizeString(exchange, 50) : null,
+      isin: isin ? sanitizeString(isin, 20) : null,
+      email: email ? email.trim().toLowerCase().substring(0, 254) : authUser.email,
+      methodology: safeMethodology,
+      useCase: useCase ? sanitizeString(useCase, 500) : null,
       status: 'PENDING',
       submitted_by: authUser.userId,
       created_at: new Date(),
@@ -113,7 +163,7 @@ serve(async (req) => {
     const result = await db.collection('screening_requests').insertOne(newRequest);
     await client.close();
 
-    console.log(`Screening request created: ${result.toString()}`);
+    console.log(`Screening request created successfully`);
 
     return new Response(
       JSON.stringify({
@@ -125,10 +175,9 @@ serve(async (req) => {
     );
 
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('Screening request error:', error);
     return new Response(
-      JSON.stringify({ error: message }),
+      JSON.stringify({ error: 'Failed to submit screening request. Please try again.' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
