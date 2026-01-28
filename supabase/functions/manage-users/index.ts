@@ -59,7 +59,7 @@ function sanitizeName(name: string): string {
 
 // Helper function to log activity
 async function logActivity(
-  supabaseAdmin: ReturnType<typeof createClient>,
+  supabaseAdmin: any,
   userId: string | null,
   userEmail: string | null,
   activityType: string,
@@ -550,7 +550,7 @@ serve(async (req) => {
         await logActivity(
           supabaseAdmin,
           targetUserId && validateUUID(targetUserId) ? targetUserId : currentUser.id,
-          typeof targetUserEmail === 'string' ? targetUserEmail.substring(0, 254) : currentUser.email,
+          typeof targetUserEmail === 'string' ? targetUserEmail.substring(0, 254) : (currentUser.email || null),
           activityType,
           description.substring(0, 500),
           metadata && typeof metadata === 'object' ? metadata : {},
