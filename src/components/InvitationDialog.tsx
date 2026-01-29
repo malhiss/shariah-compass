@@ -89,8 +89,8 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
       setUserName(data.fullName.split(' ')[0]);
       setIsSuccess(true);
       
-      // User is auto-confirmed and logged in - no email verification needed
-      toast.success('Account created successfully!');
+      // Magic link email will be sent for verification
+      toast.success('Check your email for the magic link!');
     } catch (err) {
       toast.error('An unexpected error occurred. Please try again.');
     } finally {
@@ -133,14 +133,13 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
               >
                 <CheckCircle className="w-8 h-8 text-compliant" />
               </motion.div>
-              <h3 className="text-xl font-semibold mb-2">Welcome, {userName}!</h3>
+              <h3 className="text-xl font-semibold mb-2">Check Your Email, {userName}!</h3>
               <p className="text-muted-foreground mb-6">
-                Your account has been created successfully. 
-                You now have full access to the Dalil screening platform.
+                We've sent a magic link to your email address. 
+                Click the link to verify your account and access the dashboard.
               </p>
-              <Button onClick={handleGoToDashboard} className="btn-dalil group">
-                Go to Dashboard
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              <Button onClick={handleClose} className="btn-dalil">
+                Got it!
               </Button>
             </motion.div>
           ) : (
@@ -235,7 +234,7 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground">
-                  Your account will be activated immediately.
+                  You'll receive a magic link to verify your email.
                 </p>
               </form>
             </motion.div>
