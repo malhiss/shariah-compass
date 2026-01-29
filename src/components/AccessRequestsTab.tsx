@@ -5,13 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { AnimatedSection, StaggerContainer, StaggerItem } from '@/components/AnimatedSection';
 import { 
   UserPlus, Clock, CheckCircle, XCircle, Search, Building2, 
-  Mail, User, RefreshCw, Eye, EyeOff, Copy, Key 
+  Mail, User, RefreshCw, Loader2, Send
 } from 'lucide-react';
 
 interface AccessRequest {
@@ -31,22 +30,11 @@ export default function AccessRequestsTab() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
   const [selectedRequest, setSelectedRequest] = useState<AccessRequest | null>(null);
-  const [isCreateAccountDialogOpen, setIsCreateAccountDialogOpen] = useState(false);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [generatedCredentials, setGeneratedCredentials] = useState<{ email: string; password: string } | null>(null);
-  const [password, setPassword] = useState('');
+  const [approvalResult, setApprovalResult] = useState<{ success: boolean; emailSent: boolean } | null>(null);
   
   const { toast } = useToast();
-
-  const generatePassword = () => {
-    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%';
-    let pwd = '';
-    for (let i = 0; i < 12; i++) {
-      pwd += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return pwd;
-  };
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -73,28 +61,18 @@ export default function AccessRequestsTab() {
     fetchRequests();
   }, []);
 
-  const handleApproveAndCreateAccount = async () => {
-    if (!selectedRequest || !password) return;
-
-    if (password.length < 8) {
-      toast({
-        title: 'Invalid password',
-        description: 'Password must be at least 8 characters.',
-        variant: 'destructive',
-      });
-      return;
-    }
+  const handleApprove = async () => {
+    if (!selectedRequest) return;
 
     setIsSubmitting(true);
     try {
-      // Create user account
       const response = await supabase.functions.invoke('manage-users', {
         body: {
-          action: 'create_user',
+          action: 'approve_access_request',
           email: selectedRequest.email,
-          password: password,
           fullName: selectedRequest.full_name,
-          role: 'client',
+          company: selectedRequest.company,
+          requestId: selectedRequest.id,
         },
       });
 
@@ -102,31 +80,26 @@ export default function AccessRequestsTab() {
         throw new Error(response.error?.message || response.data?.error);
       }
 
-      // Update request status
-      const { error: updateError } = await supabase
-        .from('access_requests')
-        .update({
-          status: 'approved',
-          reviewed_at: new Date().toISOString(),
-        })
-        .eq('id', selectedRequest.id);
-
-      if (updateError) throw updateError;
-
-      setGeneratedCredentials({ email: selectedRequest.email, password });
+      setApprovalResult({
+        success: true,
+        emailSent: response.data?.emailSent ?? false,
+      });
 
       toast({
-        title: 'Account created',
-        description: `Account for ${selectedRequest.full_name} has been created.`,
+        title: 'Access approved',
+        description: response.data?.emailSent 
+          ? `${selectedRequest.full_name} will receive an email with a magic link to set up their password.`
+          : `Account created for ${selectedRequest.full_name}. Email notification could not be sent.`,
       });
 
       fetchRequests();
     } catch (error: any) {
       toast({
-        title: 'Error creating account',
+        title: 'Error approving request',
         description: error.message,
         variant: 'destructive',
       });
+      setApprovalResult(null);
     } finally {
       setIsSubmitting(false);
     }
@@ -163,29 +136,16 @@ export default function AccessRequestsTab() {
     }
   };
 
-  const copyCredentials = () => {
-    if (generatedCredentials) {
-      const text = `Email: ${generatedCredentials.email}\nPassword: ${generatedCredentials.password}`;
-      navigator.clipboard.writeText(text);
-      toast({
-        title: 'Copied to clipboard',
-        description: 'Credentials have been copied.',
-      });
-    }
-  };
-
   const closeDialog = () => {
-    setIsCreateAccountDialogOpen(false);
+    setIsConfirmDialogOpen(false);
     setSelectedRequest(null);
-    setPassword('');
-    setGeneratedCredentials(null);
-    setShowPassword(false);
+    setApprovalResult(null);
   };
 
   const openApproveDialog = (request: AccessRequest) => {
     setSelectedRequest(request);
-    setPassword(generatePassword());
-    setIsCreateAccountDialogOpen(true);
+    setApprovalResult(null);
+    setIsConfirmDialogOpen(true);
   };
 
   const filteredRequests = requests.filter(request => {
@@ -401,125 +361,97 @@ export default function AccessRequestsTab() {
         </Card>
       </AnimatedSection>
 
-      {/* Create Account Dialog */}
-      <Dialog open={isCreateAccountDialogOpen} onOpenChange={closeDialog}>
+      {/* Approval Confirmation Dialog */}
+      <Dialog open={isConfirmDialogOpen} onOpenChange={closeDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="font-serif text-xl">
-              {generatedCredentials ? 'Account Created' : 'Create Account'}
+              {approvalResult ? 'Access Approved!' : 'Approve Access Request'}
             </DialogTitle>
             <DialogDescription>
-              {generatedCredentials 
-                ? 'Copy these credentials to share with the user.' 
-                : `Create account for ${selectedRequest?.full_name}`}
+              {approvalResult 
+                ? 'The user has been notified via email.' 
+                : 'This will create an account and send a magic link email.'}
             </DialogDescription>
           </DialogHeader>
 
-          {generatedCredentials ? (
+          {approvalResult ? (
             <div className="space-y-4 py-4">
-              <div className="p-4 rounded-lg bg-compliant/10 border border-compliant/30">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Email:</span>
-                    <span className="font-mono text-sm">{generatedCredentials.email}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Password:</span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-sm">
-                        {showPassword ? generatedCredentials.password : '••••••••••••'}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+              <div className="p-4 rounded-lg bg-compliant/10 border border-compliant/30 text-center">
+                <CheckCircle className="w-12 h-12 text-compliant mx-auto mb-3" />
+                <p className="font-medium">Account created successfully!</p>
+                {approvalResult.emailSent ? (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    <Send className="w-4 h-4 inline mr-1" />
+                    An email with a magic link has been sent to {selectedRequest?.email}
+                  </p>
+                ) : (
+                  <p className="text-sm text-warning mt-2">
+                    Email could not be sent. Please contact the user manually.
+                  </p>
+                )}
               </div>
-              <Button onClick={copyCredentials} className="w-full" variant="outline">
-                <Copy className="w-4 h-4 mr-2" />
-                Copy Credentials
-              </Button>
+              <DialogFooter>
+                <Button onClick={closeDialog} className="w-full btn-dalil">
+                  Done
+                </Button>
+              </DialogFooter>
             </div>
           ) : (
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4 p-4 rounded-lg bg-muted/50">
-                <div>
-                  <p className="text-xs text-muted-foreground">Name</p>
-                  <p className="font-medium">{selectedRequest?.full_name}</p>
+              {selectedRequest && (
+                <div className="p-4 rounded-lg bg-muted/50 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium">{selectedRequest.full_name}</p>
+                      <p className="text-sm text-muted-foreground">{selectedRequest.company}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Mail className="w-4 h-4" />
+                    {selectedRequest.email}
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Company</p>
-                  <p className="font-medium">{selectedRequest?.company}</p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-xs text-muted-foreground">Email</p>
-                  <p className="font-medium">{selectedRequest?.email}</p>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 text-xs"
-                    onClick={() => setPassword(generatePassword())}
-                  >
-                    Regenerate
-                  </Button>
-                </div>
-                <div className="relative">
-                  <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Minimum 8 characters"
-                    className="pl-10 pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
+              )}
 
-          <DialogFooter>
-            {generatedCredentials ? (
-              <Button onClick={closeDialog} className="btn-dalil">
-                Done
-              </Button>
-            ) : (
-              <>
-                <Button variant="outline" onClick={closeDialog}>
+              <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+                <p className="text-sm">
+                  <strong>What happens next:</strong>
+                </p>
+                <ul className="text-sm text-muted-foreground mt-2 space-y-1">
+                  <li>• A client account will be created</li>
+                  <li>• The user will receive an email with a magic link</li>
+                  <li>• They can click the link to set up their password</li>
+                </ul>
+              </div>
+
+              <DialogFooter className="flex gap-2 sm:gap-2">
+                <Button variant="outline" onClick={closeDialog} disabled={isSubmitting}>
                   Cancel
                 </Button>
-                <Button onClick={handleApproveAndCreateAccount} disabled={isSubmitting} className="btn-dalil">
+                <Button 
+                  onClick={handleApprove} 
+                  disabled={isSubmitting}
+                  className="btn-dalil"
+                >
                   {isSubmitting ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Approving...
+                    </>
                   ) : (
-                    'Create Account'
+                    <>
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Approve & Send Email
+                    </>
                   )}
                 </Button>
-              </>
-            )}
-          </DialogFooter>
+              </DialogFooter>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
