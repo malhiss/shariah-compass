@@ -212,10 +212,13 @@ serve(async (req) => {
           );
         }
 
-        // Assign role
+        // Assign role (use upsert to handle case where trigger already created a role)
         const { error: roleAssignError } = await supabaseAdmin
           .from("user_roles")
-          .insert({ user_id: newUser.user.id, role });
+          .upsert(
+            { user_id: newUser.user.id, role },
+            { onConflict: 'user_id,role', ignoreDuplicates: true }
+          );
 
         if (roleAssignError) {
           console.error("Error assigning role:", roleAssignError);
