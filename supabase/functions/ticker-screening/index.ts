@@ -30,8 +30,8 @@ async function logActivity(
       ip_address: req?.headers.get("x-forwarded-for") || req?.headers.get("x-real-ip") || null,
       user_agent: req?.headers.get("user-agent") || null,
     });
-  } catch (err) {
-    console.error("Failed to log activity:", err);
+  } catch {
+    // Error handling - logging removed for production security
   }
 }
 
@@ -181,7 +181,6 @@ serve(async (req) => {
     }
 
     const normalizedTicker = ticker.trim().toUpperCase();
-    console.log(`ticker-screening invoked. user=${authUser.email} ticker=${normalizedTicker}`);
 
     // Async call now
     const record = await findByTicker(normalizedTicker);
@@ -201,8 +200,7 @@ serve(async (req) => {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (err: any) {
-    console.error("Ticker screening error:", err);
+  } catch {
     return new Response(JSON.stringify({ error: "Unable to process screening request. Please try again." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

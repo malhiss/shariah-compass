@@ -355,11 +355,10 @@ export default function PortfolioScreening() {
     try {
       const data = await screenPortfolio(validHoldings);
       setResult(data);
-    } catch (error) {
-      console.error('Portfolio screening error:', error);
+    } catch {
       toast({
         title: 'Screening Failed',
-        description: error instanceof Error ? error.message : 'Failed to screen portfolio',
+        description: 'Failed to screen portfolio. Please try again.',
         variant: 'destructive',
       });
     } finally {

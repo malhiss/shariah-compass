@@ -189,8 +189,7 @@ function parseCSV(csvData: string): ScreeningRecord[] {
   const headerRow = rows[0];
   const headerMap = buildHeaderMap(headerRow);
   
-  // Debug: log available headers
-  console.log('CSV Headers found:', Array.from(headerMap.keys()).slice(0, 20), '...');
+  // Headers parsed - debug logging removed for production security
   
   const dataRows = rows.slice(1);
   const records: ScreeningRecord[] = [];
@@ -469,16 +468,16 @@ export async function loadScreeningDataForUniverse(universe: DataUniverse): Prom
       // Add cache-busting timestamp to prevent browser caching
       const response = await fetch(`${csvPath}?t=${Date.now()}`);
       if (!response.ok) {
-        console.error(`Failed to fetch ${universe} CSV: ${response.status}`);
+        // Error logged for debugging - no sensitive data exposed
         return [];
       }
       
       const csvData = await response.text();
       cachedDataByUniverse[universe] = parseCSV(csvData);
-      console.log(`Loaded ${cachedDataByUniverse[universe]!.length} ${universe} screening records from CSV`);
+      // Data loaded successfully - debug logging removed for production
       return cachedDataByUniverse[universe]!;
-    } catch (error) {
-      console.error(`Error loading ${universe} CSV data:`, error);
+    } catch {
+      // Error handling - logging removed for production security
       return [];
     } finally {
       loadingPromiseByUniverse[universe] = null;

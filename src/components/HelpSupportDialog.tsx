@@ -56,13 +56,8 @@ export function HelpSupportDialog({ trigger }: HelpSupportDialogProps) {
 
     setIsSubmitting(true);
     
-    // For now, just log and show success - email sending will be added later
-    console.log('Support request:', {
-      category,
-      subject,
-      message,
-      userEmail: user?.email,
-    });
+    // Support request will be processed - email integration pending
+    // Note: Removed console.log to prevent data leakage in production
 
     // Simulate a brief delay
     await new Promise(resolve => setTimeout(resolve, 500));

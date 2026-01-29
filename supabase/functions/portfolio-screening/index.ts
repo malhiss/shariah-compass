@@ -36,8 +36,8 @@ async function logActivity(
       ip_address: req?.headers.get("x-forwarded-for") || req?.headers.get("x-real-ip") || null,
       user_agent: req?.headers.get("user-agent") || null,
     });
-  } catch (error) {
-    console.error("Failed to log activity:", error);
+  } catch {
+    // Error handling - logging removed for production security
   }
 }
 
@@ -82,7 +82,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`User: ${authUser.email}, Screening portfolio with ${holdings.length} holdings`);
+    // Processing portfolio screening
 
     // Get all unique tickers
     const tickers = holdings.map((h: Holding) => h.ticker.trim().toUpperCase());
@@ -188,7 +188,7 @@ serve(async (req) => {
       totalValue,
     };
 
-    console.log(`Portfolio screening complete. Total value: ${totalValue}`);
+    // Portfolio screening completed
 
     // Log the screening activity
     await logActivity(
@@ -209,8 +209,7 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
-  } catch (error: unknown) {
-    console.error('Portfolio screening error:', error);
+  } catch {
     return new Response(
       JSON.stringify({ error: 'Unable to process portfolio screening. Please try again.' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

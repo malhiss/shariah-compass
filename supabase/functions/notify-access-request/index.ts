@@ -24,7 +24,6 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   if (!RESEND_API_KEY) {
-    console.error("RESEND_API_KEY is not configured");
     return new Response(
       JSON.stringify({ error: "Email service not configured" }),
       { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -77,18 +76,14 @@ const handler = async (req: Request): Promise<Response> => {
     const data = await emailResponse.json();
 
     if (!emailResponse.ok) {
-      console.error("Resend API error:", data);
       throw new Error(data.message || "Failed to send notification email");
     }
-
-    console.log("Access request notification sent:", data);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: unknown) {
-    console.error("Error in notify-access-request function:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return new Response(
       JSON.stringify({ error: errorMessage }),
