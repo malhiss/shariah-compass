@@ -21,37 +21,42 @@ const features = [
     icon: LayoutDashboard, 
     title: 'Dashboard', 
     description: 'Access your personalized dashboard with all screened stocks, compliance status, and portfolio insights in one place.', 
-    path: '/dashboard',
+    path: '/demo/dashboard',
     gradient: 'from-primary/15 to-primary/5',
-    featured: true
+    featured: true,
+    comingSoon: false
   },
   { 
     icon: Search, 
     title: 'Screen a Ticker', 
     description: 'Instantly check Shariah compliance using three independent methodologies with detailed analysis.', 
     path: '/screen',
-    gradient: 'from-emerald-500/10 to-teal-500/5'
+    gradient: 'from-emerald-500/10 to-teal-500/5',
+    comingSoon: true
   },
   { 
     icon: Briefcase, 
     title: 'Dividends Purification', 
     description: 'Upload your portfolio to screen all positions and calculate purification amounts.', 
     path: '/portfolio',
-    gradient: 'from-blue-500/10 to-cyan-500/5'
+    gradient: 'from-blue-500/10 to-cyan-500/5',
+    comingSoon: true
   },
   { 
     icon: FileQuestion, 
     title: 'Request Screening', 
     description: 'Submit a ticker for professional analysis by our Shariah advisory team.', 
     path: '/request',
-    gradient: 'from-purple-500/10 to-indigo-500/5'
+    gradient: 'from-purple-500/10 to-indigo-500/5',
+    comingSoon: true
   },
   { 
     icon: MessageSquare, 
     title: 'AI Chat', 
     description: 'Get AI-powered explanations for screening results and Islamic finance guidance.', 
     path: '/chat',
-    gradient: 'from-amber-500/10 to-orange-500/5'
+    gradient: 'from-amber-500/10 to-orange-500/5',
+    comingSoon: true
   },
 ];
 
@@ -139,7 +144,7 @@ export default function Demo() {
               AI-powered insights, purification calculation, and Zakat calculation.
             </motion.p>
             
-            {/* CTA button - Get an Invitation */}
+            {/* CTA buttons */}
             <motion.div 
               className="flex flex-wrap gap-4 justify-center mb-16"
               initial={{ opacity: 0, y: 30 }}
@@ -154,6 +159,16 @@ export default function Demo() {
                 <Mail className="w-5 h-5 mr-2" />
                 Get an Invitation!
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline"
+                className="text-base md:text-lg h-14 px-10 border-primary/30 hover:bg-primary/10"
+                asChild
+              >
+                <Link to="/demo/login">
+                  I Have an Invitation
+                </Link>
               </Button>
             </motion.div>
 
@@ -223,11 +238,12 @@ export default function Demo() {
           <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
             {features.map((feature, index) => (
               <FeatureCard
-                key={feature.path}
+                key={feature.title}
                 icon={feature.icon}
                 title={feature.title}
                 description={feature.description}
                 path={feature.path}
+                comingSoon={feature.comingSoon}
                 gradient={feature.gradient}
                 delay={index * 0.1}
                 featured={'featured' in feature ? feature.featured : false}
