@@ -43,56 +43,18 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <Routes>
-          {/* Demo pages outside Layout - uses its own minimal header */}
+            {/* Beta mode: Root redirects to demo */}
+            <Route path="/" element={<Navigate to="/demo" replace />} />
+            
+            {/* Demo pages - public access during beta */}
             <Route path="/demo" element={<Demo />} />
             <Route path="/demo/login" element={<DemoLogin />} />
             <Route path="/demo/dashboard" element={<DemoDashboard />} />
             
+            {/* Staff routes - still accessible */}
+            <Route path="/staff-login" element={<StaffLogin />} />
+            <Route path="/setup" element={<SetupStaff />} />
             <Route element={<Layout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            {/* Redirects for old routes */}
-            <Route path="/leadership" element={<Navigate to="/about" replace />} />
-              <Route 
-                path="/screen" 
-                element={
-                  <ProtectedRoute requireRole="any">
-                    <TickerScreening />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/portfolio" 
-                element={
-                  <ProtectedRoute requireRole="any">
-                    <PortfolioScreening />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/request" 
-                element={
-                  <ProtectedRoute requireRole="any">
-                    <ScreeningRequest />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/chat" 
-                element={
-                  <ProtectedRoute requireRole="any">
-                    <AiChat />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/my-activity" 
-                element={
-                  <ProtectedRoute requireRole="any">
-                    <ClientDashboard />
-                  </ProtectedRoute>
-                } 
-              />
               <Route 
                 path="/staff-portal" 
                 element={
@@ -101,47 +63,25 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
-              <Route 
-                path="/dashboard" 
-                element={
-                  <ProtectedRoute requireRole="any">
-                    <ShariahDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/shariah-dashboard" 
-                element={<Navigate to="/dashboard" replace />}
-              />
-              <Route 
-                path="/record/:upsertKey" 
-                element={
-                  <ProtectedRoute requireRole="any">
-                    <RecordDetail />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/memos" 
-                element={
-                  <ProtectedRoute requireRole="any">
-                    <Memos />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/memos/:id" 
-                element={
-                  <ProtectedRoute requireRole="any">
-                    <MemoDetail />
-                  </ProtectedRoute>
-                } 
-              />
             </Route>
-            <Route path="/client-login" element={<ClientLogin />} />
-            <Route path="/staff-login" element={<StaffLogin />} />
-            <Route path="/setup" element={<SetupStaff />} />
-            <Route path="*" element={<NotFound />} />
+            
+            {/* All other routes redirect to demo during beta */}
+            <Route path="/about" element={<Navigate to="/demo" replace />} />
+            <Route path="/screen" element={<Navigate to="/demo" replace />} />
+            <Route path="/portfolio" element={<Navigate to="/demo" replace />} />
+            <Route path="/request" element={<Navigate to="/demo" replace />} />
+            <Route path="/chat" element={<Navigate to="/demo" replace />} />
+            <Route path="/dashboard" element={<Navigate to="/demo" replace />} />
+            <Route path="/shariah-dashboard" element={<Navigate to="/demo" replace />} />
+            <Route path="/my-activity" element={<Navigate to="/demo" replace />} />
+            <Route path="/client-login" element={<Navigate to="/demo/login" replace />} />
+            <Route path="/record/:upsertKey" element={<Navigate to="/demo" replace />} />
+            <Route path="/memos" element={<Navigate to="/demo" replace />} />
+            <Route path="/memos/:id" element={<Navigate to="/demo" replace />} />
+            <Route path="/leadership" element={<Navigate to="/demo" replace />} />
+            
+            {/* Catch all */}
+            <Route path="*" element={<Navigate to="/demo" replace />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
