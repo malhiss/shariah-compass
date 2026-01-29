@@ -274,10 +274,10 @@ serve(async (req) => {
           );
         }
 
-        // Get profiles for all users
+        // Get profiles for all users (including access_tier)
         const { data: profiles } = await supabaseAdmin
           .from("profiles")
-          .select("id, full_name, email");
+          .select("id, full_name, email, access_tier");
 
         const rolesMap = new Map(roles?.map(r => [r.user_id, r.role]) || []);
         const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
@@ -287,6 +287,7 @@ serve(async (req) => {
           email: user.email,
           fullName: profilesMap.get(user.id)?.full_name || user.user_metadata?.full_name || '',
           role: rolesMap.get(user.id) || null,
+          accessTier: profilesMap.get(user.id)?.access_tier || 'full',
           createdAt: user.created_at,
           lastSignIn: user.last_sign_in_at,
         }));
@@ -357,6 +358,78 @@ serve(async (req) => {
             target_user_email: userData?.user?.email,
             previous_role: previousRole,
             new_role: role 
+          },
+          req
+        );
+
+        return new Response(
+          JSON.stringify({ success: true }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      case "update_access_tier": {
+        const { userId, accessTier } = payload;
+
+        // Validate inputs
+        if (!userId || !accessTier) {
+          return new Response(
+            JSON.stringify({ error: "Missing required fields" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        if (!validateUUID(userId)) {
+          return new Response(
+            JSON.stringify({ error: "Invalid user ID format" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        const validTiers = ['demo', 'full'];
+        if (!validTiers.includes(accessTier)) {
+          return new Response(
+            JSON.stringify({ error: "Invalid access tier. Must be 'demo' or 'full'" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // Get user info for logging
+        const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
+        const { data: previousProfile } = await supabaseAdmin
+          .from("profiles")
+          .select("access_tier")
+          .eq("id", userId)
+          .maybeSingle();
+
+        const previousTier = previousProfile?.access_tier || 'full';
+
+        // Update access tier in profiles
+        const { error: updateError } = await supabaseAdmin
+          .from("profiles")
+          .update({ access_tier: accessTier })
+          .eq("id", userId);
+
+        if (updateError) {
+          console.error("Error updating access tier:", updateError);
+          return new Response(
+            JSON.stringify({ error: "Failed to update access tier" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // Log the activity
+        await logActivity(
+          supabaseAdmin,
+          currentUser.id,
+          currentUser.email || null,
+          "role_changed",
+          `Changed access tier for ${userData?.user?.email} from ${previousTier} to ${accessTier}`,
+          { 
+            target_user_id: userId, 
+            target_user_email: userData?.user?.email,
+            previous_access_tier: previousTier,
+            new_access_tier: accessTier 
           },
           req
         );
