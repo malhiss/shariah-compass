@@ -550,8 +550,14 @@ serve(async (req) => {
           return arr.join('');
         };
 
-        // Use provided password or generate a secure one
-        let passwordToSet: string;
+        // Get user info for logging (before attempting password reset)
+        const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
+
+        // Use provided password or generate a secure one with retry logic
+        let passwordToSet: string = '';
+        let updateError: any = null;
+        const maxRetries = 5;
+        
         if (providedPassword && typeof providedPassword === 'string') {
           const passwordValidation = validatePassword(providedPassword);
           if (!passwordValidation.valid) {
@@ -561,27 +567,58 @@ serve(async (req) => {
             );
           }
           passwordToSet = providedPassword;
+          
+          // Try once with provided password
+          const result = await supabaseAdmin.auth.admin.updateUserById(userId, {
+            password: passwordToSet,
+          });
+          updateError = result.error;
+          
+          if (updateError) {
+            console.error("Error resetting password with provided password:", updateError);
+            const errorMessage = updateError.message?.includes('weak') || updateError.code === 'weak_password'
+              ? "The provided password was rejected as weak or compromised. Please try a different password."
+              : "Failed to reset password";
+            return new Response(
+              JSON.stringify({ error: errorMessage }),
+              { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
         } else {
-          passwordToSet = generateSecurePassword();
-        }
-
-        // Get user info for logging
-        const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
-
-        const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-          password: passwordToSet,
-        });
-
-        if (updateError) {
-          console.error("Error resetting password:", updateError);
-          // Provide more specific error message
-          const errorMessage = updateError.message?.includes('weak') || updateError.message?.includes('pwned')
-            ? "Password was rejected. Please try again with a different password."
-            : "Failed to reset password";
-          return new Response(
-            JSON.stringify({ error: errorMessage }),
-            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+          // Generate password with retry logic for HIBP rejections
+          for (let attempt = 0; attempt < maxRetries; attempt++) {
+            passwordToSet = generateSecurePassword();
+            
+            const result = await supabaseAdmin.auth.admin.updateUserById(userId, {
+              password: passwordToSet,
+            });
+            updateError = result.error;
+            
+            if (!updateError) {
+              // Success!
+              break;
+            }
+            
+            // If it's a weak/pwned password error, try again with a new password
+            if (updateError.code === 'weak_password' || updateError.message?.includes('weak') || updateError.message?.includes('pwned')) {
+              console.log(`Password attempt ${attempt + 1} rejected as weak/pwned, retrying...`);
+              continue;
+            }
+            
+            // For other errors, don't retry
+            break;
+          }
+          
+          if (updateError) {
+            console.error("Error resetting password after retries:", updateError);
+            const errorMessage = updateError.code === 'weak_password' || updateError.message?.includes('weak')
+              ? "Unable to generate an acceptable password after multiple attempts. Please try again."
+              : "Failed to reset password";
+            return new Response(
+              JSON.stringify({ error: errorMessage }),
+              { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
         }
 
         // Log the activity
