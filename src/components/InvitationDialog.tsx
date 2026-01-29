@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Mail, User, Lock, CheckCircle, Sparkles, ArrowRight } from 'lucide-react';
+import { Loader2, Mail, User, Building2, CheckCircle, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const invitationSchema = z.object({
@@ -24,16 +23,14 @@ const invitationSchema = z.object({
     .min(2, 'Name must be at least 2 characters')
     .max(100, 'Name must be less than 100 characters')
     .regex(/^[a-zA-Z\s'-]+$/, 'Name can only contain letters, spaces, hyphens, and apostrophes'),
+  company: z.string()
+    .trim()
+    .min(2, 'Company name must be at least 2 characters')
+    .max(200, 'Company name must be less than 200 characters'),
   email: z.string()
     .trim()
     .email('Please enter a valid email address')
     .max(255, 'Email must be less than 255 characters'),
-  password: z.string()
-    .min(8, 'Password must be at least 8 characters')
-    .max(72, 'Password must be less than 72 characters')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number'),
 });
 
 type InvitationFormData = z.infer<typeof invitationSchema>;
@@ -44,7 +41,6 @@ interface InvitationDialogProps {
 }
 
 export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) {
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [userName, setUserName] = useState('');
@@ -62,50 +58,33 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
     setIsLoading(true);
     
     try {
-      const redirectUrl = `${window.location.origin}/dashboard`;
-      
-      const { data: authData, error } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            full_name: data.fullName,
-            signup_source: 'demo_invitation',
-          },
-        },
-      });
+      const { error } = await supabase
+        .from('access_requests')
+        .insert({
+          full_name: data.fullName,
+          company: data.company,
+          email: data.email,
+        });
 
       if (error) {
-        if (error.message.includes('already registered')) {
-          toast.error('This email is already registered. Please use client login instead.');
-        } else {
-          toast.error(error.message);
-        }
+        console.error('Error submitting access request:', error);
+        toast.error('Failed to submit request. Please try again.');
         return;
       }
 
-      // Store name for success message
       setUserName(data.fullName.split(' ')[0]);
       setIsSuccess(true);
-      
-      // Magic link email will be sent for verification
-      toast.success('Check your email for the magic link!');
+      toast.success('Request submitted successfully!');
     } catch (err) {
+      console.error('Unexpected error:', err);
       toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoToDashboard = () => {
-    onOpenChange(false);
-    navigate('/dashboard');
-  };
-
   const handleClose = () => {
     onOpenChange(false);
-    // Reset form after dialog closes
     setTimeout(() => {
       reset();
       setIsSuccess(false);
@@ -133,10 +112,10 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
               >
                 <CheckCircle className="w-8 h-8 text-compliant" />
               </motion.div>
-              <h3 className="text-xl font-semibold mb-2">Check Your Email, {userName}!</h3>
+              <h3 className="text-xl font-semibold mb-2">Thank You, {userName}!</h3>
               <p className="text-muted-foreground mb-6">
-                We've sent a magic link to your email address. 
-                Click the link to verify your account and access the dashboard.
+                Your access request has been submitted. Our team will review your 
+                request and send you login credentials via email shortly.
               </p>
               <Button onClick={handleClose} className="btn-dalil">
                 Got it!
@@ -155,9 +134,9 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
                     <Sparkles className="w-5 h-5 text-primary" />
                   </div>
                 </div>
-                <DialogTitle className="text-xl">Get Your Invitation</DialogTitle>
+                <DialogTitle className="text-xl">Request Access</DialogTitle>
                 <DialogDescription>
-                  Create your account to access the Dalil Shariah screening platform.
+                  Fill in your details and our team will set up your account.
                 </DialogDescription>
               </DialogHeader>
 
@@ -180,6 +159,23 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="company">Company</Label>
+                  <div className="relative">
+                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="company"
+                      placeholder="Enter your company name"
+                      className="pl-10"
+                      {...register('company')}
+                      disabled={isLoading}
+                    />
+                  </div>
+                  {errors.company && (
+                    <p className="text-sm text-destructive">{errors.company.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -197,27 +193,6 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Create a password"
-                      className="pl-10"
-                      {...register('password')}
-                      disabled={isLoading}
-                    />
-                  </div>
-                  {errors.password && (
-                    <p className="text-sm text-destructive">{errors.password.message}</p>
-                  )}
-                  <p className="text-xs text-muted-foreground">
-                    Must be 8+ characters with uppercase, lowercase, and number
-                  </p>
-                </div>
-
                 <Button 
                   type="submit" 
                   className="w-full btn-dalil h-11"
@@ -226,15 +201,15 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
                   {isLoading ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Creating Account...
+                      Submitting...
                     </>
                   ) : (
-                    'Create Account'
+                    'Request Access'
                   )}
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground">
-                  You'll receive a magic link to verify your email.
+                  We'll review your request and get back to you within 24 hours.
                 </p>
               </form>
             </motion.div>

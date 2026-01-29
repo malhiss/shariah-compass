@@ -12,9 +12,10 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { AnimatedSection, StaggerContainer, StaggerItem } from '@/components/AnimatedSection';
 import { motion } from 'framer-motion';
-import { UserPlus, Users, Trash2, Key, Shield, RefreshCw, Search, User, Mail, Calendar, Clock, Copy, Eye, EyeOff, Activity } from 'lucide-react';
+import { UserPlus, Users, Trash2, Key, Shield, RefreshCw, Search, User, Mail, Calendar, Clock, Copy, Eye, EyeOff, Activity, Inbox } from 'lucide-react';
 import { z } from 'zod';
 import ActivityLogsTab from '@/components/ActivityLogsTab';
+import AccessRequestsTab from '@/components/AccessRequestsTab';
 
 interface UserData {
   id: string;
@@ -460,10 +461,14 @@ export default function StaffPortal() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-lg grid-cols-3">
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               Users
+            </TabsTrigger>
+            <TabsTrigger value="requests" className="flex items-center gap-2">
+              <Inbox className="w-4 h-4" />
+              Access Requests
             </TabsTrigger>
             <TabsTrigger value="activity" className="flex items-center gap-2">
               <Activity className="w-4 h-4" />
@@ -676,6 +681,10 @@ export default function StaffPortal() {
                 </CardContent>
               </Card>
             </AnimatedSection>
+          </TabsContent>
+
+          <TabsContent value="requests">
+            <AccessRequestsTab />
           </TabsContent>
 
           <TabsContent value="activity">
