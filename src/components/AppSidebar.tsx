@@ -13,13 +13,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { HelpSupportDialog } from './HelpSupportDialog';
+import { useAuth } from '@/hooks/useAuth';
 
-const sidebarItems = [
-  { path: '/shariah-dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/portfolio', label: 'Dividends Purification', icon: Coins },
-  { path: '/request', label: 'Request Screening', icon: FileText },
-  { path: '/chat', label: 'AI Chat', icon: MessageSquare },
-  { path: '/my-activity', label: 'My Activity', icon: Activity },
+const allSidebarItems = [
+  { path: '/shariah-dashboard', label: 'Dashboard', icon: LayoutDashboard, demoVisible: true },
+  { path: '/portfolio', label: 'Dividends Purification', icon: Coins, demoVisible: false },
+  { path: '/request', label: 'Request Screening', icon: FileText, demoVisible: false },
+  { path: '/chat', label: 'AI Chat', icon: MessageSquare, demoVisible: false },
+  { path: '/my-activity', label: 'My Activity', icon: Activity, demoVisible: false },
 ];
 
 interface AppSidebarProps {
@@ -29,6 +30,10 @@ interface AppSidebarProps {
 export function AppSidebar({ children }: AppSidebarProps) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { isDemoUser } = useAuth();
+
+  // Filter sidebar items based on user access tier
+  const sidebarItems = allSidebarItems.filter(item => !isDemoUser || item.demoVisible);
 
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + '/');
 

@@ -88,6 +88,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          access_tier: string
           created_at: string
           email: string | null
           full_name: string | null
@@ -95,6 +96,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          access_tier?: string
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -102,6 +104,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          access_tier?: string
           created_at?: string
           email?: string | null
           full_name?: string | null

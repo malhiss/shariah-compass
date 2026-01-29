@@ -634,6 +634,17 @@ serve(async (req) => {
           );
         }
 
+        // Set access_tier to 'demo' for users created through access request approval
+        const { error: tierError } = await supabaseAdmin
+          .from("profiles")
+          .update({ access_tier: 'demo' })
+          .eq("id", newUser.user.id);
+
+        if (tierError) {
+          console.error("Error setting access tier:", tierError);
+          // Non-fatal - continue with approval
+        }
+
         // Update access request status
         const { error: updateError } = await supabaseAdmin
           .from("access_requests")

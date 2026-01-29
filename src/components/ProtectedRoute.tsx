@@ -1,13 +1,18 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireRole?: 'client' | 'staff' | 'any';
+  allowDemo?: boolean;
 }
 
-export function ProtectedRoute({ children, requireRole = 'any' }: ProtectedRouteProps) {
-  const { user, role, loading } = useAuth();
+// Routes that demo users can access
+const DEMO_ALLOWED_ROUTES = ['/shariah-dashboard', '/dashboard'];
+
+export function ProtectedRoute({ children, requireRole = 'any', allowDemo = true }: ProtectedRouteProps) {
+  const { user, role, loading, isDemoUser } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -43,12 +48,33 @@ export function ProtectedRoute({ children, requireRole = 'any' }: ProtectedRoute
         </div>
       );
     }
+
+    // Check demo user restrictions
+    if (isDemoUser && !allowDemo) {
+      return <Navigate to="/shariah-dashboard" replace />;
+    }
+
+    // Check if demo user is trying to access restricted routes
+    if (isDemoUser) {
+      const isAllowedRoute = DEMO_ALLOWED_ROUTES.some(route => 
+        location.pathname === route || location.pathname.startsWith(route + '/')
+      );
+      if (!isAllowedRoute) {
+        return <Navigate to="/shariah-dashboard" replace />;
+      }
+    }
+
     return <>{children}</>;
   }
 
   // Check specific role
   if (role !== requireRole) {
     return <Navigate to="/" replace />;
+  }
+
+  // Check demo restrictions for specific roles too
+  if (isDemoUser && !allowDemo) {
+    return <Navigate to="/shariah-dashboard" replace />;
   }
 
   return <>{children}</>;
