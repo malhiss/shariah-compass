@@ -168,7 +168,7 @@ serve(async (req) => {
 
     console.log("User created, assigning staff role");
 
-    // Assign staff role
+    // Assign staff role - unique index prevents race conditions at database level
     const { error: roleError } = await supabaseAdmin
       .from("user_roles")
       .insert({ user_id: newUser.user.id, role: "staff" });
@@ -177,8 +177,18 @@ serve(async (req) => {
       console.error("Error assigning role:", roleError);
       // Rollback: delete the user if role assignment fails
       await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
+      
+      // Check if this is a unique constraint violation (race condition caught by database)
+      const isUniqueViolation = roleError.code === '23505' || 
+                                roleError.message?.toLowerCase().includes('duplicate') ||
+                                roleError.message?.toLowerCase().includes('unique');
+      
       return new Response(
-        JSON.stringify({ error: "Failed to complete user setup. Please try again." }),
+        JSON.stringify({ 
+          error: isUniqueViolation 
+            ? "Staff user already exists. Use the Staff Portal to create more users."
+            : "Failed to complete user setup. Please try again." 
+        }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
