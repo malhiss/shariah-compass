@@ -26,6 +26,7 @@ import RecordDetail from "./pages/RecordDetail";
 import Memos from "./pages/Memos";
 import MemoDetail from "./pages/MemoDetail";
 import DemoDashboard from "./pages/DemoDashboard";
+import DemoLogin from "./pages/DemoLogin";
 import NotFound from "./pages/NotFound";
 
 // Clear cache on app load to ensure fresh data
@@ -44,6 +45,7 @@ const App = () => (
           <Routes>
           {/* Demo pages outside Layout - uses its own minimal header */}
             <Route path="/demo" element={<Demo />} />
+            <Route path="/demo/login" element={<DemoLogin />} />
             <Route path="/demo/dashboard" element={<DemoDashboard />} />
             
             <Route element={<Layout />}>
