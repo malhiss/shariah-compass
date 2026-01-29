@@ -41,9 +41,11 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <Routes>
+            {/* Demo page outside Layout - uses its own minimal header */}
+            <Route path="/demo" element={<Demo />} />
+            
             <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
-            <Route path="/demo" element={<Demo />} />
             <Route path="/about" element={<About />} />
             {/* Redirects for old routes */}
             <Route path="/leadership" element={<Navigate to="/about" replace />} />
