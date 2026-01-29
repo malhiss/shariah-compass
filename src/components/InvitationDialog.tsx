@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -14,7 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Mail, User, Lock, CheckCircle, Sparkles } from 'lucide-react';
+import { Loader2, Mail, User, Lock, CheckCircle, Sparkles, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const invitationSchema = z.object({
@@ -43,8 +44,10 @@ interface InvitationDialogProps {
 }
 
 export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [userName, setUserName] = useState('');
 
   const {
     register,
@@ -61,7 +64,7 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
     try {
       const redirectUrl = `${window.location.origin}/dashboard`;
       
-      const { error } = await supabase.auth.signUp({
+      const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -82,12 +85,22 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
         return;
       }
 
+      // Store name for success message
+      setUserName(data.fullName.split(' ')[0]);
       setIsSuccess(true);
+      
+      // User is auto-confirmed and logged in - no email verification needed
+      toast.success('Account created successfully!');
     } catch (err) {
       toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoToDashboard = () => {
+    onOpenChange(false);
+    navigate('/dashboard');
   };
 
   const handleClose = () => {
@@ -96,6 +109,7 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
     setTimeout(() => {
       reset();
       setIsSuccess(false);
+      setUserName('');
     }, 300);
   };
 
@@ -119,13 +133,14 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
               >
                 <CheckCircle className="w-8 h-8 text-compliant" />
               </motion.div>
-              <h3 className="text-xl font-semibold mb-2">Check Your Email!</h3>
+              <h3 className="text-xl font-semibold mb-2">Welcome, {userName}!</h3>
               <p className="text-muted-foreground mb-6">
-                We've sent a verification link to your email address. 
-                Click the link to activate your account and access the dashboard.
+                Your account has been created successfully. 
+                You now have full access to the Dalil screening platform.
               </p>
-              <Button onClick={handleClose} className="btn-dalil">
-                Got it!
+              <Button onClick={handleGoToDashboard} className="btn-dalil group">
+                Go to Dashboard
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </motion.div>
           ) : (
@@ -220,7 +235,7 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground">
-                  By signing up, you agree to receive a verification email.
+                  Your account will be activated immediately.
                 </p>
               </form>
             </motion.div>
