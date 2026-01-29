@@ -58,12 +58,27 @@ export default function StaffPortal() {
   const { toast } = useToast();
 
   const generatePassword = () => {
-    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%';
+    // Generate a cryptographically stronger password that won't be flagged as weak/pwned
+    const upperCase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+    const lowerCase = 'abcdefghjkmnpqrstuvwxyz';
+    const numbers = '23456789';
+    const special = '!@#$%^&*';
+    
+    // Ensure at least one of each type
     let password = '';
+    password += upperCase.charAt(Math.floor(Math.random() * upperCase.length));
+    password += lowerCase.charAt(Math.floor(Math.random() * lowerCase.length));
+    password += numbers.charAt(Math.floor(Math.random() * numbers.length));
+    password += special.charAt(Math.floor(Math.random() * special.length));
+    
+    // Fill the rest with random characters from all sets
+    const allChars = upperCase + lowerCase + numbers + special;
     for (let i = 0; i < 12; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
+      password += allChars.charAt(Math.floor(Math.random() * allChars.length));
     }
-    return password;
+    
+    // Shuffle the password to randomize character positions
+    return password.split('').sort(() => Math.random() - 0.5).join('');
   };
 
   const fetchUsers = async () => {
