@@ -9,7 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Mail, Lock, Sparkles } from 'lucide-react';
+import { Loader2, Mail, Lock, Sparkles, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import dalilLogo from '@/assets/dalil-logo.png';
 
 const loginSchema = z.object({
@@ -77,6 +78,15 @@ export default function DemoLogin() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
       
       <div className="relative z-10 w-full max-w-md">
+        {/* Back button */}
+        <Link 
+          to="/demo" 
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Demo
+        </Link>
+
         {/* Logo */}
         <div className="text-center mb-8">
           <img src={dalilLogo} alt="Dalil" className="h-[81px] w-auto mx-auto" />
