@@ -21,6 +21,7 @@ interface ScreeningTableProps {
   viewMode: ViewMode;
   universe?: 'global' | 'gcc';
   currentPage?: number;
+  basePath?: string; // Optional base path for demo mode (e.g., '/demo/record')
 }
 
 // Format currency in millions - display as-is since values are already in $M
@@ -130,6 +131,7 @@ export function ScreeningTable({
   viewMode,
   universe = 'global',
   currentPage = 1,
+  basePath = '/record',
 }: ScreeningTableProps) {
   const navigate = useNavigate();
   
@@ -155,7 +157,7 @@ export function ScreeningTable({
     // Save scroll position before navigating (use documentElement for better compatibility)
     const scrollY = document.documentElement.scrollTop || document.body.scrollTop || window.scrollY;
     sessionStorage.setItem('dashboard-scroll-position', String(scrollY));
-    navigate(`/record/${encodeURIComponent(upsertKey)}?universe=${universe}&page=${currentPage}`);
+    navigate(`${basePath}/${encodeURIComponent(upsertKey)}?universe=${universe}&page=${currentPage}`);
   };
 
   if (viewMode === 'zakat') {
