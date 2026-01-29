@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
@@ -8,13 +8,13 @@ import {
 } from 'lucide-react';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
 
 // Landing components
 import { FloatingParticles } from '@/components/landing/FloatingParticles';
 import { FeatureCard } from '@/components/landing/FeatureCard';
 import { GradientText } from '@/components/landing/GradientText';
 import { InvitationDialog } from '@/components/InvitationDialog';
+import { DemoHeader } from '@/components/DemoHeader';
 
 const features = [
   { 
@@ -68,10 +68,11 @@ export default function Demo() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
-    <div className="overflow-x-hidden">
+    <>
+      <DemoHeader />
+      <div className="overflow-x-hidden">
       {/* Invitation Dialog */}
       <InvitationDialog open={invitationOpen} onOpenChange={setInvitationOpen} />
-
       {/* Hero Section - Enhanced */}
       <section ref={heroRef} id="hero" className="relative min-h-[100vh] flex items-center py-24 lg:py-32 overflow-hidden">
         {/* Background layers */}
@@ -237,5 +238,6 @@ export default function Demo() {
       </section>
 
     </div>
+    </>
   );
 }
