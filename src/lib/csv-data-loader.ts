@@ -553,7 +553,13 @@ export async function getAllRecords(filters?: {
   }
   
   if (filters?.finalClassification && filters.finalClassification !== 'all') {
-    result = result.filter(r => r.final_classification === filters.finalClassification);
+    // Normalize comparison: uppercase, remove spaces/underscores/hyphens for flexible matching
+    const normalizeClassification = (val: string | null | undefined): string => {
+      if (!val) return '';
+      return val.toUpperCase().replace(/[\s_-]/g, '');
+    };
+    const targetClassification = normalizeClassification(filters.finalClassification);
+    result = result.filter(r => normalizeClassification(r.final_classification) === targetClassification);
   }
   
   if (filters?.autoBanned !== undefined) {

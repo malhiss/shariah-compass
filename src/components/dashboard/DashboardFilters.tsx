@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, X } from 'lucide-react';
+import { Search, X, Loader2 } from 'lucide-react';
 import type { ScreeningFilters, ViewMode } from '@/types/mongodb';
 
 interface DashboardFiltersProps {
@@ -24,11 +24,43 @@ export function DashboardFilters({
   viewMode,
 }: DashboardFiltersProps) {
   const [localSearch, setLocalSearch] = useState(filters.search || '');
+  const [isSearching, setIsSearching] = useState(false);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onFiltersChange({ ...filters, search: localSearch, page: 1 });
-  };
+  // Auto-search on typing with debounce
+  useEffect(() => {
+    // Clear existing timeout
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    // If search is empty and filters.search is also empty, no need to update
+    if (!localSearch && !filters.search) {
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+
+    // Debounce the search - trigger after 300ms of no typing
+    debounceRef.current = setTimeout(() => {
+      onFiltersChange({ ...filters, search: localSearch || undefined, page: 1 });
+      setIsSearching(false);
+    }, 300);
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [localSearch]); // Only depend on localSearch, not filters
+
+  // Sync local search with external filter changes (e.g., clear)
+  useEffect(() => {
+    if (filters.search !== localSearch && filters.search === undefined) {
+      setLocalSearch('');
+    }
+  }, [filters.search]);
 
   const handleFilterChange = (key: keyof ScreeningFilters, value: string) => {
     onFiltersChange({ ...filters, [key]: value === 'all' ? undefined : value, page: 1 });
@@ -43,35 +75,33 @@ export function DashboardFilters({
   };
 
   const hasActiveFilters =
-    filters.search ||
+    localSearch ||
     filters.finalVerdict ||
     filters.zakatStatus;
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      {/* Search */}
-      <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-2">
+      {/* Search - auto-search on typing */}
+      <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
             placeholder="Search ticker or company..."
-            className="pl-10 bg-background border-border text-sm"
+            className="pl-10 pr-10 bg-background border-border text-sm"
           />
-        </div>
-        <div className="flex gap-2">
-          <Button type="submit" className="btn-dalil flex-1 sm:flex-none text-sm">
-            Search
-          </Button>
-          {hasActiveFilters && (
-            <Button type="button" variant="ghost" onClick={clearFilters} className="text-sm px-2 sm:px-3">
-              <X className="w-4 h-4 sm:mr-1" />
-              <span className="hidden sm:inline">Clear</span>
-            </Button>
+          {isSearching && (
+            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground animate-spin" />
           )}
         </div>
-      </form>
+        {hasActiveFilters && (
+          <Button type="button" variant="ghost" onClick={clearFilters} className="text-sm px-2 sm:px-3">
+            <X className="w-4 h-4 sm:mr-1" />
+            <span className="hidden sm:inline">Clear</span>
+          </Button>
+        )}
+      </div>
 
       {/* Filters Row */}
       <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-4 items-end">
