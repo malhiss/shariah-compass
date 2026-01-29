@@ -3,17 +3,20 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
 type AppRole = 'client' | 'staff' | null;
+type AccessTier = 'demo' | 'full' | null;
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   role: AppRole;
+  accessTier: AccessTier;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   isClient: boolean;
   isStaff: boolean;
+  isDemoUser: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,6 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [role, setRole] = useState<AppRole>(null);
+  const [accessTier, setAccessTier] = useState<AccessTier>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,9 +39,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session?.user) {
           setTimeout(() => {
             fetchUserRole(session.user.id);
+            fetchAccessTier(session.user.id);
           }, 0);
         } else {
           setRole(null);
+          setAccessTier(null);
         }
       }
     );
@@ -48,6 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchUserRole(session.user.id);
+        fetchAccessTier(session.user.id);
       }
       setLoading(false);
     });
@@ -72,6 +79,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error('Error fetching role:', err);
       setRole(null);
+    }
+  };
+
+  const fetchAccessTier = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('access_tier')
+        .eq('id', userId)
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error fetching access tier:', error);
+        setAccessTier(null);
+      } else {
+        setAccessTier((data?.access_tier as AccessTier) || 'full');
+      }
+    } catch (err) {
+      console.error('Error fetching access tier:', err);
+      setAccessTier(null);
     }
   };
 
@@ -102,6 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut();
     setRole(null);
+    setAccessTier(null);
   };
 
   return (
@@ -110,12 +138,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         session,
         role,
+        accessTier,
         loading,
         signIn,
         signUp,
         signOut,
         isClient: role === 'client',
         isStaff: role === 'staff',
+        isDemoUser: accessTier === 'demo',
       }}
     >
       {children}
