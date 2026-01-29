@@ -563,6 +563,173 @@ serve(async (req) => {
         );
       }
 
+      case "approve_access_request": {
+        const { email, fullName, company, requestId } = payload;
+
+        // Validate required fields
+        if (!email || !fullName || !requestId) {
+          return new Response(
+            JSON.stringify({ error: "Missing required fields" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // Validate email format
+        if (!validateEmail(email)) {
+          return new Response(
+            JSON.stringify({ error: "Invalid email format" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // Validate full name
+        const nameValidation = validateFullName(fullName);
+        if (!nameValidation.valid) {
+          return new Response(
+            JSON.stringify({ error: nameValidation.message }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        const sanitizedName = sanitizeName(fullName);
+        const sanitizedEmail = email.trim().toLowerCase();
+        const sanitizedCompany = company ? company.trim().substring(0, 200) : '';
+
+        // Generate a random temporary password (user will set their own via magic link)
+        const tempPassword = crypto.randomUUID() + crypto.randomUUID();
+
+        // Create user with admin client
+        const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+          email: sanitizedEmail,
+          password: tempPassword,
+          email_confirm: true,
+          user_metadata: { full_name: sanitizedName, company: sanitizedCompany },
+        });
+
+        if (createError) {
+          console.error("Error creating user:", createError);
+          const isEmailExists = createError.message?.toLowerCase().includes('email') || 
+                               createError.message?.toLowerCase().includes('exists');
+          return new Response(
+            JSON.stringify({ error: isEmailExists ? "Email already in use" : "Failed to create user" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // Assign client role
+        const { error: roleAssignError } = await supabaseAdmin
+          .from("user_roles")
+          .insert({ user_id: newUser.user.id, role: 'client' });
+
+        if (roleAssignError) {
+          console.error("Error assigning role:", roleAssignError);
+          // Rollback: delete the user if role assignment fails
+          await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
+          return new Response(
+            JSON.stringify({ error: "Failed to complete user setup" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // Update access request status
+        const { error: updateError } = await supabaseAdmin
+          .from("access_requests")
+          .update({
+            status: 'approved',
+            reviewed_at: new Date().toISOString(),
+            reviewed_by: currentUser.id,
+          })
+          .eq("id", requestId);
+
+        if (updateError) {
+          console.error("Error updating access request:", updateError);
+        }
+
+        // Generate magic link for password setup
+        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+        const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+          type: 'magiclink',
+          email: sanitizedEmail,
+          options: {
+            redirectTo: `${supabaseUrl.replace('.supabase.co', '.lovable.app')}/client-login?setup=true`,
+          },
+        });
+
+        if (linkError) {
+          console.error("Error generating magic link:", linkError);
+          // User was created but link generation failed - still success
+        }
+
+        // Send approval email with magic link
+        const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+        if (RESEND_API_KEY && linkData?.properties?.action_link) {
+          try {
+            await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${RESEND_API_KEY}`,
+              },
+              body: JSON.stringify({
+                from: "Dalil Platform <onboarding@resend.dev>",
+                to: [sanitizedEmail],
+                subject: "Your Dalil Access Has Been Approved!",
+                html: `
+                  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h1 style="color: #1a1a2e;">Welcome to Dalil, ${sanitizedName}!</h1>
+                    <p>Great news! Your access request has been approved.</p>
+                    
+                    <p>Click the button below to set up your password and access the platform:</p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                      <a href="${linkData.properties.action_link}" 
+                         style="background-color: #1a1a2e; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
+                        Set Up My Password
+                      </a>
+                    </div>
+                    
+                    <p style="color: #666; font-size: 14px;">This link will expire in 24 hours. If it expires, please contact us for a new link.</p>
+                    
+                    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
+                    <p style="color: #666; font-size: 12px;">Dalil by Invesense Asset Management</p>
+                  </div>
+                `,
+              }),
+            });
+            console.log("Approval email sent to:", sanitizedEmail);
+          } catch (emailError) {
+            console.error("Failed to send approval email:", emailError);
+          }
+        }
+
+        // Log the activity
+        await logActivity(
+          supabaseAdmin,
+          currentUser.id,
+          currentUser.email || null,
+          "user_created",
+          `Approved access request and created client account: ${sanitizedEmail}`,
+          { 
+            created_user_id: newUser.user.id, 
+            created_user_email: sanitizedEmail,
+            created_user_name: sanitizedName,
+            company: sanitizedCompany,
+            assigned_role: 'client',
+            access_request_id: requestId,
+          },
+          req
+        );
+
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            user: { id: newUser.user.id, email: newUser.user.email },
+            emailSent: !!RESEND_API_KEY && !!linkData?.properties?.action_link,
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
       default:
         return new Response(
           JSON.stringify({ error: "Unknown action" }),
