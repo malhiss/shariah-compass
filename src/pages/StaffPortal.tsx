@@ -22,6 +22,7 @@ interface UserData {
   email: string;
   fullName: string;
   role: 'client' | 'staff' | null;
+  accessTier: 'demo' | 'full';
   createdAt: string;
   lastSignIn: string | null;
 }
@@ -184,6 +185,31 @@ export default function StaffPortal() {
     } catch (error: any) {
       toast({
         title: 'Error updating role',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleUpdateAccessTier = async (userId: string, newTier: 'demo' | 'full') => {
+    try {
+      const response = await supabase.functions.invoke('manage-users', {
+        body: { action: 'update_access_tier', userId, accessTier: newTier },
+      });
+
+      if (response.error || response.data?.error) {
+        throw new Error(response.error?.message || response.data?.error);
+      }
+
+      toast({
+        title: 'Access tier updated',
+        description: `User access changed to ${newTier === 'demo' ? 'Demo (Dashboard only)' : 'Full access'}.`,
+      });
+
+      fetchUsers();
+    } catch (error: any) {
+      toast({
+        title: 'Error updating access tier',
         description: error.message,
         variant: 'destructive',
       });
@@ -580,6 +606,7 @@ export default function StaffPortal() {
                           <TableRow className="hover:bg-transparent">
                             <TableHead className="w-[250px]">User</TableHead>
                             <TableHead>Role</TableHead>
+                            <TableHead>Access</TableHead>
                             <TableHead className="hidden md:table-cell">Created</TableHead>
                             <TableHead className="hidden lg:table-cell">Last Sign In</TableHead>
                             <TableHead className="text-right w-[120px]">Actions</TableHead>
@@ -627,6 +654,29 @@ export default function StaffPortal() {
                                   <SelectContent>
                                     <SelectItem value="client">Client</SelectItem>
                                     <SelectItem value="staff">Staff</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </TableCell>
+                              <TableCell>
+                                <Select
+                                  value={user.accessTier || 'full'}
+                                  onValueChange={(value) => handleUpdateAccessTier(user.id, value as 'demo' | 'full')}
+                                >
+                                  <SelectTrigger className="w-24 h-8">
+                                    <SelectValue>
+                                      <Badge 
+                                        variant="outline"
+                                        className={user.accessTier === 'demo' 
+                                          ? 'bg-muted/50 text-muted-foreground border-muted-foreground/30' 
+                                          : 'bg-primary/10 text-primary border-primary/30'}
+                                      >
+                                        {user.accessTier === 'demo' ? 'Demo' : 'Full'}
+                                      </Badge>
+                                    </SelectValue>
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="full">Full Access</SelectItem>
+                                    <SelectItem value="demo">Demo (Dashboard only)</SelectItem>
                                   </SelectContent>
                                 </Select>
                               </TableCell>
