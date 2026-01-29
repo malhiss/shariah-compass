@@ -25,6 +25,7 @@ import ShariahDashboard from "./pages/ShariahDashboard";
 import RecordDetail from "./pages/RecordDetail";
 import Memos from "./pages/Memos";
 import MemoDetail from "./pages/MemoDetail";
+import DemoDashboard from "./pages/DemoDashboard";
 import NotFound from "./pages/NotFound";
 
 // Clear cache on app load to ensure fresh data
@@ -41,8 +42,9 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <Routes>
-            {/* Demo page outside Layout - uses its own minimal header */}
+          {/* Demo pages outside Layout - uses its own minimal header */}
             <Route path="/demo" element={<Demo />} />
+            <Route path="/demo/dashboard" element={<DemoDashboard />} />
             
             <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
