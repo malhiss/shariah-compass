@@ -67,7 +67,6 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
         });
 
       if (error) {
-        console.error('Error submitting access request:', error);
         toast.error('Failed to submit request. Please try again.');
         return;
       }
@@ -79,15 +78,14 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
           company: data.company,
           email: data.email,
         },
-      }).catch((notifyError) => {
-        console.error('Failed to send notification email:', notifyError);
+      }).catch(() => {
+        // Notification email failed - non-critical
       });
 
       setUserName(data.fullName.split(' ')[0]);
       setIsSuccess(true);
       toast.success('Request submitted successfully!');
-    } catch (err) {
-      console.error('Unexpected error:', err);
+    } catch {
       toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);

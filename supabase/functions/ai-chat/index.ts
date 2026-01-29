@@ -108,8 +108,6 @@ serve(async (req) => {
 
     const normalizedTicker = ticker.trim().toUpperCase();
     const sanitizedMessages = sanitizeMessages(messages);
-    
-    console.log(`AI Chat request for ticker: ${normalizedTicker}`);
 
     // Find the record in sample data (async now)
     const record = await findByTicker(normalizedTicker);
@@ -185,7 +183,6 @@ Guidelines for your responses:
     // Call AI Gateway
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
     if (!lovableApiKey) {
-      console.error('Lovable API key not configured');
       return new Response(
         JSON.stringify({ error: 'AI service not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -209,7 +206,6 @@ Guidelines for your responses:
     });
 
     if (!aiResponse.ok) {
-      console.error('AI Gateway error:', await aiResponse.text());
       return new Response(
         JSON.stringify({ error: 'AI service temporarily unavailable' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -218,8 +214,6 @@ Guidelines for your responses:
 
     const aiData = await aiResponse.json();
     const assistantMessage = aiData.choices?.[0]?.message?.content || 'I apologize, but I was unable to generate a response. Please try again.';
-
-    console.log(`AI Chat response generated for ${normalizedTicker}`);
 
     return new Response(
       JSON.stringify({
@@ -231,8 +225,7 @@ Guidelines for your responses:
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
-  } catch (error: unknown) {
-    console.error('AI Chat error:', error);
+  } catch {
     return new Response(
       JSON.stringify({ error: 'Failed to process chat request. Please try again.' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

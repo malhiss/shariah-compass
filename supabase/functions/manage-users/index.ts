@@ -77,8 +77,8 @@ async function logActivity(
       ip_address: req?.headers.get("x-forwarded-for") || req?.headers.get("x-real-ip") || null,
       user_agent: req?.headers.get("user-agent") || null,
     });
-  } catch (error) {
-    console.error("Failed to log activity:", error);
+  } catch {
+    // Activity logging failed silently - non-critical
   }
 }
 
@@ -203,7 +203,6 @@ serve(async (req) => {
         });
 
         if (createError) {
-          console.error("Error creating user:", createError);
           const isEmailExists = createError.message?.toLowerCase().includes('email') || 
                                createError.message?.toLowerCase().includes('exists');
           return new Response(
@@ -221,7 +220,6 @@ serve(async (req) => {
           );
 
         if (roleAssignError) {
-          console.error("Error assigning role:", roleAssignError);
           // Rollback: delete the user if role assignment fails
           await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
           return new Response(
@@ -257,7 +255,6 @@ serve(async (req) => {
         const { data: users, error: listError } = await supabaseAdmin.auth.admin.listUsers();
         
         if (listError) {
-          console.error("Error listing users:", listError);
           return new Response(
             JSON.stringify({ error: "Failed to retrieve users" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -270,7 +267,6 @@ serve(async (req) => {
           .select("user_id, role");
 
         if (rolesError) {
-          console.error("Error getting roles:", rolesError);
           return new Response(
             JSON.stringify({ error: "Failed to retrieve user roles" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -342,7 +338,6 @@ serve(async (req) => {
           .insert({ user_id: userId, role });
 
         if (insertError) {
-          console.error("Error updating role:", insertError);
           return new Response(
             JSON.stringify({ error: "Failed to update user role" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -414,7 +409,6 @@ serve(async (req) => {
           .eq("id", userId);
 
         if (updateError) {
-          console.error("Error updating access tier:", updateError);
           return new Response(
             JSON.stringify({ error: "Failed to update access tier" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -474,7 +468,6 @@ serve(async (req) => {
         const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
         if (deleteError) {
-          console.error("Error deleting user:", deleteError);
           return new Response(
             JSON.stringify({ error: "Failed to delete user" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -578,7 +571,6 @@ serve(async (req) => {
           updateError = result.error;
           
           if (updateError) {
-            console.error("Error resetting password with provided password:", updateError);
             const errorMessage = updateError.message?.includes('weak') || updateError.code === 'weak_password'
               ? "The provided password was rejected as weak or compromised. Please try a different password."
               : "Failed to reset password";
@@ -604,7 +596,7 @@ serve(async (req) => {
             
             // If it's a weak/pwned password error, try again with a new password
             if (updateError.code === 'weak_password' || updateError.message?.includes('weak') || updateError.message?.includes('pwned')) {
-              console.log(`Password attempt ${attempt + 1} rejected as weak/pwned, retrying...`);
+              // Retrying with new password - production silent
               continue;
             }
             
@@ -613,7 +605,6 @@ serve(async (req) => {
           }
           
           if (updateError) {
-            console.error("Error resetting password after retries:", updateError);
             const errorMessage = updateError.code === 'weak_password' || updateError.message?.includes('weak')
               ? "Unable to generate an acceptable password after multiple attempts. Please try again."
               : "Failed to reset password";
@@ -668,7 +659,6 @@ serve(async (req) => {
         const { data: logs, error: logsError } = await query;
 
         if (logsError) {
-          console.error("Error getting logs:", logsError);
           return new Response(
             JSON.stringify({ error: "Failed to retrieve activity logs" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -766,7 +756,6 @@ serve(async (req) => {
         });
 
         if (createError) {
-          console.error("Error creating user:", createError);
           const isEmailExists = createError.message?.toLowerCase().includes('email') || 
                                createError.message?.toLowerCase().includes('exists');
           return new Response(
@@ -784,7 +773,6 @@ serve(async (req) => {
           );
 
         if (roleAssignError) {
-          console.error("Error assigning role:", roleAssignError);
           // Rollback: delete the user if role assignment fails
           await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
           return new Response(
@@ -800,8 +788,7 @@ serve(async (req) => {
           .eq("id", newUser.user.id);
 
         if (tierError) {
-          console.error("Error setting access tier:", tierError);
-          // Non-fatal - continue with approval
+          // Non-fatal - continue with approval (logging removed for production)
         }
 
         // Update access request status
@@ -815,7 +802,7 @@ serve(async (req) => {
           .eq("id", requestId);
 
         if (updateError) {
-          console.error("Error updating access request:", updateError);
+          // Non-critical error - continue with user creation (logging removed)
         }
 
         // Generate magic link for password setup
@@ -829,7 +816,6 @@ serve(async (req) => {
         });
 
         if (linkError) {
-          console.error("Error generating magic link:", linkError);
           // User was created but link generation failed - still success
         }
 
@@ -869,9 +855,9 @@ serve(async (req) => {
                 `,
               }),
             });
-            console.log("Approval email sent to:", sanitizedEmail);
-          } catch (emailError) {
-            console.error("Failed to send approval email:", emailError);
+            // Email sent successfully
+          } catch {
+            // Email sending failed - non-critical, user was still created
           }
         }
 
@@ -909,8 +895,7 @@ serve(async (req) => {
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
     }
-  } catch (error: unknown) {
-    console.error("Server error:", error);
+  } catch {
     return new Response(
       JSON.stringify({ error: "An unexpected error occurred" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

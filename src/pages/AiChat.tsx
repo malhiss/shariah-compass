@@ -42,11 +42,10 @@ export default function AiChat() {
       setTickerInfo(info);
       setTicker(normalizedTicker);
       setMessages([]);
-    } catch (error) {
-      console.error('Failed to load ticker:', error);
+    } catch {
       toast({
         title: 'Failed to Load Ticker',
-        description: error instanceof Error ? error.message : 'Could not load ticker information',
+        description: 'Could not load ticker information. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -67,11 +66,10 @@ export default function AiChat() {
     try {
       const response = await sendAiChatMessage(ticker, updatedMessages);
       setMessages([...updatedMessages, response.reply]);
-    } catch (error) {
-      console.error('Chat error:', error);
+    } catch {
       toast({
         title: 'Chat Error',
-        description: error instanceof Error ? error.message : 'Failed to get response',
+        description: 'Failed to get response. Please try again.',
         variant: 'destructive',
       });
     } finally {

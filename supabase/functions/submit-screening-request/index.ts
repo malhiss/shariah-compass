@@ -112,11 +112,9 @@ serve(async (req) => {
       : 'invesense';
 
     const normalizedTicker = ticker.trim().toUpperCase();
-    console.log(`User authenticated, submitting screening request for: ${normalizedTicker}`);
 
     const mongoUri = Deno.env.get('MONGODB_URI');
     if (!mongoUri) {
-      console.error('MongoDB URI not configured');
       return new Response(
         JSON.stringify({ error: 'Service configuration error' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -163,8 +161,6 @@ serve(async (req) => {
     const result = await db.collection('screening_requests').insertOne(newRequest);
     await client.close();
 
-    console.log(`Screening request created successfully`);
-
     return new Response(
       JSON.stringify({
         success: true,
@@ -174,8 +170,7 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
-  } catch (error: unknown) {
-    console.error('Screening request error:', error);
+  } catch {
     return new Response(
       JSON.stringify({ error: 'Failed to submit screening request. Please try again.' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

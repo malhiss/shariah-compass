@@ -34,11 +34,10 @@ export default function TickerScreening() {
       const data = await screenTicker(normalizedTicker);
       setResult(data);
       setSearchParams({ ticker: normalizedTicker });
-    } catch (error) {
-      console.error('Screening error:', error);
+    } catch {
       toast({
         title: 'Screening Failed',
-        description: error instanceof Error ? error.message : 'Failed to screen ticker',
+        description: 'Failed to screen ticker. Please try again.',
         variant: 'destructive',
       });
     } finally {

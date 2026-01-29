@@ -54,11 +54,10 @@ export default function ScreeningRequest() {
         title: 'Request Submitted',
         description: 'Your screening request has been submitted successfully',
       });
-    } catch (error) {
-      console.error('Request submission error:', error);
+    } catch {
       toast({
         title: 'Submission Failed',
-        description: error instanceof Error ? error.message : 'Failed to submit request',
+        description: 'Failed to submit request. Please try again.',
         variant: 'destructive',
       });
     } finally {

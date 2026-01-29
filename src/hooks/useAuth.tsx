@@ -71,13 +71,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .maybeSingle();
       
       if (error) {
-        console.error('Error fetching role:', error);
         setRole(null);
       } else {
         setRole(data?.role as AppRole || null);
       }
-    } catch (err) {
-      console.error('Error fetching role:', err);
+    } catch {
       setRole(null);
     }
   };
@@ -91,13 +89,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .maybeSingle();
       
       if (error) {
-        console.error('Error fetching access tier:', error);
         setAccessTier(null);
       } else {
         setAccessTier((data?.access_tier as AccessTier) || 'full');
       }
-    } catch (err) {
-      console.error('Error fetching access tier:', err);
+    } catch {
       setAccessTier(null);
     }
   };
