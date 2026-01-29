@@ -27,6 +27,7 @@ import Memos from "./pages/Memos";
 import MemoDetail from "./pages/MemoDetail";
 import DemoDashboard from "./pages/DemoDashboard";
 import DemoLogin from "./pages/DemoLogin";
+import DemoRecordDetail from "./pages/DemoRecordDetail";
 import NotFound from "./pages/NotFound";
 
 // Clear cache on app load to ensure fresh data
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="/demo" element={<Demo />} />
             <Route path="/demo/login" element={<DemoLogin />} />
             <Route path="/demo/dashboard" element={<DemoDashboard />} />
+            <Route path="/demo/record/:upsertKey" element={<DemoRecordDetail />} />
             
             {/* Staff routes - still accessible */}
             <Route path="/staff-login" element={<StaffLogin />} />

@@ -9,9 +9,9 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 import { ScreeningTable } from "@/components/dashboard/ScreeningTable";
 import { getClientFacingRecords } from "@/lib/shariah-api";
-import { Scale, Coins, ChevronLeft, ChevronRight, Loader2, Globe, MapPin, LogOut } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Globe, MapPin, LogOut } from "lucide-react";
 import dalilLogo from '@/assets/dalil-logo.png';
-import type { ScreeningFilters, ViewMode, Universe } from "@/types/mongodb";
+import type { ScreeningFilters, Universe } from "@/types/mongodb";
 
 export default function DemoDashboard() {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ export default function DemoDashboard() {
   const initialUniverse = (searchParams.get('universe') as Universe) || 'global';
   const initialPage = parseInt(searchParams.get('page') || '1', 10);
   
-  const [viewMode, setViewMode] = useState<ViewMode>("shariah");
+  
   const [universe, setUniverse] = useState<Universe>(initialUniverse);
   const [filters, setFilters] = useState<ScreeningFilters>({
     page: initialPage,
@@ -143,13 +143,12 @@ export default function DemoDashboard() {
             Screening Dashboard
           </h1>
           <p className="text-muted-foreground">
-            Comprehensive Shariah compliance and Zakat screening for {universe === "gcc" ? "GCC" : "global"} equities.
+            Comprehensive Shariah compliance screening for {universe === "gcc" ? "GCC" : "global"} equities.
           </p>
         </div>
 
-        {/* Toggles Row */}
+        {/* Universe Toggle Only */}
         <div className="flex flex-wrap items-center gap-4 mb-4 sm:mb-6">
-          {/* Universe Toggle */}
           <Tabs value={universe} onValueChange={(v) => handleUniverseChange(v as Universe)}>
             <TabsList className="bg-muted/30">
               <TabsTrigger
@@ -168,32 +167,12 @@ export default function DemoDashboard() {
               </TabsTrigger>
             </TabsList>
           </Tabs>
-
-          {/* View Toggle */}
-          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
-            <TabsList className="bg-muted/30">
-              <TabsTrigger
-                value="shariah"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                <Scale className="w-4 h-4 mr-2" />
-                Shariah
-              </TabsTrigger>
-              <TabsTrigger
-                value="zakat"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                <Coins className="w-4 h-4 mr-2" />
-                Zakat
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
         </div>
 
         {/* Filters */}
         <Card className="mb-4 sm:mb-6">
           <CardContent className="p-4">
-            <DashboardFilters filters={filters} onFiltersChange={handleFiltersChange} viewMode={viewMode} />
+            <DashboardFilters filters={filters} onFiltersChange={handleFiltersChange} viewMode="shariah" />
           </CardContent>
         </Card>
 
@@ -217,9 +196,10 @@ export default function DemoDashboard() {
             <ScreeningTable
               data={data?.data || []}
               loading={showLoading}
-              viewMode={viewMode}
+              viewMode="shariah"
               universe={universe}
               currentPage={filters.page}
+              basePath="/demo/record"
             />
           </CardContent>
         </Card>
