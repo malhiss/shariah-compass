@@ -261,31 +261,41 @@ export default function StaffPortal() {
   };
 
   const handleResetPassword = async () => {
-    if (!selectedUser || !newPassword) return;
-
-    if (newPassword.length < 8) {
-      toast({
-        title: 'Invalid password',
-        description: 'Password must be at least 8 characters.',
-        variant: 'destructive',
-      });
-      return;
-    }
+    if (!selectedUser) return;
 
     setIsSubmitting(true);
     try {
+      // Let the server generate a secure password if none provided, or use the one entered
+      const passwordToSend = newPassword.trim() || undefined;
+      
+      if (passwordToSend && passwordToSend.length < 8) {
+        toast({
+          title: 'Invalid password',
+          description: 'Password must be at least 8 characters.',
+          variant: 'destructive',
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       const response = await supabase.functions.invoke('manage-users', {
-        body: { action: 'reset_password', userId: selectedUser.id, newPassword },
+        body: { action: 'reset_password', userId: selectedUser.id, newPassword: passwordToSend },
       });
 
       if (response.error || response.data?.error) {
         throw new Error(response.error?.message || response.data?.error);
       }
 
+      // Use the password returned from the server (which may be server-generated)
+      const actualPassword = response.data?.generatedPassword || passwordToSend;
+      
       toast({
         title: 'Password reset',
-        description: `Password for ${selectedUser.email} has been reset. New password: ${newPassword}`,
+        description: `Password for ${selectedUser.email} has been reset.`,
       });
+
+      // Update the generated credentials to show to the staff
+      setGeneratedCredentials({ email: selectedUser.email, password: actualPassword });
 
       setIsResetPasswordDialogOpen(false);
       setNewPassword('');

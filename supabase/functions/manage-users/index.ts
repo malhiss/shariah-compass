@@ -499,11 +499,11 @@ serve(async (req) => {
       }
 
       case "reset_password": {
-        const { userId, newPassword } = payload;
+        const { userId, newPassword: providedPassword } = payload;
 
-        if (!userId || !newPassword) {
+        if (!userId) {
           return new Response(
-            JSON.stringify({ error: "Missing required fields" }),
+            JSON.stringify({ error: "Missing user ID" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
@@ -515,25 +515,71 @@ serve(async (req) => {
           );
         }
 
-        const passwordValidation = validatePassword(newPassword);
-        if (!passwordValidation.valid) {
-          return new Response(
-            JSON.stringify({ error: passwordValidation.message }),
-            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+        // Generate a cryptographically secure password on the server
+        // This avoids the "pwned" issue by using truly random characters
+        const generateSecurePassword = (): string => {
+          const upperCase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+          const lowerCase = 'abcdefghjkmnpqrstuvwxyz';
+          const numbers = '23456789';
+          const special = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+          
+          const allChars = upperCase + lowerCase + numbers + special;
+          const randomBytes = new Uint8Array(20);
+          crypto.getRandomValues(randomBytes);
+          
+          // Ensure at least one of each type using first 4 random bytes
+          let password = '';
+          password += upperCase[randomBytes[0] % upperCase.length];
+          password += lowerCase[randomBytes[1] % lowerCase.length];
+          password += numbers[randomBytes[2] % numbers.length];
+          password += special[randomBytes[3] % special.length];
+          
+          // Fill remaining 16 characters
+          for (let i = 4; i < 20; i++) {
+            password += allChars[randomBytes[i] % allChars.length];
+          }
+          
+          // Shuffle using Fisher-Yates algorithm with crypto randomness
+          const shuffleBytes = new Uint8Array(password.length);
+          crypto.getRandomValues(shuffleBytes);
+          const arr = password.split('');
+          for (let i = arr.length - 1; i > 0; i--) {
+            const j = shuffleBytes[i] % (i + 1);
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+          }
+          return arr.join('');
+        };
+
+        // Use provided password or generate a secure one
+        let passwordToSet: string;
+        if (providedPassword && typeof providedPassword === 'string') {
+          const passwordValidation = validatePassword(providedPassword);
+          if (!passwordValidation.valid) {
+            return new Response(
+              JSON.stringify({ error: passwordValidation.message }),
+              { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+          passwordToSet = providedPassword;
+        } else {
+          passwordToSet = generateSecurePassword();
         }
 
         // Get user info for logging
         const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
 
         const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-          password: newPassword,
+          password: passwordToSet,
         });
 
         if (updateError) {
           console.error("Error resetting password:", updateError);
+          // Provide more specific error message
+          const errorMessage = updateError.message?.includes('weak') || updateError.message?.includes('pwned')
+            ? "Password was rejected. Please try again with a different password."
+            : "Failed to reset password";
           return new Response(
-            JSON.stringify({ error: "Failed to reset password" }),
+            JSON.stringify({ error: errorMessage }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
@@ -553,7 +599,7 @@ serve(async (req) => {
         );
 
         return new Response(
-          JSON.stringify({ success: true }),
+          JSON.stringify({ success: true, generatedPassword: passwordToSet }),
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
