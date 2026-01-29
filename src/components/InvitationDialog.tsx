@@ -72,6 +72,17 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
         return;
       }
 
+      // Send notification email to staff (fire and forget - don't block on failure)
+      supabase.functions.invoke('notify-access-request', {
+        body: {
+          fullName: data.fullName,
+          company: data.company,
+          email: data.email,
+        },
+      }).catch((notifyError) => {
+        console.error('Failed to send notification email:', notifyError);
+      });
+
       setUserName(data.fullName.split(' ')[0]);
       setIsSuccess(true);
       toast.success('Request submitted successfully!');
