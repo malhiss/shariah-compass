@@ -744,16 +744,69 @@ serve(async (req) => {
         const sanitizedEmail = email.trim().toLowerCase();
         const sanitizedCompany = company ? company.trim().substring(0, 200) : '';
 
-        // Generate a random temporary password (user will set their own via magic link)
-        const tempPassword = crypto.randomUUID() + crypto.randomUUID();
+        // Generate a secure password for the user
+        const generateSecurePassword = (): string => {
+          const upperCase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+          const lowerCase = 'abcdefghjkmnpqrstuvwxyz';
+          const numbers = '23456789';
+          const special = '!@#$%^&*';
+          
+          const allChars = upperCase + lowerCase + numbers + special;
+          const randomBytes = new Uint8Array(16);
+          crypto.getRandomValues(randomBytes);
+          
+          // Ensure at least one of each type
+          let password = '';
+          password += upperCase[randomBytes[0] % upperCase.length];
+          password += lowerCase[randomBytes[1] % lowerCase.length];
+          password += numbers[randomBytes[2] % numbers.length];
+          password += special[randomBytes[3] % special.length];
+          
+          // Fill remaining 12 characters
+          for (let i = 4; i < 16; i++) {
+            password += allChars[randomBytes[i] % allChars.length];
+          }
+          
+          // Shuffle
+          const shuffleBytes = new Uint8Array(password.length);
+          crypto.getRandomValues(shuffleBytes);
+          const arr = password.split('');
+          for (let i = arr.length - 1; i > 0; i--) {
+            const j = shuffleBytes[i] % (i + 1);
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+          }
+          return arr.join('');
+        };
 
-        // Create user with admin client
-        const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-          email: sanitizedEmail,
-          password: tempPassword,
-          email_confirm: true,
-          user_metadata: { full_name: sanitizedName, company: sanitizedCompany },
-        });
+        // Try to create user with generated password (retry if HIBP rejection)
+        let generatedPassword = '';
+        let newUser: any = null;
+        let createError: any = null;
+        const maxRetries = 5;
+
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+          generatedPassword = generateSecurePassword();
+          
+          const result = await supabaseAdmin.auth.admin.createUser({
+            email: sanitizedEmail,
+            password: generatedPassword,
+            email_confirm: true,
+            user_metadata: { full_name: sanitizedName, company: sanitizedCompany },
+          });
+          
+          createError = result.error;
+          newUser = result.data;
+          
+          if (!createError) break;
+          
+          // If it's a weak/pwned password error, retry
+          if (createError.code === 'weak_password' || createError.message?.includes('weak') || createError.message?.includes('pwned')) {
+            continue;
+          }
+          
+          // For other errors (like email exists), don't retry
+          break;
+        }
 
         if (createError) {
           const isEmailExists = createError.message?.toLowerCase().includes('email') || 
@@ -788,7 +841,7 @@ serve(async (req) => {
           .eq("id", newUser.user.id);
 
         if (tierError) {
-          // Non-fatal - continue with approval (logging removed for production)
+          // Non-fatal - continue with approval
         }
 
         // Update access request status
@@ -802,27 +855,17 @@ serve(async (req) => {
           .eq("id", requestId);
 
         if (updateError) {
-          // Non-critical error - continue with user creation (logging removed)
+          // Non-critical error - continue with user creation
         }
 
-        // Generate magic link for password setup
-        const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-        const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-          type: 'magiclink',
-          email: sanitizedEmail,
-          options: {
-            redirectTo: `${supabaseUrl.replace('.supabase.co', '.lovable.app')}/client-login?setup=true`,
-          },
-        });
-
-        if (linkError) {
-          // User was created but link generation failed - still success
-        }
-
-        // Send approval email with magic link
+        // Send welcome email with credentials
         const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-        if (RESEND_API_KEY && linkData?.properties?.action_link) {
+        let emailSent = false;
+        
+        if (RESEND_API_KEY) {
           try {
+            const loginUrl = "https://dalil.me/demo/login";
+            
             await fetch("https://api.resend.com/emails", {
               method: "POST",
               headers: {
@@ -838,16 +881,21 @@ serve(async (req) => {
                     <h1 style="color: #1a1a2e;">Welcome to Dalil, ${sanitizedName}!</h1>
                     <p>Great news! Your access request has been approved.</p>
                     
-                    <p>Click the button below to set up your password and access the platform:</p>
+                    <p>Here are your login credentials:</p>
                     
-                    <div style="text-align: center; margin: 30px 0;">
-                      <a href="${linkData.properties.action_link}" 
-                         style="background-color: #1a1a2e; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
-                        Set Up My Password
-                      </a>
+                    <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                      <p style="margin: 0 0 10px 0;"><strong>Email:</strong> ${sanitizedEmail}</p>
+                      <p style="margin: 0;"><strong>Password:</strong> <code style="background: #e0e0e0; padding: 4px 8px; border-radius: 4px; font-family: monospace;">${generatedPassword}</code></p>
                     </div>
                     
-                    <p style="color: #666; font-size: 14px;">This link will expire in 24 hours. If it expires, please contact us for a new link.</p>
+                    <p style="color: #666; font-size: 14px;">We recommend changing your password after your first login.</p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                      <a href="${loginUrl}" 
+                         style="background-color: #1a1a2e; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
+                        Click Here to Login
+                      </a>
+                    </div>
                     
                     <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
                     <p style="color: #666; font-size: 12px;">Dalil by Invesense Asset Management</p>
@@ -855,9 +903,9 @@ serve(async (req) => {
                 `,
               }),
             });
-            // Email sent successfully
+            emailSent = true;
           } catch {
-            // Email sending failed - non-critical, user was still created
+            // Email sending failed - non-critical
           }
         }
 
@@ -883,7 +931,7 @@ serve(async (req) => {
           JSON.stringify({ 
             success: true, 
             user: { id: newUser.user.id, email: newUser.user.email },
-            emailSent: !!RESEND_API_KEY && !!linkData?.properties?.action_link,
+            emailSent,
           }),
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
