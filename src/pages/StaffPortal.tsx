@@ -58,27 +58,38 @@ export default function StaffPortal() {
   const { toast } = useToast();
 
   const generatePassword = () => {
-    // Generate a cryptographically stronger password that won't be flagged as weak/pwned
+    // Generate a cryptographically secure password using crypto.getRandomValues()
     const upperCase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
     const lowerCase = 'abcdefghjkmnpqrstuvwxyz';
     const numbers = '23456789';
     const special = '!@#$%^&*';
+    const allChars = upperCase + lowerCase + numbers + special;
     
-    // Ensure at least one of each type
+    // Get cryptographically secure random bytes
+    const randomBytes = new Uint8Array(16);
+    crypto.getRandomValues(randomBytes);
+    
+    // Ensure at least one of each type using secure randomness
     let password = '';
-    password += upperCase.charAt(Math.floor(Math.random() * upperCase.length));
-    password += lowerCase.charAt(Math.floor(Math.random() * lowerCase.length));
-    password += numbers.charAt(Math.floor(Math.random() * numbers.length));
-    password += special.charAt(Math.floor(Math.random() * special.length));
+    password += upperCase[randomBytes[0] % upperCase.length];
+    password += lowerCase[randomBytes[1] % lowerCase.length];
+    password += numbers[randomBytes[2] % numbers.length];
+    password += special[randomBytes[3] % special.length];
     
     // Fill the rest with random characters from all sets
-    const allChars = upperCase + lowerCase + numbers + special;
-    for (let i = 0; i < 12; i++) {
-      password += allChars.charAt(Math.floor(Math.random() * allChars.length));
+    for (let i = 4; i < 16; i++) {
+      password += allChars[randomBytes[i] % allChars.length];
     }
     
-    // Shuffle the password to randomize character positions
-    return password.split('').sort(() => Math.random() - 0.5).join('');
+    // Fisher-Yates shuffle with cryptographically secure randomness
+    const shuffleBytes = new Uint8Array(password.length);
+    crypto.getRandomValues(shuffleBytes);
+    const arr = password.split('');
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = shuffleBytes[i] % (i + 1);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.join('');
   };
 
   const fetchUsers = async () => {
