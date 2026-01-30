@@ -64,8 +64,18 @@ const handler = async (req: Request): Promise<Response> => {
 
     const results = [];
     
-    // Send individual emails to each staff member (like approval emails do)
-    for (const recipientEmail of STAFF_NOTIFICATION_EMAILS) {
+    // Helper to delay between API calls (Resend rate limit: 2 requests/second)
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    
+    // Send individual emails to each staff member with delay to avoid rate limiting
+    for (let i = 0; i < STAFF_NOTIFICATION_EMAILS.length; i++) {
+      const recipientEmail = STAFF_NOTIFICATION_EMAILS[i];
+      
+      // Add 600ms delay between requests to stay under 2 req/sec limit
+      if (i > 0) {
+        await delay(600);
+      }
+      
       try {
         const emailResponse = await fetch("https://api.resend.com/emails", {
           method: "POST",
