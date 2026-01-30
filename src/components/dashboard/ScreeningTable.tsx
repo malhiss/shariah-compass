@@ -266,7 +266,7 @@ export function ScreeningTable({
               <TableHead className="text-right text-foreground font-bold">Debt %</TableHead>
               <TableHead className="text-right text-foreground font-bold">Cash %</TableHead>
               <TableHead className="text-right text-foreground font-bold">NPIN %</TableHead>
-              <TableHead className="text-center text-foreground font-bold">Auto Banned</TableHead>
+              <TableHead className="text-center text-foreground font-bold">Banned by Industry</TableHead>
               <TableHead className="text-foreground font-bold">Screening Date</TableHead>
             </TableRow>
           </TableHeader>
