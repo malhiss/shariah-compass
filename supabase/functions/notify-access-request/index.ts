@@ -1,12 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { getCorsHeaders, handleCorsOptions } from "../_shared/cors.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
 
 // Staff email(s) to notify
 const STAFF_NOTIFICATION_EMAILS = ["sultan.m@invesense.com", "sultanmalhis01@gmail.com", "m.bilal@invesense.com"];
@@ -18,9 +13,12 @@ interface AccessRequestNotification {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  // Get CORS headers for this request (origin-restricted)
+  const corsHeaders = getCorsHeaders(req);
+  
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return handleCorsOptions(req);
   }
 
   if (!RESEND_API_KEY) {

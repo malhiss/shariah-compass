@@ -18,10 +18,7 @@ function encodeMongoUri(uri: string): string {
   return `${protocol}${encodedUsername}:${encodedPassword}@${rest}`;
 }
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { getCorsHeaders, handleCorsOptions } from "../_shared/cors.ts";
 
 // Input validation
 const TICKER_REGEX = /^[A-Z0-9.]{1,20}$/;
@@ -64,8 +61,11 @@ async function verifyAuth(req: Request): Promise<{ userId: string; email: string
 }
 
 serve(async (req) => {
+  // Get CORS headers for this request (origin-restricted)
+  const corsHeaders = getCorsHeaders(req);
+  
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return handleCorsOptions(req);
   }
 
   try {
