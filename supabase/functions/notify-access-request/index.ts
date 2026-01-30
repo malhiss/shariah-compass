@@ -8,8 +8,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Staff email(s) to notify - add more as needed
-const STAFF_NOTIFICATION_EMAILS = ["sultanmalhis01@gmail.com"];
+// Staff email(s) to notify
+const STAFF_NOTIFICATION_EMAILS = ["sultan.m@invesense.com", "sultanmalhis01@gmail.com", "m.bilal@invesense.com"];
 
 interface AccessRequestNotification {
   fullName: string;
