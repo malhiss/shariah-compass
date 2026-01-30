@@ -1,11 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { findByTicker, type ScreeningRecord } from "../_shared/sample-data.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { getCorsHeaders, handleCorsOptions } from "../_shared/cors.ts";
 
 // Helper: log activity to Supabase
 async function logActivity(
@@ -157,8 +153,11 @@ function buildResponse(ticker: string, record: ScreeningRecord | undefined) {
 }
 
 serve(async (req) => {
+  // Get CORS headers for this request (origin-restricted)
+  const corsHeaders = getCorsHeaders(req);
+  
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return handleCorsOptions(req);
   }
 
   try {
