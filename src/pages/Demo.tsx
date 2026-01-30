@@ -171,6 +171,21 @@ export default function Demo() {
                 </Link>
               </Button>
             </motion.div>
+            
+            {/* Staff Login Link */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.45 }}
+              className="mb-16"
+            >
+              <Link 
+                to="/staff-login" 
+                className="text-sm text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
+              >
+                Staff Login
+              </Link>
+            </motion.div>
 
             {/* Trust indicators */}
             <motion.div
