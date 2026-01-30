@@ -135,20 +135,13 @@ export default function DemoRecordDetail() {
             Back to Dashboard
           </Link>
           
-          <div className="flex items-start gap-4">
-            <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <span className="text-xl font-bold text-primary">
-                {(record.ticker || record.Ticker || '?')[0]}
-              </span>
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-serif font-bold text-foreground">
-                {record.ticker || record.Ticker}
-              </h1>
-              <p className="text-muted-foreground">
-                {record.company_name || record.Company}
-              </p>
-            </div>
+          <div className="inline-block px-4 py-3 sm:px-5 sm:py-4 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+              {record.ticker || record.Ticker}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {record.company_name || record.Company}
+            </p>
           </div>
         </div>
 
