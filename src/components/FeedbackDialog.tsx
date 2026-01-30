@@ -60,38 +60,39 @@ export function FeedbackDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="gap-2">
+        <Button size="sm" variant="outline" className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3">
           <MessageSquare className="w-4 h-4" />
           <span className="hidden sm:inline">Feedback</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-md mx-auto">
         <DialogHeader>
-          <DialogTitle>Share Your Feedback</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-base sm:text-lg">Share Your Feedback</DialogTitle>
+          <DialogDescription className="text-sm">
             Help us improve Dalil by sharing your thoughts, suggestions, or reporting issues.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
           <Textarea
             placeholder="Tell us what you think..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            className="min-h-[120px] resize-none"
+            className="min-h-[100px] sm:min-h-[120px] resize-none text-sm sm:text-base"
             required
           />
-          <div className="flex justify-end gap-2">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
+              className="w-full sm:w-auto"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting || !message.trim()}
-              className="btn-dalil"
+              className="btn-dalil w-full sm:w-auto"
             >
               {isSubmitting ? 'Sending...' : 'Send Feedback'}
             </Button>
