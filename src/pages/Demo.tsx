@@ -187,28 +187,6 @@ export default function Demo() {
               </Link>
             </motion.div>
 
-            {/* Trust indicators */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="flex flex-wrap items-center justify-center gap-6 text-muted-foreground text-sm"
-            >
-              <span className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-primary" />
-                DFSA Regulated
-              </span>
-              <span className="w-px h-4 bg-border hidden sm:block" />
-              <span className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-compliant" />
-                5,000+ Stocks Screened
-              </span>
-              <span className="w-px h-4 bg-border hidden sm:block" />
-              <span className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-warning" />
-                AI-Powered Analysis
-              </span>
-            </motion.div>
           </div>
         </motion.div>
         
