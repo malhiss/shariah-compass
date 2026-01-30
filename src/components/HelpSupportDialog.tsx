@@ -81,28 +81,28 @@ export function HelpSupportDialog({ trigger }: HelpSupportDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-10 w-10">
-            <HelpCircle className="w-[18px] h-[18px]" />
+          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-8 w-8 sm:h-10 sm:w-10">
+            <HelpCircle className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-[500px] mx-auto max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <HelpCircle className="w-5 h-5 text-primary" />
+          <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             Help & Support
           </DialogTitle>
-          <DialogDescription>
-            Have a question, issue, or feedback? We're here to help. Fill out the form below and our team will get back to you.
+          <DialogDescription className="text-sm">
+            Have a question, issue, or feedback? We're here to help.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 mt-3 sm:mt-4">
           {/* Category Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="category">Category *</Label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="category" className="text-sm">Category *</Label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger id="category">
+              <SelectTrigger id="category" className="text-sm">
                 <SelectValue placeholder="What can we help you with?" />
               </SelectTrigger>
               <SelectContent>
@@ -122,20 +122,21 @@ export function HelpSupportDialog({ trigger }: HelpSupportDialogProps) {
           </div>
 
           {/* Subject */}
-          <div className="space-y-2">
-            <Label htmlFor="subject">Subject *</Label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="subject" className="text-sm">Subject *</Label>
             <Input
               id="subject"
               placeholder="Brief description of your inquiry"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               maxLength={100}
+              className="text-sm"
             />
           </div>
 
           {/* Message */}
-          <div className="space-y-2">
-            <Label htmlFor="message">Message *</Label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="message" className="text-sm">Message *</Label>
             <Textarea
               id="message"
               placeholder={
@@ -149,8 +150,9 @@ export function HelpSupportDialog({ trigger }: HelpSupportDialogProps) {
               }
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              rows={5}
+              rows={4}
               maxLength={1000}
+              className="text-sm min-h-[80px] sm:min-h-[100px]"
             />
             <p className="text-xs text-muted-foreground text-right">
               {message.length}/1000
@@ -159,22 +161,23 @@ export function HelpSupportDialog({ trigger }: HelpSupportDialogProps) {
 
           {/* User email display */}
           {user?.email && (
-            <div className="text-sm text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
-              We'll respond to: <span className="font-medium text-foreground">{user.email}</span>
+            <div className="text-xs sm:text-sm text-muted-foreground bg-muted/50 px-2 sm:px-3 py-2 rounded-md">
+              We'll respond to: <span className="font-medium text-foreground break-all">{user.email}</span>
             </div>
           )}
 
           {/* Submit Button */}
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
               disabled={isSubmitting}
+              className="w-full sm:w-auto"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="btn-dalil">
+            <Button type="submit" disabled={isSubmitting} className="btn-dalil w-full sm:w-auto">
               {isSubmitting ? (
                 "Sending..."
               ) : (
