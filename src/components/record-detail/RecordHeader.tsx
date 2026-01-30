@@ -42,20 +42,13 @@ export function RecordHeader({ record, universe = 'global', page = 1 }: RecordHe
       {/* Main header */}
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 sm:gap-6">
         {/* Company identity */}
-        <div className="flex items-center gap-3 sm:gap-4">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20 shrink-0">
-            <span className="text-lg sm:text-xl font-bold text-primary">
-              {ticker.charAt(0)}
-            </span>
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
-              {ticker}
-            </h1>
-            <p className="text-sm text-muted-foreground truncate">
-              {companyName !== 'N/A' ? companyName : ''}
-            </p>
-          </div>
+        <div className="px-4 py-3 sm:px-5 sm:py-4 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+            {ticker}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {companyName !== 'N/A' ? companyName : ''}
+          </p>
         </div>
 
         {/* Actions */}
