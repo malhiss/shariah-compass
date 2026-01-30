@@ -16,12 +16,15 @@ interface DonutSeriesItem {
   value: number;
 }
 
-// Donut segment item shape from CSV
+// Donut segment item shape from CSV - supports both old (point) and new (pct_of_revenue) field names
 interface DonutSegmentItem {
   name: string;
-  point: number;
+  point?: number;
+  pct_of_revenue?: number;
   lower?: number;
+  pct_lower?: number;
   upper?: number;
+  pct_upper?: number;
   confidence?: string;
 }
 
@@ -82,7 +85,8 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
   if (hasSegmentData) {
     donutSegments.forEach((segment, idx) => {
       const segmentName = segment.name || `Segment ${idx + 1}`;
-      const segmentPct = segment.point ?? 0;
+      // Support both field names: point (old) and pct_of_revenue (new)
+      const segmentPct = segment.point ?? segment.pct_of_revenue ?? 0;
       
       if (segmentPct > 0) {
         chartData.push({
@@ -212,9 +216,10 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
               <Accordion type="multiple" className="space-y-2">
                 {donutSegments.map((segment, idx) => {
                   const segmentName = segment.name || `Segment ${idx + 1}`;
-                  const segmentPct = segment.point ?? 0;
-                  const lowerPct = segment.lower;
-                  const upperPct = segment.upper;
+                  // Support both field names: point (old) and pct_of_revenue (new)
+                  const segmentPct = segment.point ?? segment.pct_of_revenue ?? 0;
+                  const lowerPct = segment.lower ?? segment.pct_lower;
+                  const upperPct = segment.upper ?? segment.pct_upper;
                   const confidence = segment.confidence;
 
                   return (

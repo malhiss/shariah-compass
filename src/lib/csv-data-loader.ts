@@ -342,7 +342,7 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       // Donut charts (parse to arrays at load time using safeParse)
       // donut_series_json contains objects like {label, value} - parse as objects, not numbers
       donut_series_json: safeParseArray<{ label: string; value: number }>(get('donut_series_json')) as { label: string; value: number }[],
-      donut_segments_json: safeParseArray<{ name: string; point?: number; value?: number; lower?: number; upper?: number; confidence?: string }>(get('donut_segments_json')) as { name: string; point?: number; value?: number; lower?: number; upper?: number; confidence?: string }[],
+      donut_segments_json: safeParseArray<{ name: string; point?: number; pct_of_revenue?: number; value?: number; lower?: number; pct_lower?: number; upper?: number; pct_upper?: number; confidence?: string }>(get('donut_segments_json')) as { name: string; point?: number; pct_of_revenue?: number; value?: number; lower?: number; pct_lower?: number; upper?: number; pct_upper?: number; confidence?: string }[],
       
       // Haram revenue composition
       haram_pct_point: parseNumber(get('haram_pct_point')),
