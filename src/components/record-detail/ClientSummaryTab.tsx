@@ -54,7 +54,7 @@ export function ClientSummaryTab({ record, universe }: ClientSummaryTabProps) {
                 <div className="p-2 rounded-lg bg-primary/10">
                   <MessageSquare className="w-5 h-5 text-primary" />
                 </div>
-                <CardTitle className="text-lg">Summary</CardTitle>
+                <CardTitle className="text-lg">Shariah Summary</CardTitle>
               </div>
             </CardHeader>
           )}
@@ -71,7 +71,7 @@ export function ClientSummaryTab({ record, universe }: ClientSummaryTabProps) {
                   <div className="p-2 rounded-lg bg-primary/10">
                     <Lightbulb className="w-5 h-5 text-primary" />
                   </div>
-                  <span className="text-lg font-semibold">Shariah Summary</span>
+                  <span className="text-lg font-semibold">NPIN Overview</span>
                 </div>
                 <p className="text-foreground leading-relaxed">{estimatedSummary}</p>
               </div>

@@ -145,7 +145,7 @@ export function VerdictActionBox({ record }: VerdictActionBoxProps) {
           <>
             <Separator />
             <div>
-              <h4 className="text-sm font-medium text-muted-foreground mb-2">Summary</h4>
+              <h4 className="text-sm font-medium text-muted-foreground mb-2">Shariah Summary</h4>
               <p className="text-sm leading-relaxed">{record.shariah_summary}</p>
             </div>
           </>
