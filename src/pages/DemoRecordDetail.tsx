@@ -126,10 +126,10 @@ export default function DemoRecordDetail() {
       <DemoHeader />
       <div className="p-4 sm:p-6 lg:p-8">
         {/* Header Section - custom for demo (no sidebar back button) */}
-        <div className="mb-6">
+        <div className="mb-6 space-y-4">
           <Link 
             to={backUrl}
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
