@@ -78,7 +78,7 @@ export function DashboardFilters({
     localSearch ||
     filters.finalVerdict ||
     filters.zakatStatus ||
-    filters.autoBanned;
+    (filters.autoBanned && filters.autoBanned !== 'all');
 
   return (
     <div className="space-y-3 sm:space-y-4">

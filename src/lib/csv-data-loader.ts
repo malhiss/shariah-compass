@@ -396,10 +396,10 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       final_ticker_summary_json: parseString(get('final_ticker_summary_json')),
       final_ticker_summary_last_updated: parseString(get('final_ticker_summary_last_updated')),
       
-      // Auto-banned
-      auto_banned: parseBoolean(get('auto_banned')),
+      // Auto-banned (handle multiple header variations)
+      auto_banned: parseBoolean(get('auto_banned', 'Auto Banned', 'Auto Banned ', 'Auto_Banned')),
       auto_banned_status: parseString(get('auto_banned_status')),
-      auto_banned_reason_clean: parseString(get('auto_banned_reason_clean')),
+      auto_banned_reason_clean: parseString(get('auto_banned_reason_clean', 'Auto Banned Reason', 'Auto_Banned_Reason')),
       auto_banned_summary: parseString(get('auto_banned_summary')),
       
       // Legacy timestamp fields
