@@ -50,7 +50,7 @@ const handler = async (req: Request): Promise<Response> => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Dalil Platform <onboarding@resend.dev>",
+        from: "Dalil Platform <noreply@dalil.me>",
         to: STAFF_NOTIFICATION_EMAILS,
         subject: `New Access Request: ${sanitizedName} from ${sanitizedCompany}`,
         html: `
