@@ -11,13 +11,20 @@ const ALLOWED_ORIGINS = [
 ];
 
 // For preview URLs (Lovable generates dynamic preview URLs)
-const PREVIEW_URL_PATTERN = /^https:\/\/[a-z0-9-]+--[a-z0-9-]+\.lovable\.app$/;
+// Matches both formats: 
+// - id-preview--uuid.lovable.app
+// - uuid.lovableproject.com
+const PREVIEW_URL_PATTERNS = [
+  /^https:\/\/[a-z0-9-]+--[a-z0-9-]+\.lovable\.app$/,
+  /^https:\/\/[a-z0-9-]+\.lovableproject\.com$/,
+];
 
 export function getCorsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get('origin') || '';
   
-  // Check if origin is in allowed list or matches preview pattern
-  const isAllowed = ALLOWED_ORIGINS.includes(origin) || PREVIEW_URL_PATTERN.test(origin);
+  // Check if origin is in allowed list or matches preview patterns
+  const isAllowed = ALLOWED_ORIGINS.includes(origin) || 
+    PREVIEW_URL_PATTERNS.some(pattern => pattern.test(origin));
   
   return {
     'Access-Control-Allow-Origin': isAllowed ? origin : ALLOWED_ORIGINS[0],
