@@ -830,7 +830,7 @@ serve(async (req) => {
                 Authorization: `Bearer ${RESEND_API_KEY}`,
               },
               body: JSON.stringify({
-                from: "Dalil Platform <onboarding@resend.dev>",
+                from: "Dalil Platform <noreply@dalil.me>",
                 to: [sanitizedEmail],
                 subject: "Your Dalil Access Has Been Approved!",
                 html: `
