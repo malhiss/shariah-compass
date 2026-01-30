@@ -353,8 +353,8 @@ export default function StaffPortal() {
             {activeTab === 'users' && (
               <Dialog open={isCreateDialogOpen} onOpenChange={(open) => !open && closeCreateDialog()}>
                 <DialogTrigger asChild>
-                  <Button className="btn-invesense w-full sm:w-auto" size="default" onClick={() => setIsCreateDialogOpen(true)}>
-                    <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                  <Button className="btn-invesense" size="default" onClick={() => setIsCreateDialogOpen(true)}>
+                    <UserPlus className="w-4 h-4 mr-2" />
                     Create New User
                   </Button>
                 </DialogTrigger>
