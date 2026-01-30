@@ -9,7 +9,7 @@ const corsHeaders = {
 };
 
 // Staff email(s) to notify - add more as needed
-const STAFF_NOTIFICATION_EMAILS = ["sultan.m@invesense.com"];
+const STAFF_NOTIFICATION_EMAILS = ["sultanmalhis01@gmail.com"];
 
 interface AccessRequestNotification {
   fullName: string;
