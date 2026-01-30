@@ -307,7 +307,7 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       // Financial Ratios
       debt_ratio_pct: parseNumber(get('debt_ratio_pct')),
       cash_inv_ratio_pct: parseNumber(get('cash_inv_ratio_pct')),
-      npin_ratio_pct: parseNumber(get('npin_ratio_pct')),
+      npin_ratio_pct: parseNumber(get('Non_Compliant_Revenue_Point_Estimate', 'npin_ratio_pct')),
       debt_status: parseString(get('debt_status')) as ScreeningRecord['debt_status'],
       cash_inv_status: parseString(get('cash_inv_status')) as ScreeningRecord['cash_inv_status'],
       npin_status: parseString(get('npin_status')) as ScreeningRecord['npin_status'],
