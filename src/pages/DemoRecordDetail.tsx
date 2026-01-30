@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RecordHeader } from '@/components/record-detail/RecordHeader';
+import { DemoHeader } from '@/components/DemoHeader';
 import { VerdictBar } from '@/components/record-detail/VerdictBar';
 import { ScreeningTiles } from '@/components/record-detail/ScreeningTiles';
 import { CompanyProfileSection } from '@/components/record-detail/CompanyProfileSection';
@@ -13,7 +13,6 @@ import { HaramRevenueSection } from '@/components/record-detail/HaramRevenueSect
 import { ReferencesSection } from '@/components/record-detail/ReferencesSection';
 import { ClientSummaryTab } from '@/components/record-detail/ClientSummaryTab';
 import { StructuredMemoSection } from '@/components/record-detail/StructuredMemoSection';
-import dalilLogo from '@/assets/dalil-logo.png';
 
 import { ArrowLeft, RefreshCw, AlertTriangle, FileText, MessageSquare, BookOpen } from 'lucide-react';
 
@@ -26,24 +25,6 @@ export default function DemoRecordDetail() {
 
   const backUrl = `/demo/dashboard?universe=${universe}&page=${page}`;
 
-  // Minimal header for demo
-  const DemoHeader = () => (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80">
-      <div className="flex h-16 lg:h-[72px] items-center justify-between px-4 sm:px-6">
-        <Link to="/demo" className="flex items-center transition-opacity hover:opacity-80 shrink-0">
-          <img src={dalilLogo} alt="Dalil" className="h-[58px] lg:h-[69px] w-auto" />
-        </Link>
-        <Link to={backUrl}>
-          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
-          </Button>
-        </Link>
-      </div>
-    </header>
-  );
-
-  // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">

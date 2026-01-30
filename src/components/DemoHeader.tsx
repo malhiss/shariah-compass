@@ -1,12 +1,17 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { LayoutDashboard, Shield } from 'lucide-react';
+import { LayoutDashboard, Shield, LogOut, Loader2 } from 'lucide-react';
 import dalilLogo from '@/assets/dalil-logo.png';
 import { useAuth } from '@/hooks/useAuth';
 import { FeedbackDialog } from '@/components/FeedbackDialog';
 
-export function DemoHeader() {
+interface DemoHeaderProps {
+  onSignOut?: () => void;
+  isSigningOut?: boolean;
+}
+
+export function DemoHeader({ onSignOut, isSigningOut }: DemoHeaderProps) {
   const { isStaff, user } = useAuth();
 
   return (
@@ -22,7 +27,7 @@ export function DemoHeader() {
           </Badge>
         </div>
         
-        {/* Right side: Feedback (logged in) + Dashboard + Staff Portal for staff */}
+        {/* Right side: Feedback (logged in) + Dashboard + Staff Portal for staff + Sign Out */}
         <div className="flex items-center gap-2">
           {user && <FeedbackDialog />}
           {isStaff && (
@@ -39,6 +44,22 @@ export function DemoHeader() {
               Dashboard
             </Link>
           </Button>
+          {onSignOut && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onSignOut}
+              disabled={isSigningOut}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              {isSigningOut ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <LogOut className="w-4 h-4 mr-2" />
+              )}
+              <span className="hidden sm:inline">Sign Out</span>
+            </Button>
+          )}
         </div>
       </div>
     </header>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 import { ScreeningTable } from "@/components/dashboard/ScreeningTable";
+import { DemoHeader } from "@/components/DemoHeader";
 import { getClientFacingRecords } from "@/lib/shariah-api";
 import { ChevronLeft, ChevronRight, Loader2, Globe, MapPin, LogOut } from "lucide-react";
-import dalilLogo from '@/assets/dalil-logo.png';
 import type { ScreeningFilters, Universe } from "@/types/mongodb";
 
 export default function DemoDashboard() {
@@ -112,28 +112,8 @@ export default function DemoDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Minimal Header with Sign Out */}
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80">
-        <div className="flex h-16 lg:h-[72px] items-center justify-between px-4 sm:px-6">
-          <Link to="/demo" className="flex items-center transition-opacity hover:opacity-80 shrink-0">
-            <img src={dalilLogo} alt="Dalil" className="h-[58px] lg:h-[69px] w-auto" />
-          </Link>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleSignOut}
-            disabled={isSigningOut}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            {isSigningOut ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <LogOut className="w-4 h-4 mr-2" />
-            )}
-            Sign Out
-          </Button>
-        </div>
-      </header>
+      {/* Demo Header with Badge and Feedback */}
+      <DemoHeader onSignOut={handleSignOut} isSigningOut={isSigningOut} />
 
       {/* Dashboard Content */}
       <div className="p-4 sm:p-6 lg:p-8">
