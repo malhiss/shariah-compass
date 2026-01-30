@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { AnimatedSection, StaggerContainer, StaggerItem } from '@/components/AnimatedSection';
 import { 
   UserPlus, Clock, CheckCircle, XCircle, Search, Building2, 
-  Mail, User, RefreshCw, Loader2, Send
+  Mail, User, RefreshCw, Loader2, Send, Trash2
 } from 'lucide-react';
 
 interface AccessRequest {
@@ -130,6 +130,34 @@ export default function AccessRequestsTab() {
     } catch (error: any) {
       toast({
         title: 'Error rejecting request',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDelete = async (request: AccessRequest) => {
+    if (!confirm(`Are you sure you want to delete this ${request.status} request from ${request.full_name}? This cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('access_requests')
+        .delete()
+        .eq('id', request.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Request deleted',
+        description: `Request from ${request.full_name} has been removed.`,
+      });
+
+      fetchRequests();
+    } catch (error: any) {
+      toast({
+        title: 'Error deleting request',
         description: error.message,
         variant: 'destructive',
       });
@@ -329,27 +357,39 @@ export default function AccessRequestsTab() {
                           {formatDate(request.created_at)}
                         </TableCell>
                         <TableCell className="text-right">
-                          {request.status === 'pending' && (
-                            <div className="flex items-center justify-end gap-2">
-                              <Button
-                                size="sm"
-                                className="btn-dalil"
-                                onClick={() => openApproveDialog(request)}
-                              >
-                                <CheckCircle className="w-4 h-4 mr-1" />
-                                Approve
-                              </Button>
+                          <div className="flex items-center justify-end gap-2">
+                            {request.status === 'pending' ? (
+                              <>
+                                <Button
+                                  size="sm"
+                                  className="btn-dalil"
+                                  onClick={() => openApproveDialog(request)}
+                                >
+                                  <CheckCircle className="w-4 h-4 mr-1" />
+                                  Approve
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-destructive hover:bg-destructive/10"
+                                  onClick={() => handleReject(request)}
+                                >
+                                  <XCircle className="w-4 h-4 mr-1" />
+                                  Reject
+                                </Button>
+                              </>
+                            ) : (
                               <Button
                                 size="sm"
                                 variant="outline"
                                 className="text-destructive hover:bg-destructive/10"
-                                onClick={() => handleReject(request)}
+                                onClick={() => handleDelete(request)}
                               >
-                                <XCircle className="w-4 h-4 mr-1" />
-                                Reject
+                                <Trash2 className="w-4 h-4 mr-1" />
+                                Remove
                               </Button>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -371,7 +411,7 @@ export default function AccessRequestsTab() {
             <DialogDescription>
               {approvalResult 
                 ? 'The user has been notified via email.' 
-                : 'This will create an account and send a magic link email.'}
+                : 'This will create an account and send login credentials via email.'}
             </DialogDescription>
           </DialogHeader>
 
@@ -383,7 +423,7 @@ export default function AccessRequestsTab() {
                 {approvalResult.emailSent ? (
                   <p className="text-sm text-muted-foreground mt-2">
                     <Send className="w-4 h-4 inline mr-1" />
-                    An email with a magic link has been sent to {selectedRequest?.email}
+                    Login credentials have been sent to {selectedRequest?.email}
                   </p>
                 ) : (
                   <p className="text-sm text-warning mt-2">
@@ -422,9 +462,9 @@ export default function AccessRequestsTab() {
                   <strong>What happens next:</strong>
                 </p>
                 <ul className="text-sm text-muted-foreground mt-2 space-y-1">
-                  <li>• A client account will be created</li>
-                  <li>• The user will receive an email with a magic link</li>
-                  <li>• They can click the link to set up their password</li>
+                  <li>• A client account will be created with a secure password</li>
+                  <li>• The user will receive an email with their login credentials</li>
+                  <li>• They can click the login button to access the platform</li>
                 </ul>
               </div>
 
