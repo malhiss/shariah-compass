@@ -858,13 +858,37 @@ serve(async (req) => {
           // Non-critical error - continue with user creation
         }
 
-        // Send welcome email with credentials
+        // Generate a one-time login token
+        const generateLoginToken = (): string => {
+          const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+          const randomBytes = new Uint8Array(48);
+          crypto.getRandomValues(randomBytes);
+          return Array.from(randomBytes)
+            .map(b => chars[b % chars.length])
+            .join('');
+        };
+
+        const loginToken = generateLoginToken();
+        const tokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+        // Store the login token
+        await supabaseAdmin
+          .from("login_tokens")
+          .insert({
+            user_id: newUser.user.id,
+            email: sanitizedEmail,
+            token: loginToken,
+            expires_at: tokenExpiresAt.toISOString(),
+          });
+
+        // Send welcome email with one-click login
         const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
         let emailSent = false;
         
         if (RESEND_API_KEY) {
           try {
-            const loginUrl = "https://dalil.me/demo/login";
+            const loginUrl = `https://dalil.me/demo/login?token=${loginToken}`;
+            const manualLoginUrl = "https://dalil.me/demo/login";
             
             await fetch("https://api.resend.com/emails", {
               method: "POST",
@@ -881,20 +905,22 @@ serve(async (req) => {
                     <h1 style="color: #1a1a2e;">Welcome to Dalil, ${sanitizedName}!</h1>
                     <p>Great news! Your access request has been approved.</p>
                     
-                    <p>Here are your login credentials:</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                      <a href="${loginUrl}" 
+                         style="background-color: #1a1a2e; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
+                        Click Here to Access Dalil
+                      </a>
+                    </div>
+                    
+                    <p style="color: #666; font-size: 14px; text-align: center;">This link will log you in automatically and expires in 7 days.</p>
+                    
+                    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
+                    
+                    <p style="color: #888; font-size: 13px;">If the button above doesn't work, you can also log in manually at <a href="${manualLoginUrl}" style="color: #1a1a2e;">${manualLoginUrl}</a> with these credentials:</p>
                     
                     <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
                       <p style="margin: 0 0 10px 0;"><strong>Email:</strong> ${sanitizedEmail}</p>
                       <p style="margin: 0;"><strong>Password:</strong> <code style="background: #e0e0e0; padding: 4px 8px; border-radius: 4px; font-family: monospace;">${generatedPassword}</code></p>
-                    </div>
-                    
-                    <p style="color: #666; font-size: 14px;">We recommend changing your password after your first login.</p>
-                    
-                    <div style="text-align: center; margin: 30px 0;">
-                      <a href="${loginUrl}" 
-                         style="background-color: #1a1a2e; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
-                        Click Here to Login
-                      </a>
                     </div>
                     
                     <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
