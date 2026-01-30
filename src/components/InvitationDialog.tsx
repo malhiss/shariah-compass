@@ -103,7 +103,7 @@ export function InvitationDialog({ open, onOpenChange }: InvitationDialogProps) 
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-md mx-auto max-h-[90vh] overflow-y-auto">
         <AnimatePresence mode="wait">
           {isSuccess ? (
             <motion.div
