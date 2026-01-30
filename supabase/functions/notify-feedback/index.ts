@@ -28,7 +28,7 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Missing required fields: userEmail and message");
     }
 
-    const adminEmails = ["sultan.m@invesense.com", "m.bilal@invesense.com"];
+    const adminEmails = ["sultan.m@invesense.com", "sultanmalhis01@gmail.com", "m.bilal@invesense.com"];
 
     const emailResponse = await resend.emails.send({
       from: "Dalil Platform <noreply@dalil.me>",
