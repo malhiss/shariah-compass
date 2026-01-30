@@ -1,5 +1,8 @@
-import { useParams, Link, useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
+import { useParams, Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useScreeningRecord } from '@/hooks/useScreeningRecords';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -19,16 +22,32 @@ import { ArrowLeft, RefreshCw, AlertTriangle, FileText, MessageSquare, BookOpen 
 export default function DemoRecordDetail() {
   const { upsertKey } = useParams<{ upsertKey: string }>();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  
   const universe = searchParams.get('universe') || 'global';
   const page = parseInt(searchParams.get('page') || '1', 10);
   const { data: record, isLoading, isError, error, refetch } = useScreeningRecord(upsertKey);
 
   const backUrl = `/demo/dashboard?universe=${universe}&page=${page}`;
 
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+      await supabase.auth.signOut();
+      toast.success('Signed out successfully');
+      navigate('/demo', { replace: true });
+    } catch {
+      toast.error('Failed to sign out');
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <DemoHeader />
+        <DemoHeader onSignOut={handleSignOut} isSigningOut={isSigningOut} />
         <div className="p-4 sm:p-6 lg:p-8">
           <div className="space-y-4 sm:space-y-6">
             <Skeleton className="h-6 w-32" />
@@ -56,7 +75,7 @@ export default function DemoRecordDetail() {
   if (isError) {
     return (
       <div className="min-h-screen bg-background">
-        <DemoHeader />
+        <DemoHeader onSignOut={handleSignOut} isSigningOut={isSigningOut} />
         <div className="p-4 sm:p-6 lg:p-8">
           <Card className="border-destructive/30 bg-destructive/5">
             <CardContent className="py-12 text-center">
@@ -80,7 +99,7 @@ export default function DemoRecordDetail() {
   if (!record) {
     return (
       <div className="min-h-screen bg-background">
-        <DemoHeader />
+        <DemoHeader onSignOut={handleSignOut} isSigningOut={isSigningOut} />
         <div className="p-4 sm:p-6 lg:p-8">
           <Card className="border-border">
             <CardContent className="py-12 text-center">
@@ -104,7 +123,7 @@ export default function DemoRecordDetail() {
 
   return (
     <div className="min-h-screen bg-background">
-      <DemoHeader />
+      <DemoHeader onSignOut={handleSignOut} isSigningOut={isSigningOut} />
       <div className="p-4 sm:p-6 lg:p-8">
         {/* Header Section - custom for demo (no sidebar back button) */}
         <div className="mb-6 flex flex-col items-start gap-4">
