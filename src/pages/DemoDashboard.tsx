@@ -9,7 +9,9 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 import { ScreeningTable } from "@/components/dashboard/ScreeningTable";
 import { DemoHeader } from "@/components/DemoHeader";
+import { DisclaimerGate } from "@/components/DisclaimerGate";
 import { getClientFacingRecords } from "@/lib/shariah-api";
+import { useAuth } from "@/hooks/useAuth";
 import { ChevronLeft, ChevronRight, Loader2, Globe, MapPin, LogOut } from "lucide-react";
 import type { ScreeningFilters, Universe } from "@/types/mongodb";
 
@@ -18,6 +20,7 @@ export default function DemoDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const { user, disclaimerAccepted, refreshDisclaimerStatus, isStaff } = useAuth();
   
   const initialUniverse = (searchParams.get('universe') as Universe) || 'global';
   const initialPage = parseInt(searchParams.get('page') || '1', 10);
@@ -110,8 +113,18 @@ export default function DemoDashboard() {
 
   const showLoading = isLoading && !data;
 
+  // Show disclaimer gate if not yet accepted (skip for staff)
+  const showDisclaimer = user && !disclaimerAccepted && !isStaff;
+
   return (
     <div className="min-h-screen bg-background">
+      {/* Disclaimer Gate - blocks access until accepted */}
+      {showDisclaimer && (
+        <DisclaimerGate 
+          userId={user.id} 
+          onAccepted={refreshDisclaimerStatus} 
+        />
+      )}
       {/* Demo Header with Badge and Feedback */}
       <DemoHeader onSignOut={handleSignOut} isSigningOut={isSigningOut} />
 

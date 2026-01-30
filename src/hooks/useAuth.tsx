@@ -11,9 +11,11 @@ interface AuthContextType {
   role: AppRole;
   accessTier: AccessTier;
   loading: boolean;
+  disclaimerAccepted: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
+  refreshDisclaimerStatus: () => Promise<void>;
   isClient: boolean;
   isStaff: boolean;
   isDemoUser: boolean;
@@ -26,6 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [role, setRole] = useState<AppRole>(null);
   const [accessTier, setAccessTier] = useState<AccessTier>(null);
+  const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,10 +43,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setTimeout(() => {
             fetchUserRole(session.user.id);
             fetchAccessTier(session.user.id);
+            fetchDisclaimerStatus(session.user.id);
           }, 0);
         } else {
           setRole(null);
           setAccessTier(null);
+          setDisclaimerAccepted(false);
         }
       }
     );
@@ -55,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (session?.user) {
         fetchUserRole(session.user.id);
         fetchAccessTier(session.user.id);
+        fetchDisclaimerStatus(session.user.id);
       }
       setLoading(false);
     });
@@ -98,6 +104,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const fetchDisclaimerStatus = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('disclaimer_accepted_at')
+        .eq('id', userId)
+        .maybeSingle();
+      
+      if (error) {
+        setDisclaimerAccepted(false);
+      } else {
+        setDisclaimerAccepted(!!data?.disclaimer_accepted_at);
+      }
+    } catch {
+      setDisclaimerAccepted(false);
+    }
+  };
+
+  const refreshDisclaimerStatus = async () => {
+    if (user) {
+      await fetchDisclaimerStatus(user.id);
+    }
+  };
+
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -126,6 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     setRole(null);
     setAccessTier(null);
+    setDisclaimerAccepted(false);
   };
 
   return (
@@ -136,9 +167,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role,
         accessTier,
         loading,
+        disclaimerAccepted,
         signIn,
         signUp,
         signOut,
+        refreshDisclaimerStatus,
         isClient: role === 'client',
         isStaff: role === 'staff',
         isDemoUser: accessTier === 'demo',

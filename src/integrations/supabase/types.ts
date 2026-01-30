@@ -144,6 +144,7 @@ export type Database = {
         Row: {
           access_tier: string
           created_at: string
+          disclaimer_accepted_at: string | null
           email: string | null
           full_name: string | null
           id: string
@@ -152,6 +153,7 @@ export type Database = {
         Insert: {
           access_tier?: string
           created_at?: string
+          disclaimer_accepted_at?: string | null
           email?: string | null
           full_name?: string | null
           id: string
@@ -160,6 +162,7 @@ export type Database = {
         Update: {
           access_tier?: string
           created_at?: string
+          disclaimer_accepted_at?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
