@@ -27,6 +27,7 @@ export function FeedbackDialog() {
 
     setIsSubmitting(true);
     try {
+      // Insert feedback into database
       const { error } = await supabase.from('feedback').insert({
         user_id: user.id,
         user_email: user.email || '',
@@ -34,6 +35,16 @@ export function FeedbackDialog() {
       });
 
       if (error) throw error;
+
+      // Send email notification to admins (fire and forget)
+      supabase.functions.invoke('notify-feedback', {
+        body: {
+          userEmail: user.email || '',
+          message: message.trim(),
+        },
+      }).catch((err) => {
+        console.error('Failed to send feedback notification:', err);
+      });
 
       toast.success('Thank you for your feedback!');
       setMessage('');
