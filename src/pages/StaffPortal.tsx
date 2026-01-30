@@ -337,28 +337,28 @@ export default function StaffPortal() {
 
   return (
     <div className="min-h-screen">
-      <div className="container max-w-7xl py-8 md:py-12">
+      <div className="container max-w-7xl py-4 sm:py-8 md:py-12 px-3 sm:px-6">
         {/* Header */}
-        <AnimatedSection className="mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <AnimatedSection className="mb-6 sm:mb-8">
+          <div className="flex flex-col gap-4 sm:gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-sm mb-4">
-                <Shield className="w-4 h-4" />
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-xs sm:text-sm mb-3 sm:mb-4">
+                <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Staff Portal</span>
               </div>
-              <h1 className="text-3xl md:text-4xl font-serif font-bold">Admin Dashboard</h1>
-              <p className="text-muted-foreground mt-2">Manage users, view activity logs, and monitor system usage</p>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold">Admin Dashboard</h1>
+              <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">Manage users, view activity logs, and monitor system usage</p>
             </div>
             
             {activeTab === 'users' && (
               <Dialog open={isCreateDialogOpen} onOpenChange={(open) => !open && closeCreateDialog()}>
                 <DialogTrigger asChild>
-                  <Button className="btn-invesense" size="lg" onClick={() => setIsCreateDialogOpen(true)}>
-                    <UserPlus className="w-5 h-5 mr-2" />
+                  <Button className="btn-invesense w-full sm:w-auto" size="default" onClick={() => setIsCreateDialogOpen(true)}>
+                    <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                     Create New User
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent className="w-[calc(100%-2rem)] max-w-md mx-auto max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle className="font-serif text-xl">
                       {generatedCredentials ? 'User Created Successfully' : 'Create New User'}
@@ -523,18 +523,18 @@ export default function StaffPortal() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-lg grid-cols-3">
-            <TabsTrigger value="users" className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              Users
+          <TabsList className="w-full grid grid-cols-3 h-auto p-1">
+            <TabsTrigger value="users" className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm">
+              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">Users</span>
             </TabsTrigger>
-            <TabsTrigger value="requests" className="flex items-center gap-2">
-              <Inbox className="w-4 h-4" />
-              Access Requests
+            <TabsTrigger value="requests" className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm">
+              <Inbox className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">Requests</span>
             </TabsTrigger>
-            <TabsTrigger value="activity" className="flex items-center gap-2">
-              <Activity className="w-4 h-4" />
-              Activity Logs
+            <TabsTrigger value="activity" className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm">
+              <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">Logs</span>
             </TabsTrigger>
           </TabsList>
 
@@ -733,7 +733,7 @@ export default function StaffPortal() {
                                 )}
                               </TableCell>
                               <TableCell className="text-right">
-                                <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex items-center justify-end gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                   <Button
                                     variant="ghost"
                                     size="icon"
@@ -780,17 +780,17 @@ export default function StaffPortal() {
 
         {/* Reset Password Dialog */}
         <Dialog open={isResetPasswordDialogOpen} onOpenChange={setIsResetPasswordDialogOpen}>
-          <DialogContent>
+          <DialogContent className="w-[calc(100%-2rem)] max-w-md mx-auto">
             <DialogHeader>
-              <DialogTitle className="font-serif">Reset Password</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="font-serif text-base sm:text-lg">Reset Password</DialogTitle>
+              <DialogDescription className="text-sm break-all">
                 Set a new password for {selectedUser?.email}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="newPassword">New Password</Label>
+                  <Label htmlFor="newPassword" className="text-sm">New Password</Label>
                   <Button
                     type="button"
                     variant="ghost"
@@ -808,7 +808,7 @@ export default function StaffPortal() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Minimum 8 characters"
-                    className="pr-10"
+                    className="pr-10 text-sm"
                   />
                   <Button
                     type="button"
@@ -822,11 +822,11 @@ export default function StaffPortal() {
                 </div>
               </div>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsResetPasswordDialogOpen(false)}>
+            <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+              <Button variant="outline" onClick={() => setIsResetPasswordDialogOpen(false)} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button onClick={handleResetPassword} disabled={isSubmitting} className="btn-invesense">
+              <Button onClick={handleResetPassword} disabled={isSubmitting} className="btn-invesense w-full sm:w-auto">
                 {isSubmitting ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
                 ) : (
