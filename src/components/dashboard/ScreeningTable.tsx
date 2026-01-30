@@ -258,7 +258,6 @@ export function ScreeningTable({
             <TableRow className="border-border hover:bg-transparent">
               <TableHead className="text-foreground font-bold">Ticker</TableHead>
               <TableHead className="text-foreground font-bold">Company</TableHead>
-              <TableHead className="text-foreground font-bold">Sector</TableHead>
               <TableHead className="text-foreground font-bold">Industry</TableHead>
               <TableHead className="text-center text-foreground font-bold">Classification</TableHead>
               <TableHead className="text-right text-foreground font-bold">Market Cap Mm</TableHead>
@@ -282,9 +281,6 @@ export function ScreeningTable({
                 </TableCell>
                 <TableCell className="text-muted-foreground max-w-[180px] truncate">
                   {record.company_name || record.Company || '—'}
-                </TableCell>
-                <TableCell className="text-muted-foreground text-sm max-w-[120px] truncate">
-                  {record.sector || record.Sector || '—'}
                 </TableCell>
                 <TableCell className="text-muted-foreground text-sm max-w-[140px] truncate">
                   {record.industry || record.Industry || '—'}
