@@ -42,37 +42,19 @@ export function RecordHeader({ record, universe = 'global', page = 1 }: RecordHe
       {/* Main header */}
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 sm:gap-6">
         {/* Company identity */}
-        <div className="flex items-start gap-3 sm:gap-5">
-          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20 shrink-0">
-            <Building2 className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20 shrink-0">
+            <span className="text-lg sm:text-xl font-bold text-primary">
+              {ticker.charAt(0)}
+            </span>
           </div>
-          <div className="space-y-2 sm:space-y-3 min-w-0 flex-1">
-            <div className="flex items-start sm:items-center gap-2 sm:gap-3 flex-wrap">
-              <h1 className="text-xl sm:text-3xl font-serif font-semibold tracking-tight break-words">
-                {companyName !== 'N/A' ? companyName : ticker}
-              </h1>
-              <Badge variant="outline" className="bg-primary/10 border-primary/30 text-primary font-mono text-xs sm:text-sm px-2 sm:px-3">
-                {ticker}
-              </Badge>
-            </div>
-            
-            <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
-              {screeningDate && (
-                <span className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
-                  <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  {screeningDate}
-                </span>
-              )}
-              {!screeningDate && reportDate && (
-                <span className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
-                  <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  {formatDate(reportDate)}
-                </span>
-              )}
-              <Badge variant="secondary" className="bg-primary/10 text-primary text-xs">
-                {methodologyName}
-              </Badge>
-            </div>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+              {ticker}
+            </h1>
+            <p className="text-sm text-muted-foreground truncate">
+              {companyName !== 'N/A' ? companyName : ''}
+            </p>
           </div>
         </div>
 
