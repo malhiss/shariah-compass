@@ -889,7 +889,113 @@ serve(async (req) => {
             const loginUrl = `https://dalil.me/demo/login?token=${loginToken}`;
             const manualLoginUrl = "https://dalil.me/demo/login";
             
-            await fetch("https://api.resend.com/emails", {
+            // Professional HTML email with proper structure for better deliverability
+            const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Dalil</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f5;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+          <!-- Header -->
+          <tr>
+            <td style="padding: 40px 40px 20px 40px; text-align: center; border-bottom: 1px solid #e4e4e7;">
+              <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #1a1a2e;">Welcome to Dalil</h1>
+            </td>
+          </tr>
+          
+          <!-- Body -->
+          <tr>
+            <td style="padding: 40px;">
+              <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #374151;">Dear ${sanitizedName},</p>
+              <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #374151;">We are pleased to inform you that your access request to the Dalil Shariah Screening Platform has been approved.</p>
+              
+              <!-- CTA Button -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 30px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="${loginUrl}" style="display: inline-block; background-color: #1a1a2e; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">Access Your Account</a>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="margin: 0 0 30px 0; font-size: 14px; line-height: 1.5; color: #6b7280; text-align: center;">This secure link will log you in automatically and is valid for 7 days.</p>
+              
+              <!-- Divider -->
+              <hr style="border: none; border-top: 1px solid #e4e4e7; margin: 30px 0;" />
+              
+              <!-- Manual Login Section -->
+              <p style="margin: 0 0 15px 0; font-size: 14px; line-height: 1.5; color: #6b7280;">If the button above does not work, you may log in manually at <a href="${manualLoginUrl}" style="color: #1a1a2e; text-decoration: underline;">dalil.me/demo/login</a> using the following credentials:</p>
+              
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f9fafb; border-radius: 8px; margin: 15px 0;">
+                <tr>
+                  <td style="padding: 20px;">
+                    <p style="margin: 0 0 8px 0; font-size: 14px; color: #374151;"><strong>Email:</strong> ${sanitizedEmail}</p>
+                    <p style="margin: 0; font-size: 14px; color: #374151;"><strong>Password:</strong> <code style="background-color: #e5e7eb; padding: 4px 8px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 13px;">${generatedPassword}</code></p>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="margin: 20px 0 0 0; font-size: 14px; line-height: 1.5; color: #6b7280;">We recommend changing your password after your first login for security purposes.</p>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 20px 40px 40px 40px; text-align: center; border-top: 1px solid #e4e4e7;">
+              <p style="margin: 0 0 8px 0; font-size: 12px; color: #9ca3af;">Dalil Shariah Screening Platform</p>
+              <p style="margin: 0; font-size: 12px; color: #9ca3af;">Invesense Asset Management</p>
+            </td>
+          </tr>
+        </table>
+        
+        <!-- Unsubscribe/Privacy Note -->
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0">
+          <tr>
+            <td style="padding: 20px; text-align: center;">
+              <p style="margin: 0; font-size: 11px; color: #9ca3af;">This is a transactional email regarding your account access. If you did not request access to Dalil, please disregard this email.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+            // Plain text version for email clients that prefer it
+            const textContent = `Welcome to Dalil
+
+Dear ${sanitizedName},
+
+We are pleased to inform you that your access request to the Dalil Shariah Screening Platform has been approved.
+
+ACCESS YOUR ACCOUNT
+Click here to log in: ${loginUrl}
+This secure link is valid for 7 days.
+
+MANUAL LOGIN
+If the link above does not work, visit: ${manualLoginUrl}
+
+Your credentials:
+Email: ${sanitizedEmail}
+Password: ${generatedPassword}
+
+We recommend changing your password after your first login.
+
+---
+Dalil Shariah Screening Platform
+Invesense Asset Management
+
+This is a transactional email regarding your account access.`;
+
+            const emailResponse = await fetch("https://api.resend.com/emails", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -897,38 +1003,20 @@ serve(async (req) => {
               },
               body: JSON.stringify({
                 from: "Dalil Platform <noreply@dalil.me>",
+                reply_to: "support@dalil.me",
                 to: [sanitizedEmail],
-                subject: "Your Dalil Access Has Been Approved!",
-                html: `
-                  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h1 style="color: #1a1a2e;">Welcome to Dalil, ${sanitizedName}!</h1>
-                    <p>Great news! Your access request has been approved.</p>
-                    
-                    <div style="text-align: center; margin: 30px 0;">
-                      <a href="${loginUrl}" 
-                         style="background-color: #1a1a2e; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
-                        Click Here to Access Dalil
-                      </a>
-                    </div>
-                    
-                    <p style="color: #666; font-size: 14px; text-align: center;">This link will log you in automatically and expires in 7 days.</p>
-                    
-                    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
-                    
-                    <p style="color: #888; font-size: 13px;">If the button above doesn't work, you can also log in manually at <a href="${manualLoginUrl}" style="color: #1a1a2e;">${manualLoginUrl}</a> with these credentials:</p>
-                    
-                    <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                      <p style="margin: 0 0 10px 0;"><strong>Email:</strong> ${sanitizedEmail}</p>
-                      <p style="margin: 0;"><strong>Password:</strong> <code style="background: #e0e0e0; padding: 4px 8px; border-radius: 4px; font-family: monospace;">${generatedPassword}</code></p>
-                    </div>
-                    
-                    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
-                    <p style="color: #666; font-size: 12px;">Dalil by Invesense Asset Management</p>
-                  </div>
-                `,
+                subject: `Your Dalil Access Request Has Been Approved`,
+                html: htmlContent,
+                text: textContent,
+                headers: {
+                  "X-Entity-Ref-ID": newUser.user.id,
+                },
               }),
             });
-            emailSent = true;
+            
+            if (emailResponse.ok) {
+              emailSent = true;
+            }
           } catch {
             // Email sending failed - non-critical
           }
