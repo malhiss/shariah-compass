@@ -562,13 +562,12 @@ export async function getAllRecords(filters?: {
     result = result.filter(r => normalizeClassification(r.final_classification) === targetClassification);
   }
   
-  if (filters?.autoBanned !== undefined) {
-    const autoBanned = filters.autoBanned === true || filters.autoBanned === 'YES';
-    const notAutoBanned = filters.autoBanned === false || filters.autoBanned === 'NO';
-    if (autoBanned) {
+  if (filters?.autoBanned !== undefined && filters.autoBanned !== 'all') {
+    const wantBanned = filters.autoBanned === true || filters.autoBanned === 'YES';
+    if (wantBanned) {
       result = result.filter(r => r.auto_banned === true);
-    } else if (notAutoBanned) {
-      result = result.filter(r => r.auto_banned !== true);
+    } else {
+      result = result.filter(r => r.auto_banned === false || r.auto_banned === null || r.auto_banned === undefined);
     }
   }
   
