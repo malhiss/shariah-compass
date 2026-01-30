@@ -74,12 +74,14 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     const data = await emailResponse.json();
+    console.log("Resend API response:", JSON.stringify(data));
 
     if (!emailResponse.ok) {
+      console.error("Resend API error:", data);
       throw new Error(data.message || "Failed to send notification email");
     }
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, resendResponse: data }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
