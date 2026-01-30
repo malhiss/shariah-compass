@@ -59,44 +59,35 @@ export default function ClientDashboard() {
     
     setLoading(true);
     try {
-      let query = supabase
-        .from('activity_logs')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(100);
+      // Use edge function to fetch activity logs securely
+      const response = await supabase.functions.invoke('manage-users', {
+        body: { 
+          action: 'get_my_activity_logs',
+          limit: 100,
+          activityType: activityFilter !== 'all' ? activityFilter : undefined,
+        },
+      });
 
-      if (activityFilter !== 'all') {
-        query = query.eq('activity_type', activityFilter as any);
+      if (response.error || response.data?.error) {
+        throw new Error(response.error?.message || response.data?.error);
       }
 
-      const { data: fetchedLogs, error } = await query;
+      const fetchedLogs = response.data.logs || [];
+      const fetchedStats = response.data.stats || {
+        totalScreenings: 0,
+        tickerScreenings: 0,
+        portfolioScreenings: 0,
+        aiChats: 0,
+      };
 
-      if (error) throw error;
-
-      const typedLogs = (fetchedLogs || []).map(log => ({
+      const typedLogs = fetchedLogs.map((log: any) => ({
         ...log,
         activity_type: log.activity_type as string,
         metadata: (log.metadata || {}) as Record<string, any>,
       })) as ActivityLog[];
 
       setLogs(typedLogs);
-
-      const { data: allLogs } = await supabase
-        .from('activity_logs')
-        .select('activity_type')
-        .eq('user_id', user.id);
-
-      const tickerScreenings = allLogs?.filter(l => l.activity_type === 'ticker_screening').length || 0;
-      const portfolioScreenings = allLogs?.filter(l => l.activity_type === 'portfolio_screening').length || 0;
-      const aiChats = allLogs?.filter(l => l.activity_type === 'ai_chat').length || 0;
-
-      setStats({
-        totalScreenings: tickerScreenings + portfolioScreenings,
-        tickerScreenings,
-        portfolioScreenings,
-        aiChats,
-      });
+      setStats(fetchedStats);
     } catch (error: any) {
       toast({
         title: 'Error fetching activity',
@@ -153,7 +144,7 @@ export default function ClientDashboard() {
   const screenedTickers = [...new Set(
     logs
       .filter(l => l.activity_type === 'ticker_screening' && l.metadata?.ticker)
-      .map(l => l.metadata.ticker as string)
+      .map(l => l.metadata!.ticker as string)
   )];
 
   return (

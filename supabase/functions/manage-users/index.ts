@@ -1050,6 +1050,66 @@ This is a transactional email regarding your account access.`;
         );
       }
 
+      case "get_my_activity_logs": {
+        // This action allows any authenticated user to get their OWN activity logs
+        // No staff check required - users can only see their own data
+        const { limit = 100, activityType } = payload;
+
+        // Validate limit
+        const safeLimit = Math.min(Math.max(1, Number(limit) || 100), 100);
+
+        // Only select non-sensitive fields (exclude ip_address, user_agent)
+        let query = supabaseAdmin
+          .from("activity_logs")
+          .select("id, user_id, user_email, activity_type, description, metadata, created_at")
+          .eq("user_id", currentUser.id)
+          .order("created_at", { ascending: false })
+          .limit(safeLimit);
+
+        // Filter to only client-relevant activity types
+        const clientActivityTypes = ['ticker_screening', 'portfolio_screening', 'screening_request', 'ai_chat'];
+        
+        if (activityType && typeof activityType === 'string' && clientActivityTypes.includes(activityType)) {
+          query = query.eq("activity_type", activityType);
+        } else {
+          // Default: only show client-relevant activities
+          query = query.in("activity_type", clientActivityTypes);
+        }
+
+        const { data: logs, error: logsError } = await query;
+
+        if (logsError) {
+          return new Response(
+            JSON.stringify({ error: "Failed to retrieve activity logs" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // Get counts by type for stats
+        const { data: allLogs } = await supabaseAdmin
+          .from("activity_logs")
+          .select("activity_type")
+          .eq("user_id", currentUser.id)
+          .in("activity_type", clientActivityTypes);
+
+        const tickerScreenings = allLogs?.filter(l => l.activity_type === 'ticker_screening').length || 0;
+        const portfolioScreenings = allLogs?.filter(l => l.activity_type === 'portfolio_screening').length || 0;
+        const aiChats = allLogs?.filter(l => l.activity_type === 'ai_chat').length || 0;
+
+        return new Response(
+          JSON.stringify({ 
+            logs, 
+            stats: {
+              totalScreenings: tickerScreenings + portfolioScreenings,
+              tickerScreenings,
+              portfolioScreenings,
+              aiChats,
+            }
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
       default:
         return new Response(
           JSON.stringify({ error: "Unknown action" }),
