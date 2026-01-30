@@ -13,8 +13,12 @@ serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
+    // Use anon client for the SECURITY DEFINER function call
+    const supabaseAnon = createClient(supabaseUrl, supabaseAnonKey);
+    // Use admin client only for generating magic link and logging
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
     let body;
@@ -36,52 +40,32 @@ serve(async (req) => {
       );
     }
 
-    // Look up the token
-    const { data: loginToken, error: lookupError } = await supabaseAdmin
-      .from("login_tokens")
-      .select("*")
-      .eq("token", token)
-      .maybeSingle();
+    // Use SECURITY DEFINER function to validate and consume the token
+    // This avoids direct table access and is more secure
+    const { data: tokenData, error: tokenError } = await supabaseAnon
+      .rpc("validate_login_token", { token_value: token });
 
-    if (lookupError || !loginToken) {
+    if (tokenError) {
+      return new Response(
+        JSON.stringify({ error: "Token validation failed" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Check if token was valid (function returns empty array if invalid)
+    if (!tokenData || tokenData.length === 0) {
       return new Response(
         JSON.stringify({ error: "Invalid or expired token" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Check if token is expired
-    if (new Date(loginToken.expires_at) < new Date()) {
-      // Delete expired token
-      await supabaseAdmin
-        .from("login_tokens")
-        .delete()
-        .eq("id", loginToken.id);
+    const validatedToken = tokenData[0];
 
-      return new Response(
-        JSON.stringify({ error: "Token has expired" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Check if token was already used
-    if (loginToken.used_at) {
-      return new Response(
-        JSON.stringify({ error: "Token has already been used" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Mark token as used
-    await supabaseAdmin
-      .from("login_tokens")
-      .update({ used_at: new Date().toISOString() })
-      .eq("id", loginToken.id);
-
-    // Generate a magic link for the user (using the user_id from the token)
+    // Generate a magic link for the user
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
       type: "magiclink",
-      email: loginToken.email,
+      email: validatedToken.email,
     });
 
     if (linkError || !linkData) {
@@ -97,11 +81,11 @@ serve(async (req) => {
     const tokenType = url.searchParams.get("type");
     const tokenHash = url.hash;
 
-    // Log the login activity
+    // Log the login activity (using admin client for RLS bypass on activity_logs)
     try {
       await supabaseAdmin.from("activity_logs").insert({
-        user_id: loginToken.user_id,
-        user_email: loginToken.email,
+        user_id: validatedToken.user_id,
+        user_email: validatedToken.email,
         activity_type: "login_success",
         description: `Auto-login via one-time token`,
         metadata: { method: "one_time_token" },
@@ -118,13 +102,12 @@ serve(async (req) => {
         token: authToken,
         type: tokenType,
         hash: tokenHash,
-        email: loginToken.email,
+        email: validatedToken.email,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
     const corsHeaders = getCorsHeaders(req);
-    console.error("Auto-login error:", error);
     return new Response(
       JSON.stringify({ error: "An unexpected error occurred" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

@@ -207,6 +207,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      validate_login_token: {
+        Args: { token_value: string }
+        Returns: {
+          email: string
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       activity_type:
