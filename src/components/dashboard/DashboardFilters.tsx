@@ -77,7 +77,8 @@ export function DashboardFilters({
   const hasActiveFilters =
     localSearch ||
     filters.finalVerdict ||
-    filters.zakatStatus;
+    filters.zakatStatus ||
+    filters.autoBanned;
 
   return (
     <div className="space-y-3 sm:space-y-4">
@@ -122,6 +123,24 @@ export function DashboardFilters({
                   <SelectItem value="COMPLIANT">Compliant</SelectItem>
                   <SelectItem value="COMPLIANT_WITH_PURIFICATION">With Purification</SelectItem>
                   <SelectItem value="NON_COMPLIANT">Non-Compliant</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Banned by Industry Filter */}
+            <div className="space-y-1 sm:space-y-1.5">
+              <Label className="text-[10px] sm:text-xs text-muted-foreground">Banned by Industry</Label>
+              <Select
+                value={filters.autoBanned || 'all'}
+                onValueChange={(v) => handleFilterChange('autoBanned', v)}
+              >
+                <SelectTrigger className="w-full sm:w-[140px] bg-background border-border text-xs sm:text-sm h-9">
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border z-50">
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="YES">Yes</SelectItem>
+                  <SelectItem value="NO">No</SelectItem>
                 </SelectContent>
               </Select>
             </div>
