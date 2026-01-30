@@ -65,7 +65,7 @@ export default function DemoDashboard() {
   };
 
   const { data, isLoading } = useQuery({
-    queryKey: ['demo-screening-records', universe, filters.page, filters.pageSize, filters.search, filters.finalVerdict, filters.sector],
+    queryKey: ['demo-screening-records', universe, filters.page, filters.pageSize, filters.search, filters.finalVerdict, filters.sector, filters.autoBanned],
     queryFn: () => getClientFacingRecords({ ...filters, universe }),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,

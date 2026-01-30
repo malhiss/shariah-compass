@@ -14,11 +14,14 @@ import type { ScreeningFilters, PaginatedResponse } from '@/types/mongodb';
 export async function getClientFacingRecords(
   filters?: ScreeningFilters
 ): Promise<PaginatedResponse<ScreeningRecord>> {
+  // Pass autoBanned filter, converting "all" to undefined so it's not applied
+  const autoBannedFilter = filters?.autoBanned === 'all' ? undefined : filters?.autoBanned;
+  
   const { records, total } = await getAllRecords({
     search: filters?.search,
     finalClassification: filters?.finalVerdict,
     industry: filters?.industry,
-    autoBanned: filters?.autoBanned,
+    autoBanned: autoBannedFilter,
     universe: filters?.universe,
     page: filters?.page || 1,
     pageSize: filters?.pageSize || 50,
