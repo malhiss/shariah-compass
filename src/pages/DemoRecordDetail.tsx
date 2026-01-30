@@ -126,7 +126,7 @@ export default function DemoRecordDetail() {
       <DemoHeader />
       <div className="p-4 sm:p-6 lg:p-8">
         {/* Header Section - custom for demo (no sidebar back button) */}
-        <div className="mb-6 space-y-4">
+        <div className="mb-6 flex flex-col items-start gap-4">
           <Link 
             to={backUrl}
             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -135,7 +135,7 @@ export default function DemoRecordDetail() {
             Back to Dashboard
           </Link>
           
-          <div className="inline-block px-4 py-3 sm:px-5 sm:py-4 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
+          <div className="px-4 py-3 sm:px-5 sm:py-4 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
               {record.ticker || record.Ticker}
             </h1>
