@@ -12,11 +12,10 @@ import { KeyInsightsSection } from '@/components/record-detail/KeyInsightsSectio
 import { HaramRevenueSection } from '@/components/record-detail/HaramRevenueSection';
 import { ReferencesSection } from '@/components/record-detail/ReferencesSection';
 import { ClientSummaryTab } from '@/components/record-detail/ClientSummaryTab';
-import { StructuredMemoSection } from '@/components/record-detail/StructuredMemoSection';
 import { FindingsTab } from '@/components/record-detail/FindingsTab';
 
 import { AppSidebar } from '@/components/AppSidebar';
-import { ArrowLeft, RefreshCw, AlertTriangle, FileText, MessageSquare, PieChart, BookOpen, ListChecks } from 'lucide-react';
+import { ArrowLeft, RefreshCw, AlertTriangle, MessageSquare, BookOpen, ListChecks } from 'lucide-react';
 
 export default function RecordDetail() {
   const { upsertKey } = useParams<{ upsertKey: string }>();
@@ -150,13 +149,6 @@ export default function RecordDetail() {
                 <ListChecks className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                 Findings
               </TabsTrigger>
-              <TabsTrigger
-                value="memo"
-                className="flex-1 sm:flex-none rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-3 sm:px-6 text-xs sm:text-sm"
-              >
-                <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                Memo
-              </TabsTrigger>
             </TabsList>
 
             <div className="mt-4 sm:mt-6">
@@ -170,10 +162,6 @@ export default function RecordDetail() {
 
               <TabsContent value="findings" className="mt-0">
                 <FindingsTab record={record} />
-              </TabsContent>
-
-              <TabsContent value="memo" className="mt-0">
-                <StructuredMemoSection record={record} />
               </TabsContent>
             </div>
           </Tabs>
