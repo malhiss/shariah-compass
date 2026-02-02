@@ -57,10 +57,19 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
   const haramEntry = donutSeries.find(item => item.label?.toLowerCase() === 'haram');
   
   const halalPct = halalEntry?.value ?? 0;
-  const haramPct = haramEntry?.value ?? 0;
+  const haramPctFromSeries = haramEntry?.value ?? 0;
+  
+  // Calculate the sum of haram segment points for accurate NPIN exposure
+  const haramPctFromSegments = donutSegments.reduce((sum, segment) => {
+    const segmentPct = segment.point ?? segment.pct_of_revenue ?? 0;
+    return sum + segmentPct;
+  }, 0);
+  
+  // Use the sum of segments if available, otherwise fall back to series value
+  const haramPct = haramPctFromSegments > 0 ? haramPctFromSegments : haramPctFromSeries;
   
   // Check if we have any data to display
-  const hasDonutData = donutSeries.length > 0 && (halalPct > 0 || haramPct > 0);
+  const hasDonutData = donutSeries.length > 0 && (halalPct > 0 || haramPctFromSeries > 0);
   const hasSegmentData = donutSegments.length > 0;
   
   if (!hasDonutData && !hasSegmentData) {
