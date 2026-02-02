@@ -561,7 +561,11 @@ export async function getAllRecords(filters?: {
       return val.toUpperCase().replace(/[\s_-]/g, '');
     };
     const targetClassification = normalizeClassification(filters.finalClassification);
-    result = result.filter(r => normalizeClassification(r.final_classification) === targetClassification);
+    // Use final_classification_based_on_estimate as primary, fallback to final_classification
+    result = result.filter(r => {
+      const recordClassification = normalizeClassification(r.final_classification_based_on_estimate || r.final_classification);
+      return recordClassification === targetClassification;
+    });
   }
   
   if (filters?.autoBanned !== undefined && filters.autoBanned !== 'all') {
