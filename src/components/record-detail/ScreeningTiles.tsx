@@ -52,7 +52,8 @@ export function ScreeningTiles({ record }: ScreeningTilesProps) {
   // Use new data contract fields with fallbacks to legacy fields
   const debtRatioDisplay = parseClientRatio(record.debt_ratio_pct ?? record.client_numbers_debt_ratio_pct);
   const cashInvRatioDisplay = parseClientRatio(record.cash_inv_ratio_pct ?? record.client_numbers_cashinv_ratio_pct);
-  const npinRatioDisplay = parseClientRatio(record.npin_ratio_pct ?? record.client_numbers_npin_ratio_pct);
+  // Use est_purification_pct_point as primary source for NPIN
+  const npinRatioDisplay = parseClientRatio(record.est_purification_pct_point ?? record.npin_ratio_pct ?? record.client_numbers_npin_ratio_pct);
 
   // Estimated NPIN - use est_purification_pct_recommended field
   const getEstimatedNpinDisplay = (): string => {
