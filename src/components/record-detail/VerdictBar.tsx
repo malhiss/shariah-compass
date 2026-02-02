@@ -14,7 +14,8 @@ interface BadgeItem {
 }
 
 export function VerdictBar({ record }: VerdictBarProps) {
-  const primaryVerdict = record.final_classification || record.client_headline_final_classification || record.client_verdict_label || 'Not Available';
+  // Use final_classification_based_on_estimate as primary, fallback to final_classification
+  const primaryVerdict = record.final_classification_based_on_estimate || record.final_classification || record.client_headline_final_classification || record.client_verdict_label || 'Not Available';
   const estimatedVerdict = record.final_classification_based_on_estimate;
   const riskLevel = record.client_risk_level;
   const badges = safeParseJSON<BadgeItem[]>(record.client_badges_json, []);
