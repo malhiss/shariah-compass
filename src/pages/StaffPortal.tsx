@@ -100,7 +100,20 @@ export default function StaffPortal() {
       });
 
       if (response.error) {
+        // Check if it's an auth error
+        if (response.error.message?.includes('Unauthorized') || response.error.message?.includes('401')) {
+          toast({
+            title: 'Session expired',
+            description: 'Please log out and log back in to continue.',
+            variant: 'destructive',
+          });
+          return;
+        }
         throw new Error(response.error.message);
+      }
+
+      if (response.data?.error) {
+        throw new Error(response.data.error);
       }
 
       setUsers(response.data.users || []);
