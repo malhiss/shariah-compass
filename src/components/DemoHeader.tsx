@@ -23,7 +23,7 @@ export function DemoHeader({ onSignOut, isSigningOut }: DemoHeaderProps) {
             <img src={dalilLogo} alt="Dalil" className="h-10 sm:h-[58px] lg:h-[69px] w-auto" />
           </Link>
           <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 font-semibold text-[10px] sm:text-xs px-1.5 sm:px-2.5">
-            DEMO
+            BETA
           </Badge>
         </div>
         
