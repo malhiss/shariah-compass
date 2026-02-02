@@ -78,7 +78,7 @@ function ShariahMobileCard({ record, onClick }: { record: ScreeningRecord; onCli
       </div>
       
       <div className="flex items-center justify-between gap-2 mb-2">
-        <VerdictBadge verdict={record.final_classification || record.Final_Verdict} />
+        <VerdictBadge verdict={record.final_classification_based_on_estimate || record.final_classification || record.Final_Verdict} />
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <span>NPIN: <span className="font-mono">{formatPercent(record.npin_ratio_pct)}</span></span>
         </div>
@@ -286,7 +286,7 @@ export function ScreeningTable({
                   {record.industry || record.Industry || '—'}
                 </TableCell>
                 <TableCell className="text-center">
-                  <VerdictBadge verdict={record.final_classification || record.Final_Verdict} />
+                  <VerdictBadge verdict={record.final_classification_based_on_estimate || record.final_classification || record.Final_Verdict} />
                 </TableCell>
                 <TableCell className="text-right font-mono text-sm">
                   {formatCurrencyMn(record.marketcap_usd_mn)}
