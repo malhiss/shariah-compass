@@ -60,14 +60,15 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
   const haramPctFromSeries = haramEntry?.value ?? 0;
   
   // Calculate the sum of haram segment points for accurate NPIN exposure
+  // This is the PRIMARY source - sum all segment point estimates
   const haramPctFromSegments = donutSegments.reduce((sum, segment) => {
     const segmentPct = segment.point ?? segment.pct_of_revenue ?? 0;
     return sum + segmentPct;
   }, 0);
   
-  // Use est_purification_pct_point as primary, then sum of segments, then series value
+  // Priority: 1) Sum of segments (if segments exist), 2) est_purification_pct_point, 3) series value
   const estPurificationPctPoint = record.est_purification_pct_point;
-  const haramPct = estPurificationPctPoint ?? (haramPctFromSegments > 0 ? haramPctFromSegments : haramPctFromSeries);
+  const haramPct = haramPctFromSegments > 0 ? haramPctFromSegments : (estPurificationPctPoint ?? haramPctFromSeries);
   
   // Calculate halal as 100 - haram (based on the accurate haram calculation)
   const halalPct = 100 - haramPct;
