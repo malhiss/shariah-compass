@@ -554,21 +554,57 @@ export function getRecordReportDate(record: ScreeningRecord): string | undefined
   return record.report_date || record.Report_Date;
 }
 
-// Get halal percentage (calculate from haram if not present)
+// Calculate haram percentage from donut segments (sum of all segment point estimates)
+function calculateHaramFromSegments(record: ScreeningRecord): number | null {
+  // Parse donut_segments_json for haram segment breakdown
+  const rawDonutSegments = record.donut_segments_json;
+  const donutSegments: { name: string; point?: number; pct_of_revenue?: number }[] = Array.isArray(rawDonutSegments)
+    ? rawDonutSegments as { name: string; point?: number; pct_of_revenue?: number }[]
+    : [];
+  
+  if (donutSegments.length === 0) {
+    return null;
+  }
+  
+  // Sum all segment point estimates
+  const sum = donutSegments.reduce((total, segment) => {
+    const segmentPct = segment.point ?? segment.pct_of_revenue ?? 0;
+    return total + segmentPct;
+  }, 0);
+  
+  return sum > 0 ? sum : null;
+}
+
+// Get haram percentage - Priority: 1) Sum of segments, 2) est_purification_pct_point, 3) legacy fields
+export function getHaramPct(record: ScreeningRecord): number | null {
+  // First: try sum of donut segments
+  const segmentSum = calculateHaramFromSegments(record);
+  if (segmentSum !== null && segmentSum > 0) {
+    return segmentSum;
+  }
+  
+  // Second: try est_purification_pct_point
+  if (record.est_purification_pct_point !== null && record.est_purification_pct_point !== undefined) {
+    return record.est_purification_pct_point;
+  }
+  
+  // Third: legacy fields
+  return record.haram_pct_point ?? record.Non_Compliant_Revenue_Point_Estimate ?? null;
+}
+
+// Get halal percentage (100 - haram)
 export function getHalalPct(record: ScreeningRecord): number | null {
+  // If explicit halal value exists, use it
   if (record.halal_pct_point !== null && record.halal_pct_point !== undefined) {
     return record.halal_pct_point;
   }
-  const haramPct = record.haram_pct_point ?? record.Non_Compliant_Revenue_Point_Estimate;
+  
+  // Calculate from haram
+  const haramPct = getHaramPct(record);
   if (haramPct !== null && haramPct !== undefined) {
     return 100 - haramPct;
   }
   return null;
-}
-
-// Get haram percentage
-export function getHaramPct(record: ScreeningRecord): number | null {
-  return record.haram_pct_point ?? record.Non_Compliant_Revenue_Point_Estimate ?? null;
 }
 
 // Generate client-friendly summary if not present
