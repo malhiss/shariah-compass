@@ -247,6 +247,7 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       estimated_npin_final_shariah_summary: parseString(get('estimated_npin_final_shariah_summary')),
       // est_purification_pct_recommended for estimated NPIN display (as number, e.g. 0.5 = 0.5%)
       est_purification_pct_recommended: parseNumber(get('est_purification_pct_recommended')),
+      est_purification_pct_point: parseNumber(get('est_purification_pct_point')),
       
       // Client summaries
       client_summary: parseString(get('client_summary')),
