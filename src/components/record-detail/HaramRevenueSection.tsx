@@ -65,11 +65,12 @@ export function HaramRevenueSection({ record }: HaramRevenueSectionProps) {
     return sum + segmentPct;
   }, 0);
   
-  // Use the sum of segments if available, otherwise fall back to series value
-  const haramPct = haramPctFromSegments > 0 ? haramPctFromSegments : haramPctFromSeries;
+  // Use est_purification_pct_point as primary, then sum of segments, then series value
+  const estPurificationPctPoint = record.est_purification_pct_point;
+  const haramPct = estPurificationPctPoint ?? (haramPctFromSegments > 0 ? haramPctFromSegments : haramPctFromSeries);
   
   // Calculate halal as 100 - haram (based on the accurate haram calculation)
-  const halalPct = haramPctFromSegments > 0 ? (100 - haramPct) : halalPctFromSeries;
+  const halalPct = 100 - haramPct;
   
   // Check if we have any data to display
   const hasDonutData = donutSeries.length > 0 && (halalPctFromSeries > 0 || haramPctFromSeries > 0);
