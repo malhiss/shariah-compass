@@ -216,9 +216,9 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       industry: get('industry') || '',
       sector: get('sector') || '',
       
-      // Company Profile fields (optional)
-      exchange: parseString(get('exchange')),
-      country: parseString(get('country')),
+      // Company Profile fields (optional) - handle various CSV header formats
+      exchange: parseString(get('Exchange ', 'Exchange', 'exchange')),
+      country: parseString(get('Country', 'country')),
       reporting_period: parseString(get('reporting_period')),
       // Use "company description " field (with space in CSV header) as primary source
       company_description: parseString(get('company description ', 'company description', 'company_description')),
