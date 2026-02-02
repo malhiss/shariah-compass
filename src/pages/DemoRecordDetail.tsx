@@ -16,8 +16,9 @@ import { HaramRevenueSection } from '@/components/record-detail/HaramRevenueSect
 import { ReferencesSection } from '@/components/record-detail/ReferencesSection';
 import { ClientSummaryTab } from '@/components/record-detail/ClientSummaryTab';
 import { StructuredMemoSection } from '@/components/record-detail/StructuredMemoSection';
+import { FindingsTab } from '@/components/record-detail/FindingsTab';
 
-import { ArrowLeft, RefreshCw, AlertTriangle, FileText, MessageSquare, BookOpen } from 'lucide-react';
+import { ArrowLeft, RefreshCw, AlertTriangle, FileText, MessageSquare, BookOpen, ListChecks } from 'lucide-react';
 
 export default function DemoRecordDetail() {
   const { upsertKey } = useParams<{ upsertKey: string }>();
@@ -183,6 +184,13 @@ export default function DemoRecordDetail() {
                   <span className="xs:hidden">Refs</span>
                 </TabsTrigger>
                 <TabsTrigger
+                  value="findings"
+                  className="flex-1 sm:flex-none rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-3 sm:px-6 text-xs sm:text-sm"
+                >
+                  <ListChecks className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                  Findings
+                </TabsTrigger>
+                <TabsTrigger
                   value="memo"
                   className="flex-1 sm:flex-none rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-3 sm:px-6 text-xs sm:text-sm"
                 >
@@ -198,6 +206,10 @@ export default function DemoRecordDetail() {
 
                 <TabsContent value="references" className="mt-0 space-y-4 sm:space-y-6">
                   <ReferencesSection record={record} />
+                </TabsContent>
+
+                <TabsContent value="findings" className="mt-0">
+                  <FindingsTab record={record} />
                 </TabsContent>
 
                 <TabsContent value="memo" className="mt-0">

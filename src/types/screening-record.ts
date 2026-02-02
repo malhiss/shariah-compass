@@ -289,6 +289,7 @@ export interface ScreeningRecord {
   final_ticker_summary_json?: string | null;
   final_ticker_summary_last_updated?: string | null;
   website_story?: string | null; // NEW: Transcript story / evidence text
+  findings_bullets?: string | string[] | null; // NEW: Business segments/findings bullets
 
   // Legacy evidence fields
   evidence_items?: EvidenceItem[];
