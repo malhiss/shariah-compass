@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { VerdictBadge, ZakatBadge, RiskBadge, BooleanBadge } from './VerdictBadge';
 import { formatPercent } from '@/types/mongodb';
 import type { ViewMode } from '@/types/mongodb';
+import { getHaramPct } from '@/types/screening-record';
 import type { ScreeningRecord } from '@/types/screening-record';
 import { ChevronRight } from 'lucide-react';
 
@@ -80,7 +81,7 @@ function ShariahMobileCard({ record, onClick }: { record: ScreeningRecord; onCli
       <div className="flex items-center justify-between gap-2 mb-2">
         <VerdictBadge verdict={record.final_classification_based_on_estimate || record.final_classification || record.Final_Verdict} />
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
-          <span>NPIN: <span className="font-mono">{formatPercent(record.est_purification_pct_point ?? record.npin_ratio_pct)}</span></span>
+          <span>NPIN: <span className="font-mono">{formatPercent(getHaramPct(record) ?? record.npin_ratio_pct)}</span></span>
         </div>
       </div>
       
@@ -306,7 +307,7 @@ export function ScreeningTable({
                 </TableCell>
                 <TableCell className="text-right font-mono text-sm">
                   <span className={record.npin_status === 'FAIL' ? 'text-non-compliant' : ''}>
-                    {formatPercent(record.est_purification_pct_point ?? record.npin_ratio_pct)}
+                    {formatPercent(getHaramPct(record) ?? record.npin_ratio_pct)}
                   </span>
                 </TableCell>
                 <TableCell className="text-center">
