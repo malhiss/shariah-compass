@@ -338,6 +338,7 @@ function parseCSV(csvData: string): ScreeningRecord[] {
       evidence_items_json: parseString(get('evidence_items_json')),
       verdict_evidence_items_json: parseString(get('verdict_evidence_items_json', 'evidence_items_json')),
       website_story: parseString(get('website_story')),
+      findings_bullets: parseString(get('findings_bullets')),
       
       // Donut charts (parse to arrays at load time using safeParse)
       // donut_series_json contains objects like {label, value} - parse as objects, not numbers
