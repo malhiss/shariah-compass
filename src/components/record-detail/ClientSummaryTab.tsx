@@ -4,16 +4,14 @@ import { MessageSquare, CheckCircle2, Lightbulb } from 'lucide-react';
 
 interface ClientSummaryTabProps {
   record: ScreeningRecord;
-  universe?: string;
 }
 
-export function ClientSummaryTab({ record, universe }: ClientSummaryTabProps) {
-  const isGcc = universe === 'gcc';
-  // Primary Shariah Summary with fallback chain
+export function ClientSummaryTab({ record }: ClientSummaryTabProps) {
+  // Primary Shariah Summary - parse from final_shariah_summary first
   const shariahSummary = record.final_shariah_summary || record.shariah_summary || record.client_summary || record.llm_primary_rationale || null;
   
-  // Estimated logic summary (new field)
-  const estimatedSummary = record.estimated_npin_final_shariah_summary || null;
+  // NPIN Overview - parse from estimated_npin_final_shariah_summary
+  const npinOverview = record.estimated_npin_final_shariah_summary || null;
   
   // Shariah key bullets
   const bulletItems = safeParseJSON<ShariahBulletItem[] | string[]>(record.shariah_key_bullets_json, []);
@@ -28,40 +26,37 @@ export function ClientSummaryTab({ record, universe }: ClientSummaryTabProps) {
   // Disclaimer
   const disclaimer = record.client_disclaimer_short;
 
-  const hasSummaryContent = shariahSummary || estimatedSummary || bullets.length > 0 || whatItMeans;
+  const hasSummaryContent = shariahSummary || npinOverview || bullets.length > 0 || whatItMeans;
 
   return (
     <div className="space-y-6">
       {/* Shariah Summary Section */}
       {hasSummaryContent && (
         <Card className="premium-card">
-          {/* Summary header - hidden for GCC */}
-          {!isGcc && (
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <MessageSquare className="w-5 h-5 text-primary" />
+          <CardContent className="pt-6 space-y-4">
+            {/* Shariah Summary - always shown when available */}
+            {shariahSummary && (
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <MessageSquare className="w-5 h-5 text-primary" />
+                  </div>
+                  <span className="text-lg font-semibold">Shariah Summary</span>
                 </div>
-                <CardTitle className="text-lg">Shariah Summary</CardTitle>
+                <p className="text-foreground leading-relaxed">{shariahSummary}</p>
               </div>
-            </CardHeader>
-          )}
-          <CardContent className="space-y-4">
-            {/* Main summary paragraph - hidden for GCC */}
-            {!isGcc && shariahSummary && (
-              <p className="text-foreground leading-relaxed">{shariahSummary}</p>
             )}
 
-            {/* Estimated Logic Summary (new) */}
-            {estimatedSummary && (
-              <div className="pt-4 border-t border-border">
+            {/* NPIN Overview - shown below Shariah Summary */}
+            {npinOverview && (
+              <div className={shariahSummary ? "pt-4 border-t border-border" : ""}>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 rounded-lg bg-primary/10">
                     <Lightbulb className="w-5 h-5 text-primary" />
                   </div>
                   <span className="text-lg font-semibold">NPIN Overview</span>
                 </div>
-                <p className="text-foreground leading-relaxed">{estimatedSummary}</p>
+                <p className="text-foreground leading-relaxed">{npinOverview}</p>
               </div>
             )}
 

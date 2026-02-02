@@ -193,7 +193,7 @@ export default function DemoRecordDetail() {
 
               <div className="mt-4 sm:mt-6">
                 <TabsContent value="overview" className="mt-0">
-                  <ClientSummaryTab record={record} universe={universe} />
+                  <ClientSummaryTab record={record} />
                 </TabsContent>
 
                 <TabsContent value="references" className="mt-0 space-y-4 sm:space-y-6">
