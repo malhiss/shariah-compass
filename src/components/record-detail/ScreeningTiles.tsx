@@ -1,12 +1,12 @@
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { getHaramPct } from '@/types/screening-record';
 import type { ScreeningRecord } from '@/types/screening-record';
 import { Scale, DollarSign, TrendingDown, CheckCircle2, XCircle, HelpCircle } from 'lucide-react';
 
 interface ScreeningTilesProps {
   record: ScreeningRecord;
 }
-
 type TileStatus = 'pass' | 'fail' | 'na';
 
 interface TileData {
@@ -52,9 +52,9 @@ export function ScreeningTiles({ record }: ScreeningTilesProps) {
   // Use new data contract fields with fallbacks to legacy fields
   const debtRatioDisplay = parseClientRatio(record.debt_ratio_pct ?? record.client_numbers_debt_ratio_pct);
   const cashInvRatioDisplay = parseClientRatio(record.cash_inv_ratio_pct ?? record.client_numbers_cashinv_ratio_pct);
-  // Use est_purification_pct_point as primary source for NPIN
-  const npinRatioDisplay = parseClientRatio(record.est_purification_pct_point ?? record.npin_ratio_pct ?? record.client_numbers_npin_ratio_pct);
-
+  // Use getHaramPct which sums donut segments, then falls back to est_purification_pct_point
+  const npinFromSegments = getHaramPct(record);
+  const npinRatioDisplay = parseClientRatio(npinFromSegments ?? record.npin_ratio_pct ?? record.client_numbers_npin_ratio_pct);
   // Estimated NPIN - use est_purification_pct_recommended field
   const getEstimatedNpinDisplay = (): string => {
     // Primary: use est_purification_pct_recommended from CSV
