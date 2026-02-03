@@ -11,6 +11,7 @@ interface AuthContextType {
   role: AppRole;
   accessTier: AccessTier;
   loading: boolean;
+  roleLoading: boolean; // New: tracks role fetch specifically
   disclaimerAccepted: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
@@ -30,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [accessTier, setAccessTier] = useState<AccessTier>(null);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [roleLoading, setRoleLoading] = useState(true); // New state
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -40,15 +42,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // Defer role fetching with setTimeout to prevent deadlock
         if (session?.user) {
+          setRoleLoading(true); // Start role loading
           setTimeout(() => {
-            fetchUserRole(session.user.id);
-            fetchAccessTier(session.user.id);
-            fetchDisclaimerStatus(session.user.id);
+            Promise.all([
+              fetchUserRole(session.user.id),
+              fetchAccessTier(session.user.id),
+              fetchDisclaimerStatus(session.user.id),
+            ]).finally(() => {
+              setRoleLoading(false); // Role loading complete
+            });
           }, 0);
         } else {
           setRole(null);
           setAccessTier(null);
           setDisclaimerAccepted(false);
+          setRoleLoading(false);
         }
       }
     );
@@ -58,11 +66,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchUserRole(session.user.id);
-        fetchAccessTier(session.user.id);
-        fetchDisclaimerStatus(session.user.id);
+        setRoleLoading(true);
+        Promise.all([
+          fetchUserRole(session.user.id),
+          fetchAccessTier(session.user.id),
+          fetchDisclaimerStatus(session.user.id),
+        ]).finally(() => {
+          setRoleLoading(false);
+          setLoading(false);
+        });
+      } else {
+        setRoleLoading(false);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -167,6 +183,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role,
         accessTier,
         loading,
+        roleLoading, // Expose new state
         disclaimerAccepted,
         signIn,
         signUp,

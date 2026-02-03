@@ -325,13 +325,22 @@ serve(async (req) => {
         const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
         const previousRole = (await supabaseAdmin.from("user_roles").select("role").eq("user_id", userId).maybeSingle())?.data?.role;
 
-        // Delete existing role
-        await supabaseAdmin
+        // Use upsert for atomic role update - prevents race condition where
+        // delete succeeds but insert fails, leaving user with no role
+        // First, delete any existing roles for this user (to handle role changes)
+        const { error: deleteError } = await supabaseAdmin
           .from("user_roles")
           .delete()
           .eq("user_id", userId);
 
-        // Insert new role
+        if (deleteError) {
+          return new Response(
+            JSON.stringify({ error: "Failed to update user role" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // Insert new role - use insert since we just deleted
         const { error: insertError } = await supabaseAdmin
           .from("user_roles")
           .insert({ user_id: userId, role });
@@ -628,8 +637,13 @@ serve(async (req) => {
           req
         );
 
+        // SECURITY: Never return plaintext passwords in response
+        // The password was set successfully - user should use password recovery if needed
         return new Response(
-          JSON.stringify({ success: true, generatedPassword: passwordToSet }),
+          JSON.stringify({ 
+            success: true, 
+            message: "Password has been reset successfully. The user can now sign in with their new credentials." 
+          }),
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }

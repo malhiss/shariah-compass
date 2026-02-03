@@ -44,10 +44,29 @@ function parseBoolean(value: string | undefined): boolean {
 
 function parseNumber(value: string | undefined): number | null {
   if (!value || value.trim() === '') return null;
-  // Remove currency formatting like "$404,487.0m" -> 404487.0
-  const cleaned = value.replace(/[$,m%]/gi, '').replace(/\(.*?\)/g, '').trim();
+  
+  let cleaned = value.trim();
+  
+  // Handle parentheses-as-negative financial notation: (123.45) => -123.45
+  const isNegative = cleaned.startsWith('(') && cleaned.endsWith(')');
+  if (isNegative) {
+    cleaned = cleaned.slice(1, -1); // Remove parentheses
+  }
+  
+  // Remove currency symbols, commas, and "m" suffix (for millions)
+  cleaned = cleaned.replace(/[$€£¥,]/g, '').replace(/m$/i, '').trim();
+  
+  // Handle percentage - if it ends with %, remove and optionally normalize
+  const isPercentage = cleaned.endsWith('%');
+  if (isPercentage) {
+    cleaned = cleaned.slice(0, -1).trim();
+  }
+  
   const num = parseFloat(cleaned);
-  return isNaN(num) ? null : num;
+  if (isNaN(num)) return null;
+  
+  // Apply negative sign if parentheses were detected
+  return isNegative ? -num : num;
 }
 
 function parseString(value: string | undefined): string | null {
@@ -467,8 +486,9 @@ export async function loadScreeningDataForUniverse(universe: DataUniverse): Prom
   loadingPromiseByUniverse[universe] = (async () => {
     try {
       const csvPath = CSV_PATHS[universe];
-      // Add cache-busting timestamp to prevent browser caching
-      const response = await fetch(`${csvPath}?t=${Date.now()}`);
+      // Use normal fetch - caching is handled by server headers in public/_headers
+      // Browser will use Cache-Control headers for efficient caching
+      const response = await fetch(csvPath);
       if (!response.ok) {
         // Error logged for debugging - no sensitive data exposed
         return [];

@@ -1,73 +1,126 @@
-# Welcome to your Lovable project
+# Dalil Shariah Screening Platform
 
-## Project info
+A comprehensive Shariah compliance screening platform for Islamic investment analysis.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Features
 
-## How can I edit this code?
+- **Shariah Screening Dashboard**: View and filter stocks by compliance status
+- **Ticker Screening**: Individual stock screening with detailed analysis
+- **Portfolio Screening**: Bulk screening for portfolio compliance
+- **AI Chat**: Ask questions about Shariah compliance
+- **Staff Portal**: Admin tools for user management and access control
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui
+- **Backend**: Supabase (PostgreSQL, Auth, Edge Functions)
+- **State**: TanStack Query
+- **Routing**: React Router v6
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js 18+ or Bun
+- A Lovable Cloud project (provides Supabase backend automatically)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Environment Setup
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
 
-Follow these steps:
+2. Fill in your Supabase credentials (auto-populated by Lovable Cloud):
+   - `VITE_SUPABASE_PROJECT_ID`
+   - `VITE_SUPABASE_PUBLISHABLE_KEY`
+   - `VITE_SUPABASE_URL`
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3. Optional: Set `VITE_SITE_URL` for canonical URL generation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Installation
 
-# Step 3: Install the necessary dependencies.
-npm i
+```bash
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
+
+# Type checking
+npm run typecheck
+
+# Run tests
+npm run test
+
+# Build for production
+npm run build
 ```
 
-**Edit a file directly in GitHub**
+## Project Structure
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+├── public/
+│   ├── data/              # CSV screening data files
+│   └── _headers           # Security headers (CSP, etc.)
+├── src/
+│   ├── components/        # React components
+│   ├── hooks/             # Custom React hooks
+│   ├── lib/               # Utilities and data loaders
+│   ├── pages/             # Route pages
+│   └── integrations/      # Supabase client (auto-generated)
+└── supabase/
+    └── functions/         # Edge functions (Deno)
+```
 
-**Use GitHub Codespaces**
+## Edge Functions
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+The following edge functions handle backend logic:
 
-## What technologies are used for this project?
+- `auto-login` - One-click login via secure tokens
+- `manage-users` - Staff user management operations
+- `shariah-dashboard` - Dashboard data API
+- `ticker-screening` - Individual ticker analysis
+- `portfolio-screening` - Bulk portfolio analysis
+- `ai-chat` - AI-powered Q&A
 
-This project is built with:
+### Local Development
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Edge functions are automatically deployed when code changes. To test locally:
 
-## How can I deploy this project?
+```bash
+# Functions deploy automatically via Lovable
+# Test via the preview URL
+```
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## Security Notes
 
-## Can I connect a custom domain to my Lovable project?
+- **CSP**: Content Security Policy is enforced via `public/_headers`
+- **RLS**: Row-Level Security policies protect all database tables
+- **Rate Limiting**: Auto-login endpoint has IP-based rate limiting
+- **Secrets**: Never commit `.env` files. Use `.env.example` as a template.
+- **Token Storage**: Sessions use localStorage (XSS mitigated via CSP)
 
-Yes, you can!
+> ⚠️ If any secrets were ever committed to this repository, rotate them immediately.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Data Updates
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Screening data is loaded from CSV files in `public/data/`:
+- `shariah-screening.csv` - Global screening data
+- `gcc-screening.csv` - GCC region data
+
+To update data:
+1. Replace the CSV file with updated data
+2. The new data will be cached for 1 hour (see `_headers`)
+3. Users can hard-refresh to get latest data immediately
+
+## Deployment
+
+Deploy via Lovable:
+1. Push changes to the repository
+2. Lovable automatically builds and deploys
+3. Edge functions are deployed automatically
+
+## License
+
+Proprietary - Dalil
