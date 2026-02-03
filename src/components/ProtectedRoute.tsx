@@ -11,10 +11,12 @@ interface ProtectedRouteProps {
 const DEMO_ALLOWED_ROUTES = ['/shariah-dashboard', '/dashboard'];
 
 export function ProtectedRoute({ children, requireRole = 'any', allowDemo = true }: ProtectedRouteProps) {
-  const { user, role, loading, isDemoUser } = useAuth();
+  const { user, role, loading, roleLoading, isDemoUser } = useAuth();
   const location = useLocation();
 
-  if (loading) {
+  // Wait for both auth AND role to be loaded before making decisions
+  // This prevents the "Access Pending" flicker for authorized users
+  if (loading || roleLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
