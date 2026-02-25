@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 import { getCorsHeaders, handleCorsOptions } from "../_shared/cors.ts";
 
 interface FeedbackNotificationRequest {
@@ -8,11 +9,34 @@ interface FeedbackNotificationRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  // Get CORS headers for this request (origin-restricted)
   const corsHeaders = getCorsHeaders(req);
-  
+
   if (req.method === "OPTIONS") {
     return handleCorsOptions(req);
+  }
+
+  // Authenticate the request
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(
+      JSON.stringify({ error: "Unauthorized" }),
+      { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: authHeader } } }
+  );
+
+  const token = authHeader.replace("Bearer ", "");
+  const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+  if (claimsError || !claimsData?.claims) {
+    return new Response(
+      JSON.stringify({ error: "Unauthorized" }),
+      { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
   }
 
   try {
@@ -28,7 +52,15 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Missing required fields: userEmail and message");
     }
 
-    const adminEmails = ["sultan.m@invesense.com", "sultanmalhis01@gmail.com", "m.bilal@invesense.com"];
+    // Load staff notification emails from environment secret
+    const staffEmailsEnv = Deno.env.get("STAFF_NOTIFICATION_EMAILS");
+    const adminEmails = staffEmailsEnv
+      ? staffEmailsEnv.split(",").map((e: string) => e.trim()).filter(Boolean)
+      : [];
+
+    if (adminEmails.length === 0) {
+      throw new Error("No staff notification emails configured");
+    }
 
     const emailResponse = await resend.emails.send({
       from: "Dalil Platform <noreply@dalil.me>",
@@ -79,14 +111,11 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("Feedback notification email sent:", emailResponse);
-
     return new Response(JSON.stringify({ success: true, data: emailResponse }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: unknown) {
-    console.error("Error sending feedback notification:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return new Response(
       JSON.stringify({ success: false, error: errorMessage }),

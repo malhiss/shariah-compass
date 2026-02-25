@@ -17,3 +17,9 @@ verify_jwt = true
 
 [functions.manage-users]
 verify_jwt = true
+
+[functions.notify-access-request]
+verify_jwt = false
+
+[functions.notify-feedback]
+verify_jwt = false
