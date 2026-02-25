@@ -24,6 +24,8 @@ import ShariahDashboard from "./pages/ShariahDashboard";
 import RecordDetail from "./pages/RecordDetail";
 import Memos from "./pages/Memos";
 import MemoDetail from "./pages/MemoDetail";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +47,8 @@ const App = () => (
               <Route path="/client-login" element={<ClientLogin />} />
               <Route path="/staff-login" element={<StaffLogin />} />
               <Route path="/setup" element={<SetupStaff />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
 
               {/* Protected routes with Layout (sidebar + header) */}
               <Route element={<Layout />}>
