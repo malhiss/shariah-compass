@@ -9,9 +9,6 @@ verify_jwt = true
 [functions.ticker-screening]
 verify_jwt = true
 
-[functions.portfolio-screening]
-verify_jwt = true
-
 [functions.ai-chat]
 verify_jwt = true
 

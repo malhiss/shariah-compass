@@ -8,6 +8,12 @@ import { AnimatedSection, StaggerContainer, StaggerItem } from '@/components/Ani
 import { motion } from 'framer-motion';
 import { GradientText } from '@/components/landing/GradientText';
 
+import ahmedAli from '@/assets/team/ahmed-ali.png';
+import faisalAlOsaimi from '@/assets/team/faisal-al-osaimi.png';
+import ibrahimAlShaibani from '@/assets/team/ibrahim-al-shaibani.png';
+import mathewsBAbraham from '@/assets/team/mathews-b-abraham.png';
+import nawafAlMansour from '@/assets/team/nawaf-al-mansour.png';
+
 const firmValues = [
   {
     icon: Shield,
@@ -38,6 +44,14 @@ const investingApproach = [
   { icon: Globe, title: 'Global', description: 'All strategies are globally oriented.' },
   { icon: Target, title: 'Portfolio Design', description: 'Systematic, diversified approach for consistent returns.' },
   { icon: DollarSign, title: 'Cost Conscious', description: 'Cost-conscious fees for higher net returns.' },
+];
+
+const teamMembers = [
+  { name: 'Nawaf Al-Mansour', title: 'Chief Executive Officer', image: nawafAlMansour },
+  { name: 'Faisal Al-Osaimi', title: 'Chief Investment Officer', image: faisalAlOsaimi },
+  { name: 'Ibrahim Al-Shaibani', title: 'Head of Shariah Advisory', image: ibrahimAlShaibani },
+  { name: 'Ahmed Ali', title: 'Head of Research', image: ahmedAli },
+  { name: 'Mathews B. Abraham', title: 'Head of Operations', image: mathewsBAbraham },
 ];
 
 const screeningApproach = [
@@ -246,6 +260,46 @@ export default function About() {
                 <p className="text-sm text-muted-foreground flex-1">Not permissible due to core business or excessive impure income.</p>
               </motion.div>
             </StaggerItem>
+          </StaggerContainer>
+        </div>
+      </section>
+
+      {/* Leadership Section */}
+      <section id="leadership" className="py-20 lg:py-28">
+        <div className="container px-4 sm:px-6">
+          <AnimatedSection className="text-center mb-16">
+            <p className="section-label">Our Team</p>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold mb-6">
+              <GradientText>Leadership</GradientText>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Experienced professionals driving innovation in Shariah-compliant investing.
+            </p>
+          </AnimatedSection>
+
+          <StaggerContainer className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-6xl mx-auto">
+            {teamMembers.map((member) => (
+              <StaggerItem key={member.name} className="h-full">
+                <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }} className="h-full">
+                  <Card className="h-full group hover:border-primary/40 overflow-hidden">
+                    <CardContent className="p-0 flex flex-col h-full">
+                      <div className="aspect-[3/4] overflow-hidden bg-muted">
+                        <img 
+                          src={member.image} 
+                          alt={member.name}
+                          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                      </div>
+                      <div className="p-4 text-center">
+                        <h3 className="font-semibold text-sm">{member.name}</h3>
+                        <p className="text-xs text-muted-foreground mt-1">{member.title}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </StaggerItem>
+            ))}
           </StaggerContainer>
         </div>
       </section>

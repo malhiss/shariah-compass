@@ -21,7 +21,20 @@ async function callEdgeFunction<T>(
   });
 
   if (error) {
-    throw new Error(`API Error: ${error.message}`);
+    // Handle session expiration / auth errors
+    const message = error.message || '';
+    if (
+      message.includes('401') ||
+      message.includes('Unauthorized') ||
+      message.includes('JWT') ||
+      message.includes('token')
+    ) {
+      // Sign out and redirect to login
+      await supabase.auth.signOut();
+      window.location.href = '/client-login?expired=true';
+      throw new Error('Session expired. Please sign in again.');
+    }
+    throw new Error(`API Error: ${message}`);
   }
 
   return data as T;
