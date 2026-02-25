@@ -1,21 +1,16 @@
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { DisclaimerGate } from './DisclaimerGate';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireRole?: 'client' | 'staff' | 'any';
-  allowDemo?: boolean;
 }
 
-// Routes that demo users can access
-const DEMO_ALLOWED_ROUTES = ['/shariah-dashboard', '/dashboard'];
-
-export function ProtectedRoute({ children, requireRole = 'any', allowDemo = true }: ProtectedRouteProps) {
-  const { user, role, loading, roleLoading, isDemoUser } = useAuth();
-  const location = useLocation();
+export function ProtectedRoute({ children, requireRole = 'any' }: ProtectedRouteProps) {
+  const { user, role, loading, roleLoading, disclaimerAccepted, refreshDisclaimerStatus } = useAuth();
 
   // Wait for both auth AND role to be loaded before making decisions
-  // This prevents the "Access Pending" flicker for authorized users
   if (loading || roleLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -30,7 +25,6 @@ export function ProtectedRoute({ children, requireRole = 'any', allowDemo = true
 
   // If requireRole is 'any', just check that user is authenticated
   if (requireRole === 'any') {
-    // Still need to have either client or staff role
     if (!role) {
       return (
         <div className="min-h-screen flex items-center justify-center p-4">
@@ -51,19 +45,14 @@ export function ProtectedRoute({ children, requireRole = 'any', allowDemo = true
       );
     }
 
-    // Check demo user restrictions
-    if (isDemoUser && !allowDemo) {
-      return <Navigate to="/shariah-dashboard" replace />;
-    }
-
-    // Check if demo user is trying to access restricted routes
-    if (isDemoUser) {
-      const isAllowedRoute = DEMO_ALLOWED_ROUTES.some(route => 
-        location.pathname === route || location.pathname.startsWith(route + '/')
+    // Show disclaimer gate if not yet accepted
+    if (!disclaimerAccepted) {
+      return (
+        <DisclaimerGate 
+          userId={user.id} 
+          onAccepted={() => refreshDisclaimerStatus()} 
+        />
       );
-      if (!isAllowedRoute) {
-        return <Navigate to="/shariah-dashboard" replace />;
-      }
     }
 
     return <>{children}</>;
@@ -74,9 +63,14 @@ export function ProtectedRoute({ children, requireRole = 'any', allowDemo = true
     return <Navigate to="/" replace />;
   }
 
-  // Check demo restrictions for specific roles too
-  if (isDemoUser && !allowDemo) {
-    return <Navigate to="/shariah-dashboard" replace />;
+  // Show disclaimer gate if not yet accepted
+  if (!disclaimerAccepted) {
+    return (
+      <DisclaimerGate 
+        userId={user.id} 
+        onAccepted={() => refreshDisclaimerStatus()} 
+      />
+    );
   }
 
   return <>{children}</>;

@@ -195,7 +195,7 @@ export default function SetupStaff() {
                 )}
               </div>
               
-              <Button type="submit" className="w-full btn-invesense" disabled={isLoading}>
+              <Button type="submit" className="w-full btn-dalil" disabled={isLoading}>
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
                 ) : (

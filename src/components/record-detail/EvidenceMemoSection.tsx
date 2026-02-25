@@ -42,7 +42,7 @@ export function EvidenceMemoSection({ record }: EvidenceMemoSectionProps) {
           </div>
           {memoUrl && (
             <a href={memoUrl} target="_blank" rel="noopener noreferrer">
-              <Button size="sm" className="btn-invesense">
+              <Button size="sm" className="btn-dalil">
                 <ExternalLink className="w-4 h-4 mr-2" />
                 Open Memo
               </Button>

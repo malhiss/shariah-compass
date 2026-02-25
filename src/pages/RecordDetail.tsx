@@ -63,7 +63,7 @@ export default function RecordDetail() {
               <p className="text-muted-foreground mb-4">
                 {error instanceof Error ? error.message : 'An unexpected error occurred'}
               </p>
-              <Button onClick={() => refetch()} className="btn-invesense">
+              <Button onClick={() => refetch()} className="btn-dalil">
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Retry
               </Button>

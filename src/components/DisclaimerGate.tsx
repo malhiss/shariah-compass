@@ -106,7 +106,7 @@ export function DisclaimerGate({ userId, onAccepted }: DisclaimerGateProps) {
               4. Shariah Compliance Disclaimer
             </h2>
             <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
-              Shariah screening results reflect our interpretation based on the Invesense methodology. Different scholars, boards, or institutions may arrive at different conclusions. The final determination of Shariah compliance remains the responsibility of the user and their chosen religious authority.
+              Shariah screening results reflect our interpretation based on the Dalil methodology. Different scholars, boards, or institutions may arrive at different conclusions. The final determination of Shariah compliance remains the responsibility of the user and their chosen religious authority.
             </p>
           </div>
 
@@ -117,16 +117,6 @@ export function DisclaimerGate({ userId, onAccepted }: DisclaimerGateProps) {
             </h2>
             <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
               All investments involve risk, including the potential loss of principal. Past performance is not indicative of future results.
-            </p>
-          </div>
-
-          {/* Section 6 */}
-          <div className="space-y-1.5 sm:space-y-2">
-            <h2 className="text-base sm:text-lg font-semibold text-foreground">
-              6. Demonstration Environment
-            </h2>
-            <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
-              This platform may operate in a demonstration or testing environment. Information displayed may be illustrative and may not reflect real-time or current market conditions.
             </p>
           </div>
         </div>
