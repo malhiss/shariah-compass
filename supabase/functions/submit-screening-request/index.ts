@@ -23,7 +23,7 @@ import { getCorsHeaders, handleCorsOptions } from "../_shared/cors.ts";
 // Input validation
 const TICKER_REGEX = /^[A-Z0-9.]{1,20}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const VALID_METHODOLOGIES = ['invesense', 'aaoifi', 'custom'];
+const VALID_METHODOLOGIES = ['dalil', 'invesense', 'aaoifi', 'custom'];
 
 function validateTicker(ticker: string): boolean {
   if (typeof ticker !== 'string') return false;
@@ -108,8 +108,8 @@ serve(async (req) => {
 
     // Validate methodology if provided
     const safeMethodology = methodology && typeof methodology === 'string' 
-      ? (VALID_METHODOLOGIES.includes(methodology.toLowerCase()) ? methodology.toLowerCase() : 'invesense')
-      : 'invesense';
+      ? (VALID_METHODOLOGIES.includes(methodology.toLowerCase()) ? methodology.toLowerCase() : 'dalil')
+      : 'dalil';
 
     const normalizedTicker = ticker.trim().toUpperCase();
 

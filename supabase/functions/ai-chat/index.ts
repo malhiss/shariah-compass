@@ -60,6 +60,34 @@ async function verifyAuth(req: Request): Promise<{ userId: string; email: string
   return { userId: user.id, email: user.email || null };
 }
 
+// Helper to log activity
+async function logActivity(
+  userId: string,
+  userEmail: string | null,
+  activityType: string,
+  description: string,
+  metadata: Record<string, unknown> = {},
+  req?: Request
+) {
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+    await supabaseAdmin.from("activity_logs").insert({
+      user_id: userId,
+      user_email: userEmail,
+      activity_type: activityType,
+      description,
+      metadata,
+      ip_address: req?.headers.get("x-forwarded-for") || req?.headers.get("x-real-ip") || null,
+      user_agent: req?.headers.get("user-agent") || null,
+    });
+  } catch {
+    // Silent fail - logging should not break the main flow
+  }
+}
+
 serve(async (req) => {
   // Get CORS headers for this request (origin-restricted)
   const corsHeaders = getCorsHeaders(req);
@@ -213,6 +241,16 @@ Guidelines for your responses:
 
     const aiData = await aiResponse.json();
     const assistantMessage = aiData.choices?.[0]?.message?.content || 'I apologize, but I was unable to generate a response. Please try again.';
+
+    // Log the AI chat activity
+    await logActivity(
+      authUser.userId,
+      authUser.email,
+      "ai_chat",
+      `AI chat about ${normalizedTicker}`,
+      { ticker: normalizedTicker, messages_count: sanitizedMessages.length },
+      req
+    );
 
     return new Response(
       JSON.stringify({
