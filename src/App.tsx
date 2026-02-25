@@ -114,19 +114,11 @@ const App = () => (
                 />
                 <Route 
                   path="/memos" 
-                  element={
-                    <ProtectedRoute>
-                      <Memos />
-                    </ProtectedRoute>
-                  } 
+                  element={<Navigate to="/dashboard" replace />} 
                 />
                 <Route 
                   path="/memos/:id" 
-                  element={
-                    <ProtectedRoute>
-                      <MemoDetail />
-                    </ProtectedRoute>
-                  } 
+                  element={<Navigate to="/dashboard" replace />} 
                 />
                 <Route 
                   path="/staff-portal" 

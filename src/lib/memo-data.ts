@@ -3,6 +3,7 @@ import { Memo } from "@/types/memo";
 export const sampleMemos: Memo[] = [
   {
     id: "memo-001",
+    ticker: "AAPL",
     title: "Shariah Compliance Review: AAPL",
     date: "2025-01-15",
     author: "Dr. Ahmed Al-Rashid",
@@ -129,6 +130,10 @@ For questions, contact the Shariah Advisory team.`
 
 export function getMemoById(id: string): Memo | undefined {
   return sampleMemos.find(memo => memo.id === id);
+}
+
+export function getMemosByTicker(ticker: string): Memo[] {
+  return sampleMemos.filter(memo => memo.ticker?.toUpperCase() === ticker.toUpperCase());
 }
 
 export function getAllMemos(): Memo[] {

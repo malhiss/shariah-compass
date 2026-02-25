@@ -43,7 +43,6 @@ const sidebarNavItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/portfolio', label: 'Dividends Purification', icon: Briefcase },
   { path: '/request', label: 'Request Screening', icon: FileQuestion },
-  { path: '/memos', label: 'Memos', icon: LayoutDashboard },
   { path: '/chat', label: 'AI Chat', icon: MessageSquare },
   { path: '/my-activity', label: 'My Activity', icon: Activity },
 ];
@@ -61,7 +60,6 @@ const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
   '/portfolio': 'Dividends Purification',
   '/request': 'Request Screening',
-  '/memos': 'Memos',
   '/chat': 'AI Chat',
   '/my-activity': 'My Activity',
   '/screen': 'Ticker Screening',
