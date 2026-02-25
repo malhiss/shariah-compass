@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion';
+import { useMemo } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Particle {
   id: number;
@@ -21,30 +22,23 @@ const generateParticles = (count: number): Particle[] => {
 };
 
 export function FloatingParticles({ count = 20 }: { count?: number }) {
-  const particles = generateParticles(count);
+  const isMobile = useIsMobile();
+  const particleCount = isMobile ? Math.min(count, 8) : count;
+  const particles = useMemo(() => generateParticles(particleCount), [particleCount]);
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {particles.map((particle) => (
-        <motion.div
+        <div
           key={particle.id}
-          className="absolute rounded-full bg-primary/20"
+          className="absolute rounded-full bg-primary/20 animate-float-particle"
           style={{
             width: particle.size,
             height: particle.size,
             left: `${particle.x}%`,
             top: `${particle.y}%`,
-          }}
-          animate={{
-            y: [0, -30, 0],
-            x: [0, 15, 0],
-            opacity: [0.2, 0.5, 0.2],
-          }}
-          transition={{
-            duration: particle.duration,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: particle.delay,
+            animationDuration: `${particle.duration}s`,
+            animationDelay: `${particle.delay}s`,
           }}
         />
       ))}
