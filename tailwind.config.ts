@@ -205,6 +205,10 @@ export default {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
+        "float-particle": {
+          "0%, 100%": { transform: "translate(0, 0)", opacity: "0.2" },
+          "50%": { transform: "translate(15px, -30px)", opacity: "0.5" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.25s ease-out",
@@ -219,6 +223,7 @@ export default {
         "float": "float 6s ease-in-out infinite",
         "scale-in": "scale-in 0.3s ease-out forwards",
         "shimmer": "shimmer 2s linear infinite",
+        "float-particle": "float-particle 15s ease-in-out infinite",
       },
     },
   },

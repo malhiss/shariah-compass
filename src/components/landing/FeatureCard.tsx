@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { LucideIcon, ArrowRight, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface FeatureCardProps {
   icon: LucideIcon;
@@ -24,6 +25,7 @@ export function FeatureCard({
   featured = false,
   comingSoon = false
 }: FeatureCardProps) {
+  const isMobile = useIsMobile();
   const cardContent = (
     <div className={cn(
       `relative h-full bg-gradient-to-br ${gradient} border border-border rounded-2xl overflow-hidden transition-all duration-300`,
@@ -103,6 +105,24 @@ export function FeatureCard({
     </div>
   );
 
+  const linkOrDiv = comingSoon ? (
+    <div className="block h-full cursor-default">
+      {cardContent}
+    </div>
+  ) : (
+    <Link to={path} className="group block h-full">
+      {cardContent}
+    </Link>
+  );
+
+  if (isMobile) {
+    return (
+      <div className={cn("h-full", featured && "md:col-span-2")}>
+        {linkOrDiv}
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -111,15 +131,7 @@ export function FeatureCard({
       transition={{ duration: 0.5, delay }}
       className={cn("h-full", featured && "md:col-span-2")}
     >
-      {comingSoon ? (
-        <div className="block h-full cursor-default">
-          {cardContent}
-        </div>
-      ) : (
-        <Link to={path} className="group block h-full">
-          {cardContent}
-        </Link>
-      )}
+      {linkOrDiv}
     </motion.div>
   );
 }
