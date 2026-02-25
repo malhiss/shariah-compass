@@ -366,7 +366,7 @@ export default function StaffPortal() {
             {activeTab === 'users' && (
               <Dialog open={isCreateDialogOpen} onOpenChange={(open) => !open && closeCreateDialog()}>
                 <DialogTrigger asChild>
-                  <Button className="btn-invesense" size="default" onClick={() => setIsCreateDialogOpen(true)}>
+                  <Button className="btn-dalil" size="default" onClick={() => setIsCreateDialogOpen(true)}>
                     <UserPlus className="w-4 h-4 mr-2" />
                     Create New User
                   </Button>
@@ -510,7 +510,7 @@ export default function StaffPortal() {
 
                   <DialogFooter>
                     {generatedCredentials ? (
-                      <Button onClick={closeCreateDialog} className="btn-invesense">
+                      <Button onClick={closeCreateDialog} className="btn-dalil">
                         Done
                       </Button>
                     ) : (
@@ -518,7 +518,7 @@ export default function StaffPortal() {
                         <Button variant="outline" onClick={closeCreateDialog}>
                           Cancel
                         </Button>
-                        <Button onClick={handleCreateUser} disabled={isSubmitting} className="btn-invesense">
+                        <Button onClick={handleCreateUser} disabled={isSubmitting} className="btn-dalil">
                           {isSubmitting ? (
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
                           ) : (
@@ -839,7 +839,7 @@ export default function StaffPortal() {
               <Button variant="outline" onClick={() => setIsResetPasswordDialogOpen(false)} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button onClick={handleResetPassword} disabled={isSubmitting} className="btn-invesense w-full sm:w-auto">
+              <Button onClick={handleResetPassword} disabled={isSubmitting} className="btn-dalil w-full sm:w-auto">
                 {isSubmitting ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
                 ) : (

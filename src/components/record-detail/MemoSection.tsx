@@ -46,7 +46,7 @@ export function MemoSection({ record }: MemoSectionProps) {
 
           {memoUrl && (
             <a href={memoUrl} target="_blank" rel="noopener noreferrer">
-              <Button className="btn-invesense">
+              <Button className="btn-dalil">
                 <ExternalLink className="w-4 h-4 mr-2" />
                 Open Google Doc
               </Button>

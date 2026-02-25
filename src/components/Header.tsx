@@ -9,9 +9,7 @@ import {
   UserCog, 
   ChevronDown,
   Search,
-  Bell,
   User,
-  Settings,
   Shield,
   LayoutDashboard,
   Briefcase,
@@ -42,7 +40,7 @@ import {
 import { HelpSupportDialog } from './HelpSupportDialog';
 
 const sidebarNavItems = [
-  { path: '/shariah-dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/portfolio', label: 'Dividends Purification', icon: Briefcase },
   { path: '/request', label: 'Request Screening', icon: FileQuestion },
   { path: '/chat', label: 'AI Chat', icon: MessageSquare },
@@ -59,7 +57,7 @@ const aboutSections = [
 
 // Page titles for breadcrumb display
 const pageTitles: Record<string, string> = {
-  '/shariah-dashboard': 'Dashboard',
+  '/dashboard': 'Dashboard',
   '/portfolio': 'Dividends Purification',
   '/request': 'Request Screening',
   '/chat': 'AI Chat',
@@ -191,14 +189,12 @@ export function Header() {
           {/* Utility icons for logged in users */}
           {user && (
             <>
-              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-10 w-10">
-                <Search className="w-[18px] h-[18px]" />
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-10 w-10" asChild>
+                <Link to="/screen">
+                  <Search className="w-[18px] h-[18px]" />
+                </Link>
               </Button>
               <HelpSupportDialog />
-              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-10 w-10 relative">
-                <Bell className="w-[18px] h-[18px]" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full" />
-              </Button>
               
               <div className="w-px h-6 bg-border mx-2" />
             </>
@@ -241,10 +237,6 @@ export function Header() {
                         My Activity
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem disabled>
-                      <Settings className="w-4 h-4 mr-2" />
-                      Settings
-                    </DropdownMenuItem>
                     {isStaff && (
                       <>
                         <DropdownMenuSeparator />
@@ -277,7 +269,7 @@ export function Header() {
                       Staff
                     </Link>
                   </Button>
-                  <Button size="sm" asChild className="btn-invesense">
+                  <Button size="sm" asChild className="btn-dalil">
                     <Link to="/client-login">
                       <LogIn className="w-4 h-4 mr-2" />
                       Sign In

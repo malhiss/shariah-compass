@@ -18,7 +18,7 @@ export default function ScreeningRequest() {
     exchange: '',
     isin: '',
     email: '',
-    methodology: 'invesense',
+    methodology: 'dalil',
     useCase: '',
   });
   const [loading, setLoading] = useState(false);
@@ -90,7 +90,7 @@ export default function ScreeningRequest() {
                 </div>
                 <div className="flex justify-between items-center py-2">
                   <span className="text-sm text-muted-foreground">Methodology</span>
-                  <span className="text-sm">Invesense</span>
+                  <span className="text-sm">Dalil</span>
                 </div>
               </CardContent>
             </Card>
@@ -99,7 +99,7 @@ export default function ScreeningRequest() {
               <Button variant="outline" onClick={() => setResult(null)}>
                 Submit Another
               </Button>
-              <Button asChild className="btn-invesense group">
+              <Button asChild className="btn-dalil group">
                 <Link to="/screen">
                   Screen a Ticker
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -203,7 +203,7 @@ export default function ScreeningRequest() {
                   />
                 </div>
 
-                <Button type="submit" className="w-full btn-invesense group" disabled={loading}>
+                <Button type="submit" className="w-full btn-dalil group" disabled={loading}>
                   {loading ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />

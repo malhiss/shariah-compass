@@ -102,7 +102,7 @@ export interface ScreeningRequestInput {
   exchange?: string;
   isin?: string;
   email?: string;
-  methodology: 'invesense' | 'numeric' | 'auto_banned';
+  methodology: 'dalil' | 'invesense' | 'numeric' | 'auto_banned';
   useCase?: string;
 }
 
