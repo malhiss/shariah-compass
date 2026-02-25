@@ -13,9 +13,12 @@ import { HaramRevenueSection } from '@/components/record-detail/HaramRevenueSect
 import { ReferencesSection } from '@/components/record-detail/ReferencesSection';
 import { ClientSummaryTab } from '@/components/record-detail/ClientSummaryTab';
 import { FindingsTab } from '@/components/record-detail/FindingsTab';
+import { getMemosByTicker } from '@/lib/memo-data';
+import { MemoRenderer } from '@/components/memo/MemoRenderer';
+import { MemoKeyFields, extractKeyFields } from '@/components/memo/MemoKeyFields';
 
 import { AppSidebar } from '@/components/AppSidebar';
-import { ArrowLeft, RefreshCw, AlertTriangle, MessageSquare, BookOpen, ListChecks } from 'lucide-react';
+import { ArrowLeft, RefreshCw, AlertTriangle, MessageSquare, BookOpen, ListChecks, FileText } from 'lucide-react';
 
 export default function RecordDetail() {
   const { upsertKey } = useParams<{ upsertKey: string }>();
@@ -99,6 +102,9 @@ export default function RecordDetail() {
     );
   }
 
+  const ticker = record.ticker || '';
+  const memos = getMemosByTicker(ticker);
+
   return (
     <AppSidebar>
       <div className="p-4 sm:p-6 lg:p-8">
@@ -149,6 +155,15 @@ export default function RecordDetail() {
                 <ListChecks className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                 Findings
               </TabsTrigger>
+              {memos.length > 0 && (
+                <TabsTrigger
+                  value="memo"
+                  className="flex-1 sm:flex-none rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-3 sm:px-6 text-xs sm:text-sm"
+                >
+                  <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                  Memo
+                </TabsTrigger>
+              )}
             </TabsList>
 
             <div className="mt-4 sm:mt-6">
@@ -163,6 +178,25 @@ export default function RecordDetail() {
               <TabsContent value="findings" className="mt-0">
                 <FindingsTab record={record} />
               </TabsContent>
+
+              {memos.length > 0 && (
+                <TabsContent value="memo" className="mt-0 space-y-6">
+                  {memos.map((memo) => {
+                    const { fields, remainingContent } = extractKeyFields(memo.memoMarkdown);
+                    return (
+                      <Card key={memo.id} className="border-border/50">
+                        <CardContent className="p-4 sm:p-6">
+                          {memo.title && (
+                            <h3 className="text-lg font-serif font-semibold mb-4">{memo.title}</h3>
+                          )}
+                          <MemoKeyFields fields={fields} />
+                          <MemoRenderer content={remainingContent} />
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </TabsContent>
+              )}
             </div>
           </Tabs>
         </section>
