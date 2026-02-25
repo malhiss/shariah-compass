@@ -22,8 +22,6 @@ import SetupStaff from "./pages/SetupStaff";
 import ClientDashboard from "./pages/ClientDashboard";
 import ShariahDashboard from "./pages/ShariahDashboard";
 import RecordDetail from "./pages/RecordDetail";
-import Memos from "./pages/Memos";
-import MemoDetail from "./pages/MemoDetail";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";

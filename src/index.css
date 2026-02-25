@@ -69,7 +69,6 @@
     /* Header height */
     --header-height: 4rem;
     --header-height-lg: 72px;
-    --radius: 0.625rem;
     
     /* Sidebar - deeper for hierarchy */
     --sidebar-background: 215 28% 16%;
@@ -433,11 +432,6 @@
   
   .hover-lift:hover {
     transform: translateY(-4px);
-  }
-  
-  /* Focus visible ring */
-  .focus-ring {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
   
   /* Focus visible ring */
