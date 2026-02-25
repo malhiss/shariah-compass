@@ -310,6 +310,33 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="border-t border-border bg-card/30 py-10">
+        <div className="container px-4 sm:px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <p className="text-sm text-muted-foreground">
+              © {new Date().getFullYear()} Dalil Asset Management Limited. All rights reserved.
+            </p>
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+              <Link to="/terms" className="hover:text-foreground transition-colors">
+                Terms of Service
+              </Link>
+              <span className="w-px h-4 bg-border" />
+              <Link to="/privacy" className="hover:text-foreground transition-colors">
+                Privacy Policy
+              </Link>
+              <span className="w-px h-4 bg-border" />
+              <Link to="/about" className="hover:text-foreground transition-colors">
+                About
+              </Link>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground/60 mt-4 text-center md:text-left">
+            Regulated by the Dubai Financial Services Authority (DFSA) · Category 3C License · Ref: F002331
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
