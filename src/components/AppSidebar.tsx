@@ -9,7 +9,8 @@ import {
   Search,
   Menu,
   X,
-  HelpCircle
+  HelpCircle,
+  BookOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -20,6 +21,7 @@ const sidebarItems = [
   { path: '/screen', label: 'Screen a Ticker', icon: Search },
   { path: '/portfolio', label: 'Dividends Purification', icon: Coins },
   { path: '/request', label: 'Request Screening', icon: FileText },
+  { path: '/memos', label: 'Memos', icon: BookOpen },
   { path: '/chat', label: 'AI Chat', icon: MessageSquare },
   { path: '/my-activity', label: 'My Activity', icon: Activity },
 ];

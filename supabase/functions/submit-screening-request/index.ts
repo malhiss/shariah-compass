@@ -161,6 +161,24 @@ serve(async (req) => {
     const result = await db.collection('screening_requests').insertOne(newRequest);
     await client.close();
 
+    // Log activity
+    try {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+      await supabaseAdmin.from("activity_logs").insert({
+        user_id: authUser.userId,
+        user_email: authUser.email,
+        activity_type: "screening_request",
+        description: `Submitted screening request for ${normalizedTicker}`,
+        metadata: { ticker: normalizedTicker, methodology: safeMethodology },
+        ip_address: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || null,
+        user_agent: req.headers.get("user-agent") || null,
+      });
+    } catch {
+      // Non-critical logging failure
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
